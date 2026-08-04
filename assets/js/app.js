@@ -10,7 +10,7 @@
 
   function currentTheme() {
     if (root.dataset.theme) return root.dataset.theme;
-    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'light';
   }
 
   function updateButton() {

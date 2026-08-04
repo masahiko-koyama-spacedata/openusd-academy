@@ -40,21 +40,8 @@
       <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>このレッスンでは、Stageを「シーンの目次を開いて見るための窓」、Primを「目次に並ぶ項目」と考えます。これは理解のための比喩であり、公式用語の定義そのものではありません。</p></aside>
     </section>
 
-    <section class="lesson-section" id="diagram" aria-labelledby="diagram-title">
-      <p class="section-kicker">03 · Diagram</p>
-      <h2 id="diagram-title">波括弧の入れ子が、親子関係になる。</h2>
-      <figure class="hierarchy-figure" aria-labelledby="diagram-caption">
-        <div class="tree-stage"><span class="tree-kind">Stage</span><strong>lesson01.usda</strong></div>
-        <div class="tree-connector" aria-hidden="true"></div>
-        <div class="tree-prim"><span class="tree-kind">Prim</span><strong>World</strong><code>/World</code></div>
-        <div class="tree-connector" aria-hidden="true"></div>
-        <div class="tree-prim child"><span class="tree-kind">Child Prim</span><strong>Room</strong><code>/World/Room</code></div>
-        <figcaption id="diagram-caption">図: StageにWorld Primがあり、その内側にRoom Primがある階層。図はOpenUSD Academyによる補助表現です。</figcaption>
-      </figure>
-    </section>
-
     <section class="lesson-section" id="usda" aria-labelledby="usda-title">
-      <p class="section-kicker">04 · USDA example</p>
+      <p class="section-kicker">03 · USDA example</p>
       <h2 id="usda-title">まず、完成形をそのまま読む。</h2>
       <p>ファイル名を <code>lesson01.usda</code> とします。先頭の番号は説明用であり、実際のファイルには書きません。</p>
       <div class="code-card" aria-label="USDAコード例">
@@ -72,7 +59,7 @@
     </section>
 
     <section class="lesson-section" id="line-by-line" aria-labelledby="line-title">
-      <p class="section-kicker">05 · 一行ずつ読む</p>
+      <p class="section-kicker">04 · 一行ずつ読む</p>
       <h2 id="line-title">各行には、階層を組み立てる役割がある。</h2>
       <ol class="line-explanations">
         <li><span class="line-badge">1</span><div><h3><code>#usda 1.0</code></h3><p>このテキストがUSDA形式であることを示すヘッダーです。</p></div></li>
@@ -84,6 +71,19 @@
         <li><span class="line-badge">7</span><div><h3><code>    }</code></h3><p>右波括弧です。Room Primの内容がここで終わります。</p></div></li>
         <li><span class="line-badge">8</span><div><h3><code>}</code></h3><p>World Primの内容がここで終わります。先頭に空白がないため、4行目の左波括弧と同じ深さだと見分けられます。</p></div></li>
       </ol>
+    </section>
+
+    <section class="lesson-section" id="diagram" aria-labelledby="diagram-title">
+      <p class="section-kicker">05 · Diagram</p>
+      <h2 id="diagram-title">読み終えた構造を、上から順に組み立てる。</h2>
+      <figure class="hierarchy-figure" aria-labelledby="diagram-caption">
+        <div class="tree-stage"><span class="tree-kind">Step 1 · Stage</span><strong>lesson01.usda</strong></div>
+        <div class="tree-connector" aria-hidden="true"></div>
+        <div class="tree-prim"><span class="tree-kind">Step 2 · Prim</span><strong>World</strong><code>/World</code></div>
+        <div class="tree-connector" aria-hidden="true"></div>
+        <div class="tree-prim child"><span class="tree-kind">Step 3 · Child Prim</span><strong>Room</strong><code>/World/Room</code></div>
+        <figcaption id="diagram-caption">図: StageにWorld Primを加え、その子としてRoom Primを加えた階層。図はOpenUSD Academyによる補助表現です。</figcaption>
+      </figure>
     </section>
 
     <section class="lesson-section" id="notation" aria-labelledby="notation-title">
@@ -108,9 +108,9 @@
       </article>
     </section>
 
-    <section class="lesson-section" id="mapping" aria-labelledby="mapping-title">
-      <p class="section-kicker">13 · USDA → Python mapping</p>
-      <h2 id="mapping-title">同じStageをPythonから作る。</h2>
+    <section class="lesson-section" id="python" aria-labelledby="python-title">
+      <p class="section-kicker">13 · Python</p>
+      <h2 id="python-title">次に、同じStageをPythonから作る。</h2>
       <div class="code-card" aria-label="Pythonコード例">
         <div class="code-title"><span>create_lesson01.py</span><span>Python</span></div>
         <pre><code>from pxr import Usd
@@ -120,17 +120,23 @@ stage.DefinePrim("/World", "Xform")
 stage.DefinePrim("/World/Room", "Xform")
 stage.Save()</code></pre>
       </div>
-      <div class="table-wrap"><table><caption>USDAとPythonの対応</caption><thead><tr><th scope="col">USDA</th><th scope="col">Python</th><th scope="col">同じ意味になる部分</th></tr></thead><tbody>
-        <tr><td><code>#usda 1.0</code></td><td><code>CreateNew("lesson01.usda")</code></td><td>`.usda`の新しいStageを作ると、保存されるテキストにUSDAヘッダーが含まれます。</td></tr>
-        <tr><td><code>def Xform "World"</code></td><td><code>DefinePrim("/World", "Xform")</code></td><td>Path <code>/World</code> にXform型Primを定義します。</td></tr>
-        <tr><td><code>def Xform "Room"</code></td><td><code>DefinePrim("/World/Room", "Xform")</code></td><td>Pathに親のWorldも書き、Roomをその子として定義します。</td></tr>
-        <tr><td>ファイル全体</td><td><code>stage.Save()</code></td><td>Stageへの編集を保存します。</td></tr>
-      </tbody></table></div>
+      <p>上から順に、USDモジュールを読み込み、新しいStageを作り、Worldを定義し、その子にRoomを定義して、最後に保存します。</p>
+    </section>
+
+    <section class="lesson-section" id="mapping" aria-labelledby="mapping-title">
+      <p class="section-kicker">14 · USDA → Python mapping</p>
+      <h2 id="mapping-title">直前のPythonを、USDAへ一つずつ戻す。</h2>
+      <ol class="mapping-list" aria-label="USDAとPythonの対応">
+        <li><p class="mapping-label">USDA</p><code>#usda 1.0</code><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code>CreateNew("lesson01.usda")</code><p>`.usda`の新しいStageを作ると、保存されるテキストにUSDAヘッダーが含まれます。</p></li>
+        <li><p class="mapping-label">USDA</p><code>def Xform "World"</code><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code>DefinePrim("/World", "Xform")</code><p>Path <code>/World</code> にXform型Primを定義します。</p></li>
+        <li><p class="mapping-label">USDA</p><code>def Xform "Room"</code><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code>DefinePrim("/World/Room", "Xform")</code><p>Pathに親のWorldも書き、Roomをその子として定義します。</p></li>
+        <li><p class="mapping-label">USDA</p><span>ファイル全体</span><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code>stage.Save()</code><p>Stageへの編集を保存します。</p></li>
+      </ol>
       <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Pythonの <code>.</code> は、左側のオブジェクトや型に属する機能へ進む区切りとして読めます。<code>()</code> は丸括弧で、機能に渡す情報を内側に書きます。<code>,</code> はカンマで、PathとPrim型という2つの情報を分けます。<code>=</code> は右側で作ったStageを左側の名前<code>stage</code>に割り当てます。Pythonの引用符も半角の二重引用符です。</p></aside>
     </section>
 
     <section class="lesson-section" id="beginner-notes" aria-labelledby="notes-title">
-      <p class="section-kicker">14 · Beginner notes</p><h2 id="notes-title">最初は「形」と「位置」を分けて読む。</h2>
+      <p class="section-kicker">15 · Beginner notes</p><h2 id="notes-title">最初は「形」と「位置」を分けて読む。</h2>
       <div class="note-list">
         <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><h3>型と名前は別</h3><p><code>Xform</code>はPrimの型、<code>"World"</code>はPrimの名前です。「Xformという名前」ではありません。</p></aside>
         <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><h3>空の波括弧にも意味がある</h3><p>Roomの波括弧内にPropertyがなくても、Room Prim自体は定義されています。「何もないファイル」ではありません。</p></aside>
@@ -139,7 +145,7 @@ stage.Save()</code></pre>
     </section>
 
     <section class="lesson-section" id="mistakes" aria-labelledby="mistakes-title">
-      <p class="section-kicker">15 · Common mistakes</p><h2 id="mistakes-title">症状から、直す場所を見つける。</h2>
+      <p class="section-kicker">16 · Common mistakes</p><h2 id="mistakes-title">症状から、直す場所を見つける。</h2>
       <div class="mistake-list">
         <article><h3>引用符が全角・曲がった形</h3><p><strong>誤:</strong> <code>def Xform “World”</code></p><p><strong>直す:</strong> 半角の二重引用符で <code>def Xform "World"</code> と書きます。</p></article>
         <article><h3>右波括弧が1つ足りない</h3><p><strong>症状:</strong> RoomかWorldのどちらかが閉じていません。</p><p><strong>直す:</strong> 左波括弧2個に対して右波括弧も2個あるか、内側から順に確認します。</p></article>
@@ -149,7 +155,7 @@ stage.Save()</code></pre>
     </section>
 
     <section class="lesson-section" id="glossary" aria-labelledby="glossary-title">
-      <p class="section-kicker">16 · Glossary</p><h2 id="glossary-title">このレッスンで出会った言葉。</h2>
+      <p class="section-kicker">17 · Glossary</p><h2 id="glossary-title">このレッスンで出会った言葉。</h2>
       <dl class="lesson-glossary">
         <div><dt>OpenUSD</dt><dd>3Dシーンの記述、合成、シミュレーション、共同作業のためにPixarが開発したオープンソースのフレームワーク。</dd></div>
         <div><dt>Stage</dt><dd>合成されたシーングラフを提示し、Primの階層へアクセスする中心となるもの。</dd></div>
@@ -165,7 +171,7 @@ stage.Save()</code></pre>
     </section>
 
     <section class="lesson-section references" id="references" aria-labelledby="references-title">
-      <p class="section-kicker">17 · Official references</p><h2 id="references-title">確認した公式資料。</h2>
+      <p class="section-kicker">18 · Official references</p><h2 id="references-title">確認した公式資料。</h2>
       <p>一次情報の確認日: <time datetime="2026-08-04">2026年8月4日</time></p>
       <ul>
         <li><a href="https://docs.nvidia.com/learn-openusd/latest/what-openusd/index.html">NVIDIA Learn OpenUSD — What Is OpenUSD?</a></li>
