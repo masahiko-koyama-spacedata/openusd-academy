@@ -26,13 +26,13 @@
 
     <section class="lesson-section takeaway" id="takeaway" aria-labelledby="takeaway-title">
       <p class="section-kicker">01 · 今日これだけ</p>
-      <h2 id="takeaway-title">USDAでは、Primを入れ子にするとシーンの階層を文字で読める</h2>
+      <h2 id="takeaway-title">USDAではPrimを入れ子にするとシーンの階層を文字で読める</h2>
       <p><code>def Xform "World"</code> は、<strong>Worldという名前のXform型Primを定義する</strong>記述です。波括弧の内側に別のPrimを書くと、そのPrimは子になります。</p>
     </section>
 
     <section class="lesson-section" id="intuition" aria-labelledby="intuition-title">
       <p class="section-kicker">02 · 直感的な理解</p>
-      <h2 id="intuition-title">Stageは、シーン全体を見渡す窓</h2>
+      <h2 id="intuition-title">Stageはシーン全体を見渡す窓</h2>
       <div class="source-block official-block">
         <p class="source-label">公式情報に基づく説明</p>
         <p>NVIDIA Learn OpenUSDでは、Stageは合成されたシーングラフを提示するもの、PrimはOpenUSDシーンの構成要素と説明されています。Primは階層に整理され、各Primはシーングラフ内で位置を示すPathを持ちます。</p>
@@ -42,7 +42,7 @@
 
     <section class="lesson-section" id="usda" aria-labelledby="usda-title">
       <p class="section-kicker">03 · USDA example</p>
-      <h2 id="usda-title">まず、完成形をそのまま読む</h2>
+      <h2 id="usda-title">まず完成形をそのまま読む</h2>
       <p>ファイル名を <code>lesson01.usda</code> とします。先頭の番号は説明用であり、実際のファイルには書きません。</p>
       <div class="code-card usda-card" aria-label="USDAコード例">
         <div class="code-title"><span>lesson01.usda</span><span>USDA</span></div>
@@ -60,7 +60,7 @@
 
     <section class="lesson-section" id="line-by-line" aria-labelledby="line-title">
       <p class="section-kicker">04 · 一行ずつ読む</p>
-      <h2 id="line-title">各行には、階層を組み立てる役割がある</h2>
+      <h2 id="line-title">各行には階層を組み立てる役割がある</h2>
       <ol class="line-explanations">
         <li><span class="line-badge">1</span><div><h3><code>#usda 1.0</code></h3><p>このテキストがUSDA形式であることを示すヘッダーです。</p></div></li>
         <li><span class="line-badge">2</span><div><h3>空行</h3><p>内容はありません。人が読みやすいよう、ヘッダーとPrim定義を離しています。</p></div></li>
@@ -75,7 +75,7 @@
 
     <section class="lesson-section" id="diagram" aria-labelledby="diagram-title">
       <p class="section-kicker">05 · Diagram</p>
-      <h2 id="diagram-title">読み終えた構造を、上から順に組み立てる</h2>
+      <h2 id="diagram-title">読み終えた構造を上から順に組み立てる</h2>
       <figure class="hierarchy-figure" aria-labelledby="diagram-caption">
         <div class="tree-stage"><span class="tree-kind">Step 1 · Stage</span><strong>lesson01.usda</strong></div>
         <div class="tree-connector" aria-hidden="true"></div>
@@ -88,7 +88,7 @@
 
     <section class="lesson-section" id="notation" aria-labelledby="notation-title">
       <p class="section-kicker">06–12 · 記法を分解する</p>
-      <h2 id="notation-title">見慣れない記号を、全部ほどく</h2>
+      <h2 id="notation-title">見慣れない記号を全部ほどく</h2>
       <div class="concept-grid">
         <article><p class="concept-number">06</p><h3>インデント</h3><p>行の先頭に入れる空白です。この例では4個の空白でRoomがWorldの内側にあることを見やすくしています。</p><aside class="academy-note compact"><p class="source-label">OpenUSD Academy Note</p><p>波括弧が構造を表し、インデントは人が階層を読み取る助けになります。開始と終了を同じ深さにそろえる習慣をつけましょう。</p></aside></article>
         <article><p class="concept-number">07</p><h3>波括弧 <code>{ }</code></h3><p><code>{</code>は左波括弧、<code>}</code>は右波括弧です。左でPrimの内容を始め、対応する右で終えます。2つを合わせて一組です。</p></article>
@@ -110,7 +110,7 @@
 
     <section class="lesson-section" id="python" aria-labelledby="python-title">
       <p class="section-kicker">13 · Python</p>
-      <h2 id="python-title">次に、同じStageをPythonから作る</h2>
+      <h2 id="python-title">次に同じStageをPythonから作る</h2>
       <div class="code-card python-card" aria-label="Pythonコード例">
         <div class="code-title"><span>create_lesson01.py</span><span>Python</span></div>
         <pre><code>from pxr import Usd
@@ -125,7 +125,7 @@ stage.Save()</code></pre>
 
     <section class="lesson-section" id="mapping" aria-labelledby="mapping-title">
       <p class="section-kicker">14 · USDA → Python mapping</p>
-      <h2 id="mapping-title">直前のPythonを、USDAへ一つずつ戻す</h2>
+      <h2 id="mapping-title">直前のPythonをUSDAへ一つずつ戻す</h2>
       <ol class="mapping-list" aria-label="USDAとPythonの対応">
         <li><p class="mapping-label">USDA</p><code class="usda-code">#usda 1.0</code><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code class="python-code">CreateNew("lesson01.usda")</code><p>`.usda`の新しいStageを作ると、保存されるテキストにUSDAヘッダーが含まれます。</p></li>
         <li><p class="mapping-label">USDA</p><code>def Xform "World"</code><span class="mapping-arrow" aria-hidden="true">↓</span><p class="mapping-label">Python</p><code>DefinePrim("/World", "Xform")</code><p>Path <code>/World</code> にXform型Primを定義します。</p></li>
@@ -145,7 +145,7 @@ stage.Save()</code></pre>
     </section>
 
     <section class="lesson-section" id="mistakes" aria-labelledby="mistakes-title">
-      <p class="section-kicker">16 · Common mistakes</p><h2 id="mistakes-title">原因から、解決策を見つける</h2>
+      <p class="section-kicker">16 · Common mistakes</p><h2 id="mistakes-title">原因から解決策を見つける</h2>
       <div class="mistake-list">
         <article><h3>引用符が全角・曲がった形</h3><p><strong>誤:</strong> <code>def Xform “World”</code></p><p><strong>正:</strong> 半角の二重引用符で <code>def Xform "World"</code> と書きます。</p></article>
         <article><h3>右波括弧が1つ足りない</h3><p><strong>原因:</strong> RoomかWorldのどちらかが閉じていません。</p><p><strong>解決策:</strong> 左波括弧2個に対して右波括弧も2個あるか、内側から順に確認します。</p></article>
