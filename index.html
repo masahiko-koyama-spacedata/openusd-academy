@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="日本でいちばんわかりやすいOpenUSD学習サイトを目指す、OpenUSD Academy。">
+  <title>OpenUSD Academy</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="OpenUSD Academy ホーム">
+      <span class="brand-mark" aria-hidden="true">O</span>
+      <span>OpenUSD Academy</span>
+    </a>
+    <nav aria-label="メインナビゲーション">
+      <a href="#learning-path">学習コース</a>
+      <a href="curriculum.html">カリキュラム</a>
+      <a href="glossary.html">用語集</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false">
+      <span aria-hidden="true">◐</span><span class="theme-label">テーマ</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="eyebrow">OPENUSD, FROM ZERO</div>
+      <h1 id="hero-title">3Dの世界を、<br><span>構造から理解する。</span></h1>
+      <p>OpenUSD Academyは、日本の初学者が迷わず学べるように、USDAとPythonを一つずつ対応させて解説する学習サイトです。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#learning-path">学び方を見る</a>
+        <a class="button secondary" href="curriculum.html">全カリキュラム</a>
+      </div>
+      <p class="source-note"><strong>公式</strong> NVIDIA Learn OpenUSDを一次情報として確認します。<strong>Academy</strong> 日本語の補足、図解、つまずき対策を追加します。</p>
+    </section>
+
+    <section class="principles" aria-label="教材の特徴">
+      <article><span>01</span><h2>小さく理解</h2><p>各レッスンの「今日これだけ」で、最初にゴールを一つに絞ります。</p></article>
+      <article><span>02</span><h2>コードを対訳</h2><p>USDAとPythonを並べ、同じ操作がどう表現されるかを結びつけます。</p></article>
+      <article><span>03</span><h2>根拠を明示</h2><p>公式情報とAcademy独自の説明を分け、末尾に公式参照先を載せます。</p></article>
+    </section>
+
+    <section class="learning-path" id="learning-path" aria-labelledby="path-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">LEARNING PATH</p><h2 id="path-title">基礎から、制作パイプラインへ。</h2></div>
+        <p>公式カリキュラムの流れを尊重し、日本語の初学者向けに段階を整理しています。</p>
+      </div>
+      <ol class="path-list">
+        <li><span class="path-number">01</span><div><p class="status">準備中</p><h3>OpenUSDの全体像</h3><p>Stage、Prim、Property、Path。最初に覚える4つの概念。</p></div><span aria-hidden="true">→</span></li>
+        <li><span class="path-number">02</span><div><p class="status">計画中</p><h3>シーングラフを記述する</h3><p>USDAの読み方と、Python APIによる作成・編集。</p></div><span aria-hidden="true">→</span></li>
+        <li><span class="path-number">03</span><div><p class="status">計画中</p><h3>コンポジションを理解する</h3><p>Layer、Reference、Payload、Variantを組み合わせる。</p></div><span aria-hidden="true">→</span></li>
+      </ol>
+      <aside class="empty-state">
+        <p class="eyebrow">FIRST LESSON</p>
+        <h2>最初のレッスンを受け入れる準備ができました。</h2>
+        <p>提供されたHTMLをcanonical sourceとして <code>lessons/</code> に配置し、この一覧からリンクします。現在はインポート元のHTMLが未提供です。</p>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    <p>OpenUSD Academy <span aria-hidden="true">·</span> Learn clearly. Build confidently.</p>
+    <a href="https://docs.nvidia.com/learn-openusd/latest/index.html" rel="external">NVIDIA Learn OpenUSD ↗</a>
+  </footer>
+</body>
+</html>
