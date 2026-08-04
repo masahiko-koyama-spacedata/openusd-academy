@@ -8,3 +8,8 @@
 - `04-attributes-relationships.html` — AttributeとRelationship
 - `05-prim-property-paths.html` — Prim PathとProperty Path
 - `06-usd-file-formats.html` — USDA・USDC・USD・USDZ
+- `07-usda-syntax.html` — USDAの基本構文
+- `08-python-pxr-modules.html` — Pythonとpxrモジュール
+- `09-metadata-schemas.html` — MetadataとSchema
+- `10-xform-hierarchy.html` — Xformと階層
+- `11-time-codes-samples.html` — Time CodeとTime Sample

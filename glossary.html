@@ -15,6 +15,8 @@
       <dt>ASCII</dt><dd>文字として読めるデータ表現。USDAはASCII形式です。</dd>
       <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
       <dt>Layer（レイヤー）</dt><dd>シーン記述の一部分を保持するデータの単位です。</dd>
+      <dt>Metadata（メタデータ）</dt><dd>Prim、Property、Layerに付ける時間変化しない補助情報です。</dd>
+      <dt>Module（モジュール）</dt><dd>関連するOpenUSD APIをまとめた単位です。例: Usd、Sdf、Gf。</dd>
       <dt>Path（パス）</dt><dd>Stage内のPrimやPropertyを指す住所のような識別子です。例: <code>/World/Room</code>。</dd>
       <dt>Prim Path</dt><dd>Stage内のPrimを識別するPathです。Prim名を <code>/</code> で区切ります。</dd>
       <dt>Prim name（Prim名）</dt><dd>階層内のPrimを識別し、Pathの一部分になる名前です。例: <code>World</code>。</dd>
@@ -23,11 +25,15 @@
       <dt>Property Path</dt><dd>Prim Pathの後ろに <code>.</code> とProperty名を続けたPathです。</dd>
       <dt>Relationship（リレーションシップ）</dt><dd>別のPrimやPropertyへのつながりを表すPropertyです。</dd>
       <dt>Stage（ステージ）</dt><dd>合成されたOpenUSDシーンにアクセスする中心的なオブジェクトです。</dd>
+      <dt>Schema（スキーマ）</dt><dd>PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。</dd>
+      <dt>Time Code</dt><dd>単位を持たない時間上の位置です。</dd>
+      <dt>Time Sample</dt><dd>特定のTime Codeに記述されたAttribute値です。</dd>
       <dt>USDA</dt><dd>人が読めるテキスト形式のOpenUSDファイル表現です。</dd>
       <dt>USDC</dt><dd>圧縮されたバイナリのCrate形式です。</dd>
       <dt>USD</dt><dd>ASCIIまたはバイナリを格納できるOpenUSDファイル拡張子です。</dd>
       <dt>USDZ</dt><dd>複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージです。</dd>
       <dt>Xform（エックスフォーム）</dt><dd>移動、回転、拡大縮小などの変換データを保持し、子Primに適用できるPrim型です。</dd>
+      <dt>XformOp</dt><dd>Xformに記述される移動、回転、拡大縮小など一つの変換操作です。</dd>
       <dt>def（デフ）</dt><dd>現在のLayerでPrimを具体的に定義するSpecifierです。</dd>
       <dt>pseudo-root（疑似ルート）</dt><dd>Stage階層の出発点。Pathでは <code>/</code> で表します。</dd>
     </dl></section>

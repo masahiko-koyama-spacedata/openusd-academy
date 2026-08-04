@@ -1,0 +1,34 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 11: Time CodeとTime Sample — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body><header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header><main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 11 · AUTHORING</p><h1>Time Codeと<br><span>Time Sample</span></h1><p class="lesson-lead">時点と値の組で変化を記述します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Time Codeは時点 Time Sampleはその時点のAttribute値</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>時点と値を分ける</h2><p>Time Codeは単位を持たない時間上の位置です。Time SampleはTime CodeとAttribute値の組です。Stageの<code>timeCodesPerSecond</code>がTime Codeを秒へ対応させます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Time Codeを目盛り、Time Sampleを目盛りに置いた値として読みます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>radiusを二つの時点に書く</h2><div class="code-card usda-card"><div class="code-title"><span>time-samples.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    startTimeCode = 1
+    endTimeCode = 24
+    timeCodesPerSecond = 24
+)
+
+def Sphere "Ball"
+{
+    double radius.timeSamples = {
+        1: 1,
+        24: 2,
+    }
+}</code></pre></div><p>先頭の丸括弧はLayer Metadataです。<code>1: 1</code>はTime Code 1に値1、カンマは項目の区切りです。波括弧内に時点と値の組を書きます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>時間軸に値を置く</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Time Code 1</span><strong>radius = 1</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Time Code 24</span><strong>radius = 2</strong></div><figcaption>24 time codes per secondなら1から24は約1秒の範囲です</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Attributeへ時点ごとの値を設定する</h2><div class="code-card python-card"><div class="code-title"><span>create_samples.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("time-samples.usda")
+stage.SetStartTimeCode(1)
+stage.SetEndTimeCode(24)
+stage.SetTimeCodesPerSecond(24)
+ball = UsdGeom.Sphere.Define(stage, "/Ball")
+radius = ball.GetRadiusAttr()
+radius.Set(1, Usd.TimeCode(1))
+radius.Set(2, Usd.TimeCode(24))
+stage.Save()</code></pre></div><p><code>Set</code>の最初の引数が値、次がTime Codeです。丸括弧は入力、カンマは値と時点の区切りです。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>時点と値を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">startTimeCode = 1</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.SetStartTimeCode(1)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">1: 1</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">radius.Set(1, Usd.TimeCode(1))</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>フレーム番号と決めつけない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Time Code自体は単位を持ちません。USDAのコロンは時点と値、Pythonのカンマは引数を区切ります。インデントは所属、引用符は名前、スラッシュはPathです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Common mistakes</p><h2>値と時点の順を確認する</h2><div class="mistake-list"><article><h3>Pythonの引数を逆にする</h3><p><strong>原因:</strong> USDAの<code>時点: 値</code>とPythonの<code>Set(値, 時点)</code>は順が違います。</p><p><strong>解決策:</strong> 対応表で確認します。</p></article><article><h3>MetadataへTime Sampleを書く</h3><p><strong>原因:</strong> Metadataは時間サンプルを持ちません。</p><p><strong>解決策:</strong> Attributeへ設定します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンで出た言葉</h2><dl class="lesson-glossary"><div><dt>Time Code</dt><dd>単位を持たない時間上の位置。</dd></div><div><dt>Time Sample</dt><dd>Time CodeとAttribute値の組。</dd></div><div><dt>timeCodesPerSecond</dt><dd>Time Codeを秒へ対応させる設定。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-04">2026年8月4日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/timecodes-timesamples.html">Time Codes and Time Samples</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/properties/attributes.html">Attributes</a></li></ul></section><nav class="lesson-footer-nav"><a href="10-xform-hierarchy.html">← Lesson 10</a><a href="../curriculum.html">第2章の一覧へ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 11</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

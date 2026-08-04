@@ -20,6 +20,14 @@ Primが持つ値のあるProperty。たとえば色、サイズ、位置など�
 
 シーン記述の一部分を保持するデータの単位。複数のLayerを合成してStageを作れる。
 
+### Metadata（メタデータ）
+
+Prim、Property、Layerに付ける時間変化しない補助情報。
+
+### Module（モジュール）
+
+関連するOpenUSD APIをまとめた単位。例: Usd、Sdf、Gf。
+
 ### Path（パス）
 
 Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Room`。
@@ -52,6 +60,18 @@ Prim Pathの後ろに `.` とProperty名を続けたPath。
 
 合成されたOpenUSDシーンにアクセスするための中心的なオブジェクト。
 
+### Schema（スキーマ）
+
+PrimやPropertyの構造、意味、取得・作成APIを定める設計図。
+
+### Time Code
+
+単位を持たない時間上の位置。
+
+### Time Sample
+
+特定のTime Codeに記述されたAttribute値。
+
 ### USDA
 
 人が読めるテキスト形式のOpenUSDファイル表現。構造や値を直接確認しやすい。
@@ -71,6 +91,10 @@ ASCIIまたはバイナリを格納できるOpenUSDファイル拡張子。
 ### Xform（エックスフォーム）
 
 移動、回転、拡大縮小などの変換データを保持し、子Primに適用できるPrim型。
+
+### XformOp
+
+Xformに記述される移動、回転、拡大縮小など一つの変換操作。
 
 ### def（デフ）
 
