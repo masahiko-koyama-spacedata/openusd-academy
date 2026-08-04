@@ -1,7 +1,16 @@
 (function () {
   const root = document.documentElement;
-  const toggle = document.querySelector('[data-theme-toggle]');
-  if (!toggle) return;
+  let toggle = document.querySelector('[data-theme-toggle]');
+  if (!toggle) {
+    const header = document.querySelector('.site-header');
+    if (!header) return;
+    toggle = document.createElement('button');
+    toggle.className = 'theme-toggle';
+    toggle.type = 'button';
+    toggle.dataset.themeToggle = '';
+    toggle.innerHTML = '<span aria-hidden="true">◐</span><span class="theme-label">テーマ</span>';
+    header.appendChild(toggle);
+  }
 
   const storedTheme = localStorage.getItem('openusd-academy-theme');
   if (storedTheme === 'light' || storedTheme === 'dark') {

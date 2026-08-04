@@ -21,26 +21,14 @@
 
 ## 3. コンポジション
 
-- LayerとLayer Stack
-- Sublayer
-- ReferenceとPayload
-- Variant Set
-- Inherits、Specializes、強度順序
+- **Lesson 12:** [コンポジションを一本につなぐ](lessons/12-composition.html) — Layer、Sublayer、Reference、Payload、Variant、Inherits、Specializes、LIVERPS
 
 ## 4. アセット設計
 
-- Asset Structure
-- Model KindとModel Hierarchy
-- Asset Interface
-- Workstreamと集約
-- Reference/Payloadパターン
+- **Lesson 13:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Workstream、Reference/Payload Pattern
 
 ## 5. パイプライン開発
 
-- データ交換
-- GeometryとMaterialの抽出
-- 変換と検証
-- Scenegraph Instancing
-- Point Instancing
+- **Lesson 14:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、GeometryとMaterialの抽出、変換、検証、Scenegraph Instancing、Point Instancing
 
 > **Academy方針:** 各レッスンでは、公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。

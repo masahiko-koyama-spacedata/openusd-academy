@@ -16,9 +16,29 @@ Primが持つ値のあるProperty。たとえば色、サイズ、位置など�
 
 複数のシーン記述を規則に従って一つの結果へ組み立てる仕組み。
 
+### Composition Arc
+
+複数のシーン記述を組み合わせる演算子。
+
+### Instance
+
+共有するPrototypeをシーン内で繰り返し利用するもの。
+
+### Kind
+
+PrimのModel Hierarchy上の役割を示すMetadata。
+
 ### Layer（レイヤー）
 
 シーン記述の一部分を保持するデータの単位。複数のLayerを合成してStageを作れる。
+
+### Layer Stack
+
+root layerと再帰的なsublayerからなる順序付きのLayer集合。
+
+### LIVERPS
+
+Composition Arcの強度順序を表す略語。
 
 ### Metadata（メタデータ）
 
@@ -51,6 +71,10 @@ Primが持つ情報。AttributeとRelationshipの2種類がある。
 ### Property Path
 
 Prim Pathの後ろに `.` とProperty名を続けたPath。
+
+### Prototype
+
+複数のInstanceが共有するシーン構造。
 
 ### Relationship（リレーションシップ）
 

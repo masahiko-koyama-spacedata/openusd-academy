@@ -1,0 +1,39 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lesson 14: パイプライン開発 — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body><header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark">O</span><span>OpenUSD Academy</span></a><nav><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header><main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 14 · PIPELINES</p><h1>データを運ぶ<br><span>パイプライン</span></h1><p class="lesson-lead">抽出・変換・検証・Instancingを一つの流れにします</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>入力を対応付けて変換し検証してから効率よく再利用する</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>変換前に意味を対応させる</h2><p>Data Exchangeは異なるデータモデル間で情報を移します。Extractionで入力のGeometryやMaterialを読み、MappingでOpenUSDのSchemaとPropertyへ対応させ、Transformationで目的の構造へ変え、Validationで規則を確認します。Scenegraph InstancingはComposition Arcから共有Prototypeを暗黙に作り、Point InstancingはSchemaでPrototypeを明示しInstanceをindexで扱います。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>形式変換だけでなく「元の意味をOpenUSDのどこへ置くか」を決める設計作業です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>入力から再利用まで</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Extract</span><strong>geometry · materials</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Transform + Validate</span><strong>schema · paths · units · rules</strong></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">Optimize</span><strong>scenegraph or point instancing</strong></div><figcaption>検証は出力後だけでなく各段階に置けます</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>再利用するInstanceを書く</h2><div class="code-card usda-card"><div class="code-title"><span>warehouse.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "Warehouse"
+{
+    def "Robot_01" (
+        references = @./Robot.usda@
+        instanceable = true
+    )
+    {
+    }
+
+    def "Robot_02" (
+        references = @./Robot.usda@
+        instanceable = true
+    )
+    {
+    }
+}</code></pre></div><p><code>references</code>が共有元へのComposition Arc、<code>instanceable</code>がPrim Metadataです。<code>true</code>は真偽値、<code>@ @</code>はAsset Path、引用符はPrim名です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>二つのInstance候補を作る</h2><div class="code-card python-card"><div class="code-title"><span>create_instances.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.CreateNew("warehouse.usda")
+stage.DefinePrim("/Warehouse", "Xform")
+
+for name in ("Robot_01", "Robot_02"):
+    robot = stage.DefinePrim("/Warehouse/" + name)
+    robot.GetReferences().AddReference("./Robot.usda")
+    robot.SetInstanceable(True)
+
+stage.Save()</code></pre></div><p><code>for</code>は二つの名前を順に処理します。コロン後のインデントが繰り返す範囲、<code>+</code>はPath文字列をつなぐ記号です。<code>True</code>はPythonの真偽値です。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>ReferenceとMetadataを対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">references = @./Robot.usda@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">robot.GetReferences().AddReference("./Robot.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">instanceable = true</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">robot.SetInstanceable(True)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Chapter map</p><h2>開発の五つの観点</h2><div class="mistake-list"><article><h3>データ交換</h3><p>入力とOpenUSDのデータモデルを比較し、損失や単位差を明示します。</p></article><article><h3>GeometryとMaterialの抽出</h3><p>形状・法線・UV・Material割り当てなどを入力から読み、対応表を作ります。</p></article><article><h3>変換と検証</h3><p>Path・Schema・階層を変換し、必須PrimやProperty、値域、参照切れを確認します。</p></article><article><h3>Scenegraph Instancing</h3><p>Compositionベースです。InstanceはPathで識別され、instance proxyは読み取り専用です。</p></article><article><h3>Point Instancing</h3><p>Schemaベースです。明示したPrototypeを多数のindex付きInstanceで使い、葉や群衆のような大量配置に向きます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>同じ見た目だけでInstanceにしない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Scenegraph InstancingはComposition Arcを共有する反復が前提です。<code>instanceable = true</code>だけでArcがなければPrototypeは生まれません。波括弧とインデントは階層、スラッシュはPathを示します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Common mistakes</p><h2>意味と検証を省かない</h2><div class="mistake-list"><article><h3>ファイルが開けば成功とする</h3><p><strong>原因:</strong> 構文だけを確認しています。</p><p><strong>解決策:</strong> 階層、Schema、単位、Material割り当ても検証します。</p></article><article><h3>Instanceの子を直接編集する</h3><p><strong>原因:</strong> instance proxyは読み取り専用です。</p><p><strong>解決策:</strong> Instance root、元Asset、Variantなど適切な場所へOpinionを書きます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンで出た言葉</h2><dl class="lesson-glossary"><div><dt>Data Mapping</dt><dd>入力と出力の概念やFieldの対応。</dd></div><div><dt>Validation</dt><dd>データが規則を満たすか確認する処理。</dd></div><div><dt>Prototype</dt><dd>Instanceが共有する構造。</dd></div><div><dt>Instance Proxy</dt><dd>Prototype内PrimをInstance側から見る読み取り専用の代理。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-04">2026年8月4日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/data-exchange/index.html">Developing Data Exchange Pipelines</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/data-exchange/data-extraction/index.html">Data Extraction</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/asset-modularity-instancing/authoring-scenegraph-instancing/scenegraph-instancing-intro.html">Scenegraph Instancing</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/asset-modularity-instancing/instancing-faq.html">Instancing FAQ</a></li></ul></section><nav class="lesson-footer-nav"><a href="13-asset-structure.html">← Lesson 13</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 14</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
