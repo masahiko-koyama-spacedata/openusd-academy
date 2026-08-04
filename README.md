@@ -24,7 +24,12 @@
 ├── curriculum.md
 ├── glossary.md
 ├── lessons/
-│   └── 01-reading-usda.html
+│   ├── 01-reading-usda.html
+│   ├── 02-what-is-openusd.html
+│   ├── 03-stage-prim-property.html
+│   ├── 04-attributes-relationships.html
+│   ├── 05-prim-property-paths.html
+│   └── 06-usd-file-formats.html
 └── assets/
     ├── css/style.css
     └── js/app.js
@@ -32,4 +37,4 @@
 
 ## 現在の状態
 
-Lesson 01「はじめてのUSDAを読む」を公開中です。`lessons/01-reading-usda.html` はHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。公開・ホスティング・GitHub接続は行っていません。
+Section 1「OpenUSDの土台」のLesson 01〜06を収録しています。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。

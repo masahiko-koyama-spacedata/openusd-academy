@@ -8,6 +8,14 @@
 
 Primが持つ値のあるProperty。たとえば色、サイズ、位置などを表す。
 
+### ASCII
+
+文字として読めるデータ表現。USDAはASCII形式。
+
+### Composition（コンポジション）
+
+複数のシーン記述を規則に従って一つの結果へ組み立てる仕組み。
+
 ### Layer（レイヤー）
 
 シーン記述の一部分を保持するデータの単位。複数のLayerを合成してStageを作れる。
@@ -20,6 +28,10 @@ Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Ro
 
 階層内のPrimを識別し、Pathの一部分になる名前。例: `World`。
 
+### Prim Path
+
+Stage内のPrimを識別するPath。Prim名を `/` で区切る。
+
 ### Prim（プリム）
 
 Stageを構成する基本要素。シーングラフ上のノードとして、オブジェクトやまとまりを表す。
@@ -27,6 +39,10 @@ Stageを構成する基本要素。シーングラフ上のノードとして、
 ### Property（プロパティ）
 
 Primが持つ情報。AttributeとRelationshipの2種類がある。
+
+### Property Path
+
+Prim Pathの後ろに `.` とProperty名を続けたPath。
 
 ### Relationship（リレーションシップ）
 
@@ -39,6 +55,18 @@ Primが持つ情報。AttributeとRelationshipの2種類がある。
 ### USDA
 
 人が読めるテキスト形式のOpenUSDファイル表現。構造や値を直接確認しやすい。
+
+### USDC
+
+圧縮されたバイナリのCrate形式。
+
+### USD
+
+ASCIIまたはバイナリを格納できるOpenUSDファイル拡張子。
+
+### USDZ
+
+複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージ。
 
 ### Xform（エックスフォーム）
 
