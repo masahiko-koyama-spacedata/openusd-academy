@@ -24,6 +24,7 @@
 ├── curriculum.md
 ├── glossary.md
 ├── lessons/
+│   └── 01-reading-usda.html
 └── assets/
     ├── css/style.css
     └── js/app.js
@@ -31,4 +32,4 @@
 
 ## 現在の状態
 
-サイトの土台のみです。インポートできるレッスンHTMLはまだ提供されていないため、`lessons/` には案内ファイルだけを置いています。公開・ホスティング・GitHub接続は行っていません。
+Lesson 01「はじめてのUSDAを読む」を公開中です。`lessons/01-reading-usda.html` はHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。公開・ホスティング・GitHub接続は行っていません。

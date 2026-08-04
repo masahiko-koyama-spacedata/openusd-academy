@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="USDAを一行ずつ読み、Stage、Prim、Xform、名前、Pathの関係を理解するOpenUSD Academyレッスン01。">
+  <title>Lesson 01: はじめてのUSDAを読む — OpenUSD Academy</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="OpenUSD Academy ホーム"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a>
+    <nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button>
+  </header>
+
+  <main class="lesson">
+    <header class="lesson-hero">
+      <p class="eyebrow">LESSON 01 · FOUNDATIONS</p>
+      <h1>はじめての<br><span>USDAを読む。</span></h1>
+      <p class="lesson-lead">短いテキストから、OpenUSDのシーンがどう階層として表されるかを、一文字ずつ確かめます。</p>
+      <div class="lesson-meta"><span>初級</span><span>読む時間 約20分</span><span>JavaScript不要</span></div>
+    </header>
+
+    <section class="lesson-section takeaway" id="takeaway" aria-labelledby="takeaway-title">
+      <p class="section-kicker">01 · 今日これだけ</p>
+      <h2 id="takeaway-title">USDAでは、Primを入れ子にするとシーンの階層を文字で読める。</h2>
+      <p><code>def Xform "World"</code> は、<strong>Worldという名前のXform型Primを定義する</strong>記述です。波括弧の内側に別のPrimを書くと、そのPrimは子になります。</p>
+    </section>
+
+    <section class="lesson-section" id="intuition" aria-labelledby="intuition-title">
+      <p class="section-kicker">02 · 直感的な理解</p>
+      <h2 id="intuition-title">Stageは、シーン全体を見渡す窓。</h2>
+      <div class="source-block official-block">
+        <p class="source-label">公式情報に基づく説明</p>
+        <p>NVIDIA Learn OpenUSDでは、Stageは合成されたシーングラフを提示するもの、PrimはOpenUSDシーンの構成要素と説明されています。Primは階層に整理され、各Primはシーングラフ内で位置を示すPathを持ちます。</p>
+      </div>
+      <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>このレッスンでは、Stageを「シーンの目次を開いて見るための窓」、Primを「目次に並ぶ項目」と考えます。これは理解のための比喩であり、公式用語の定義そのものではありません。</p></aside>
+    </section>
+
+    <section class="lesson-section" id="diagram" aria-labelledby="diagram-title">
+      <p class="section-kicker">03 · Diagram</p>
+      <h2 id="diagram-title">波括弧の入れ子が、親子関係になる。</h2>
+      <figure class="hierarchy-figure" aria-labelledby="diagram-caption">
+        <div class="tree-stage"><span class="tree-kind">Stage</span><strong>lesson01.usda</strong></div>
+        <div class="tree-connector" aria-hidden="true"></div>
+        <div class="tree-prim"><span class="tree-kind">Prim</span><strong>World</strong><code>/World</code></div>
+        <div class="tree-connector" aria-hidden="true"></div>
+        <div class="tree-prim child"><span class="tree-kind">Child Prim</span><strong>Room</strong><code>/World/Room</code></div>
+        <figcaption id="diagram-caption">図: StageにWorld Primがあり、その内側にRoom Primがある階層。図はOpenUSD Academyによる補助表現です。</figcaption>
+      </figure>
+    </section>
+
+    <section class="lesson-section" id="usda" aria-labelledby="usda-title">
+      <p class="section-kicker">04 · USDA example</p>
+      <h2 id="usda-title">まず、完成形をそのまま読む。</h2>
+      <p>ファイル名を <code>lesson01.usda</code> とします。先頭の番号は説明用であり、実際のファイルには書きません。</p>
+      <div class="code-card" aria-label="USDAコード例">
+        <div class="code-title"><span>lesson01.usda</span><span>USDA</span></div>
+        <pre><code><span class="line"><span class="line-no">1</span>#usda 1.0</span>
+<span class="line"><span class="line-no">2</span></span>
+<span class="line"><span class="line-no">3</span>def Xform "World"</span>
+<span class="line"><span class="line-no">4</span>{</span>
+<span class="line"><span class="line-no">5</span>    def Xform "Room"</span>
+<span class="line"><span class="line-no">6</span>    {</span>
+<span class="line"><span class="line-no">7</span>    }</span>
+<span class="line"><span class="line-no">8</span>}</span></code></pre>
+      </div>
+      <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>#usda 1.0</code> の <code>#</code> はこの行がファイル形式を示すヘッダーであることの一部です。<code>usda</code> は形式名、空白は要素の区切り、<code>1.0</code> はバージョン番号です。小数点 <code>.</code> は1と0を区切ります。2行目は空行で、目で読みやすくするために置いています。</p></aside>
+    </section>
+
+    <section class="lesson-section" id="line-by-line" aria-labelledby="line-title">
+      <p class="section-kicker">05 · 一行ずつ読む</p>
+      <h2 id="line-title">各行には、階層を組み立てる役割がある。</h2>
+      <ol class="line-explanations">
+        <li><span class="line-badge">1</span><div><h3><code>#usda 1.0</code></h3><p>このテキストがUSDA形式であることを示すヘッダーです。</p></div></li>
+        <li><span class="line-badge">2</span><div><h3>空行</h3><p>内容はありません。人が読みやすいよう、ヘッダーとPrim定義を離しています。</p></div></li>
+        <li><span class="line-badge">3</span><div><h3><code>def Xform "World"</code></h3><p><code>def</code>、空白、<code>Xform</code>、空白、二重引用符で囲んだ<code>World</code>の順です。Worldという名前のXform型Primを定義します。</p></div></li>
+        <li><span class="line-badge">4</span><div><h3><code>{</code></h3><p>左波括弧です。3行目で始めたWorld Primの内容が、ここから始まります。</p></div></li>
+        <li><span class="line-badge">5</span><div><h3><code>    def Xform "Room"</code></h3><p>先頭に4個の空白があります。Roomという名前のXform型Primを、Worldの内側に定義します。</p></div></li>
+        <li><span class="line-badge">6</span><div><h3><code>    {</code></h3><p>Room Primの内容の開始です。左波括弧の前にも4個の空白があります。</p></div></li>
+        <li><span class="line-badge">7</span><div><h3><code>    }</code></h3><p>右波括弧です。Room Primの内容がここで終わります。</p></div></li>
+        <li><span class="line-badge">8</span><div><h3><code>}</code></h3><p>World Primの内容がここで終わります。先頭に空白がないため、4行目の左波括弧と同じ深さだと見分けられます。</p></div></li>
+      </ol>
+    </section>
+
+    <section class="lesson-section" id="notation" aria-labelledby="notation-title">
+      <p class="section-kicker">06–12 · 記法を分解する</p>
+      <h2 id="notation-title">見慣れない記号を、全部ほどく。</h2>
+      <div class="concept-grid">
+        <article><p class="concept-number">06</p><h3>インデント</h3><p>行の先頭に入れる空白です。この例では4個の空白でRoomがWorldの内側にあることを見やすくしています。</p><aside class="academy-note compact"><p class="source-label">OpenUSD Academy Note</p><p>波括弧が構造を表し、インデントは人が階層を読み取る助けになります。開始と終了を同じ深さにそろえる習慣をつけましょう。</p></aside></article>
+        <article><p class="concept-number">07</p><h3>波括弧 <code>{ }</code></h3><p><code>{</code>は左波括弧、<code>}</code>は右波括弧です。左でPrimの内容を始め、対応する右で終えます。2つを合わせて一組です。</p></article>
+        <article><p class="concept-number">08</p><h3>二重引用符 <code>" "</code></h3><p>半角の二重引用符でPrim名を囲みます。開始側と終了側の2つが必要です。日本語入力の曲がった引用符 <code>“ ”</code>とは別の文字です。</p></article>
+        <article><p class="concept-number">09</p><h3><code>def</code></h3><p><em>define</em>の短縮形です。NVIDIAの説明では、現在のLayerでPrimを定義し、そのPrimがStage上に具体的に定義されて存在することを示します。</p></article>
+        <article><p class="concept-number">10</p><h3><code>Xform</code></h3><p>Primの型です。Xformは<em>transform</em>を表し、移動・回転・拡大縮小などの変換データを保持して子Primに適用できるPrimです。この例では変換値をまだ書いていません。</p></article>
+        <article><p class="concept-number">11</p><h3>Prim名</h3><p><code>World</code>と<code>Room</code>が名前です。名前は階層内のPrimを識別し、Pathの一部分になります。<code>Xform</code>は名前ではなく型です。</p></article>
+      </div>
+      <article class="path-explainer">
+        <p class="concept-number">12 · PATH</p><h3><code>/World/Room</code> を一文字ずつ読む</h3>
+        <dl class="symbol-list">
+          <div><dt><code>/</code></dt><dd>先頭のスラッシュはStageのpseudo-rootから始まることを表します。pseudo-rootは階層の出発点です。</dd></div>
+          <div><dt><code>World</code></dt><dd>最初のPrim名です。<code>/World</code>はWorld PrimのPathです。</dd></div>
+          <div><dt><code>/</code></dt><dd>Prim名どうしを区切るスラッシュです。次の名前が子Primであることを読み取れます。</dd></div>
+          <div><dt><code>Room</code></dt><dd>Worldの子Primの名前です。全体でRoom Primの位置を一意に表します。</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="lesson-section" id="mapping" aria-labelledby="mapping-title">
+      <p class="section-kicker">13 · USDA → Python mapping</p>
+      <h2 id="mapping-title">同じStageをPythonから作る。</h2>
+      <div class="code-card" aria-label="Pythonコード例">
+        <div class="code-title"><span>create_lesson01.py</span><span>Python</span></div>
+        <pre><code>from pxr import Usd
+
+stage = Usd.Stage.CreateNew("lesson01.usda")
+stage.DefinePrim("/World", "Xform")
+stage.DefinePrim("/World/Room", "Xform")
+stage.Save()</code></pre>
+      </div>
+      <div class="table-wrap"><table><caption>USDAとPythonの対応</caption><thead><tr><th scope="col">USDA</th><th scope="col">Python</th><th scope="col">同じ意味になる部分</th></tr></thead><tbody>
+        <tr><td><code>#usda 1.0</code></td><td><code>CreateNew("lesson01.usda")</code></td><td>`.usda`の新しいStageを作ると、保存されるテキストにUSDAヘッダーが含まれます。</td></tr>
+        <tr><td><code>def Xform "World"</code></td><td><code>DefinePrim("/World", "Xform")</code></td><td>Path <code>/World</code> にXform型Primを定義します。</td></tr>
+        <tr><td><code>def Xform "Room"</code></td><td><code>DefinePrim("/World/Room", "Xform")</code></td><td>Pathに親のWorldも書き、Roomをその子として定義します。</td></tr>
+        <tr><td>ファイル全体</td><td><code>stage.Save()</code></td><td>Stageへの編集を保存します。</td></tr>
+      </tbody></table></div>
+      <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Pythonの <code>.</code> は、左側のオブジェクトや型に属する機能へ進む区切りとして読めます。<code>()</code> は丸括弧で、機能に渡す情報を内側に書きます。<code>,</code> はカンマで、PathとPrim型という2つの情報を分けます。<code>=</code> は右側で作ったStageを左側の名前<code>stage</code>に割り当てます。Pythonの引用符も半角の二重引用符です。</p></aside>
+    </section>
+
+    <section class="lesson-section" id="beginner-notes" aria-labelledby="notes-title">
+      <p class="section-kicker">14 · Beginner notes</p><h2 id="notes-title">最初は「形」と「位置」を分けて読む。</h2>
+      <div class="note-list">
+        <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><h3>型と名前は別</h3><p><code>Xform</code>はPrimの型、<code>"World"</code>はPrimの名前です。「Xformという名前」ではありません。</p></aside>
+        <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><h3>空の波括弧にも意味がある</h3><p>Roomの波括弧内にPropertyがなくても、Room Prim自体は定義されています。「何もないファイル」ではありません。</p></aside>
+        <aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><h3>Stageとファイルを同一視しない</h3><p>この例は1つのUSDAファイルだけで単純ですが、公式説明どおりStageは複数のLayerから合成される場合があります。Stageそのものを単なるファイル名だと覚えないでください。</p></aside>
+      </div>
+    </section>
+
+    <section class="lesson-section" id="mistakes" aria-labelledby="mistakes-title">
+      <p class="section-kicker">15 · Common mistakes</p><h2 id="mistakes-title">症状から、直す場所を見つける。</h2>
+      <div class="mistake-list">
+        <article><h3>引用符が全角・曲がった形</h3><p><strong>誤:</strong> <code>def Xform “World”</code></p><p><strong>直す:</strong> 半角の二重引用符で <code>def Xform "World"</code> と書きます。</p></article>
+        <article><h3>右波括弧が1つ足りない</h3><p><strong>症状:</strong> RoomかWorldのどちらかが閉じていません。</p><p><strong>直す:</strong> 左波括弧2個に対して右波括弧も2個あるか、内側から順に確認します。</p></article>
+        <article><h3>Pythonの子Prim Pathに親がない</h3><p><strong>誤:</strong> <code>DefinePrim("/Room", "Xform")</code></p><p><strong>結果:</strong> RoomはWorldの子ではなくpseudo-rootの直接の子です。<strong>直す:</strong> <code>"/World/Room"</code> とします。</p></article>
+        <article><h3><code>#usda 1.0</code>をPythonコメントだと思う</h3><p><strong>直す:</strong> USDAファイル先頭では形式を示すヘッダーとして読みます。このレッスンのPythonコードには書きません。</p></article>
+      </div>
+    </section>
+
+    <section class="lesson-section" id="glossary" aria-labelledby="glossary-title">
+      <p class="section-kicker">16 · Glossary</p><h2 id="glossary-title">このレッスンで出会った言葉。</h2>
+      <dl class="lesson-glossary">
+        <div><dt>OpenUSD</dt><dd>3Dシーンの記述、合成、シミュレーション、共同作業のためにPixarが開発したオープンソースのフレームワーク。</dd></div>
+        <div><dt>Stage</dt><dd>合成されたシーングラフを提示し、Primの階層へアクセスする中心となるもの。</dd></div>
+        <div><dt>Scenegraph</dt><dd>シーン内のPrimを親子の階層として表した構造。</dd></div>
+        <div><dt>Prim</dt><dd>OpenUSDシーンの構成要素。データ、Attribute、Relationshipを保持でき、階層に並ぶ。</dd></div>
+        <div><dt>Specifier / def</dt><dd>Primの解釈意図を示す指定子。<code>def</code>は現在のLayerでPrimを具体的に定義する。</dd></div>
+        <div><dt>Xform</dt><dd>移動、回転、拡大縮小などの変換データを保持し、子Primへ適用できるPrim型。</dd></div>
+        <div><dt>Path</dt><dd>シーングラフ内のPrimやPropertyの位置。Prim名をスラッシュで区切って表す。</dd></div>
+        <div><dt>pseudo-root</dt><dd>Stageの階層の出発点。Pathでは単独のスラッシュ <code>/</code> で表す。</dd></div>
+        <div><dt>USDA</dt><dd>人が読めるテキスト形式のOpenUSD表現。</dd></div>
+      </dl>
+      <p><a class="back-link" href="../glossary.html">サイト全体の用語集を見る →</a></p>
+    </section>
+
+    <section class="lesson-section references" id="references" aria-labelledby="references-title">
+      <p class="section-kicker">17 · Official references</p><h2 id="references-title">確認した公式資料。</h2>
+      <p>一次情報の確認日: <time datetime="2026-08-04">2026年8月4日</time></p>
+      <ul>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/what-openusd/index.html">NVIDIA Learn OpenUSD — What Is OpenUSD?</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/index.html">NVIDIA Learn OpenUSD — Setting the Stage</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/stage.html">NVIDIA Learn OpenUSD — Stage</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/prims.html">NVIDIA Learn OpenUSD — Prims</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/prim-property-paths.html">NVIDIA Learn OpenUSD — Prim and Property Paths</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/composition-basics/specifiers.html">NVIDIA Learn OpenUSD — Specifiers</a></li>
+        <li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xform.html">NVIDIA Learn OpenUSD — Xform</a></li>
+      </ul>
+    </section>
+
+    <nav class="lesson-footer-nav" aria-label="レッスン終了ナビゲーション"><a href="../index.html">← ホーム</a><a href="../curriculum.html">カリキュラムへ →</a></nav>
+  </main>
+  <footer><p>OpenUSD Academy · Lesson 01</p><a href="#takeaway">ページ上部へ ↑</a></footer>
+</body>
+</html>

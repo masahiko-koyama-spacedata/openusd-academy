@@ -16,6 +16,10 @@ Primが持つ値のあるProperty。たとえば色、サイズ、位置など�
 
 Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Room`。
 
+### Prim name（Prim名）
+
+階層内のPrimを識別し、Pathの一部分になる名前。例: `World`。
+
 ### Prim（プリム）
 
 Stageを構成する基本要素。シーングラフ上のノードとして、オブジェクトやまとまりを表す。
@@ -35,5 +39,17 @@ Primが持つ情報。AttributeとRelationshipの2種類がある。
 ### USDA
 
 人が読めるテキスト形式のOpenUSDファイル表現。構造や値を直接確認しやすい。
+
+### Xform（エックスフォーム）
+
+移動、回転、拡大縮小などの変換データを保持し、子Primに適用できるPrim型。
+
+### def（デフ）
+
+現在のLayerでPrimを具体的に定義するSpecifier。
+
+### pseudo-root（疑似ルート）
+
+Stage階層の出発点。Pathでは `/` で表す。
 
 > **注意:** 上記はAcademyによる初学者向け要約です。技術的な厳密さが必要な場合は、各レッスンの公式リファレンスを参照してください。

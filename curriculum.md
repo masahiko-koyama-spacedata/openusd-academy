@@ -4,6 +4,7 @@
 
 ## 1. OpenUSDの土台
 
+- **Lesson 01（公開中）:** [はじめてのUSDAを読む](lessons/01-reading-usda.html) — Stage、Prim、Xform、名前、Pathを短いUSDAから一行ずつ読む
 - OpenUSDとは何か
 - Stage、Prim、Property
 - AttributeとRelationship
