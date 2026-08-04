@@ -37,4 +37,4 @@
 
 ## 現在の状態
 
-Section 1〜5のLesson 01〜14を収録しています。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。
+Section 1〜5のLesson 01〜14を収録しています。NVIDIA Learn OpenUSDの主要領域を細かく学ぶSection 6〜14、Lesson 15〜72を今後追加する計画です。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。

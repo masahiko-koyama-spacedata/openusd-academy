@@ -4,6 +4,8 @@
 
 日本でいちばんわかりやすいOpenUSD学習教材を作る。
 
+最終的にはNVIDIA Learn OpenUSDの主要学習領域を初学者向けに収めた教科書規模を目指す。量を増やすときも一つのレッスンへ概念を詰め込まず、現在のレッスンと同程度の長さ・説明密度・難易度を保つ。
+
 ## Source policy
 
 1. レッスンを書く、または技術内容を変更する前に、必ず [NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) の該当ページを確認する。
