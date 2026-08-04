@@ -9,6 +9,7 @@
   --accent: #0071e3;
   --usda: #ffb340;
   --python: #64d2ff;
+  --usda-label: #c00078;
   --accent-soft: #e8f2ff;
   --shadow: 0 20px 60px rgba(0, 0, 0, .08);
 }
@@ -22,6 +23,7 @@ html[data-theme="dark"] {
   --muted: #a1a1a6;
   --line: rgba(255, 255, 255, .13);
   --accent: #2997ff;
+  --usda-label: #ff4fb3;
   --accent-soft: #10283e;
   --shadow: 0 20px 60px rgba(0, 0, 0, .35);
 }
@@ -141,6 +143,7 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .mapping-list li { padding: 30px 0; border-top: 1px solid var(--line); }
 .mapping-list p { max-width: 680px; color: var(--muted); }
 .mapping-label { margin: 0 0 8px; color: var(--accent) !important; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.mapping-list li > .mapping-label:first-child { color: var(--usda-label) !important; }
 .mapping-arrow { display: block; margin: 14px 0; color: var(--accent); font-size: 22px; }
 .note-list, .mistake-list { display: block; }
 .note-list .academy-note { margin: 18px 0; }

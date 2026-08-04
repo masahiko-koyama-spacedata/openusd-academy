@@ -145,12 +145,12 @@ stage.Save()</code></pre>
     </section>
 
     <section class="lesson-section" id="mistakes" aria-labelledby="mistakes-title">
-      <p class="section-kicker">16 · Common mistakes</p><h2 id="mistakes-title">症状から、直す場所を見つける</h2>
+      <p class="section-kicker">16 · Common mistakes</p><h2 id="mistakes-title">原因から、解決策を見つける</h2>
       <div class="mistake-list">
-        <article><h3>引用符が全角・曲がった形</h3><p><strong>誤:</strong> <code>def Xform “World”</code></p><p><strong>直す:</strong> 半角の二重引用符で <code>def Xform "World"</code> と書きます。</p></article>
-        <article><h3>右波括弧が1つ足りない</h3><p><strong>症状:</strong> RoomかWorldのどちらかが閉じていません。</p><p><strong>直す:</strong> 左波括弧2個に対して右波括弧も2個あるか、内側から順に確認します。</p></article>
-        <article><h3>Pythonの子Prim Pathに親がない</h3><p><strong>誤:</strong> <code>DefinePrim("/Room", "Xform")</code></p><p><strong>結果:</strong> RoomはWorldの子ではなくpseudo-rootの直接の子です。<strong>直す:</strong> <code>"/World/Room"</code> とします。</p></article>
-        <article><h3><code>#usda 1.0</code>をPythonコメントだと思う</h3><p><strong>直す:</strong> USDAファイル先頭では形式を示すヘッダーとして読みます。このレッスンのPythonコードには書きません。</p></article>
+        <article><h3>引用符が全角・曲がった形</h3><p><strong>誤:</strong> <code>def Xform “World”</code></p><p><strong>正:</strong> 半角の二重引用符で <code>def Xform "World"</code> と書きます。</p></article>
+        <article><h3>右波括弧が1つ足りない</h3><p><strong>原因:</strong> RoomかWorldのどちらかが閉じていません。</p><p><strong>解決策:</strong> 左波括弧2個に対して右波括弧も2個あるか、内側から順に確認します。</p></article>
+        <article><h3>Pythonの子Prim Pathに親がない</h3><p><strong>誤:</strong> <code>DefinePrim("/Room", "Xform")</code></p><p><strong>原因:</strong> <code>/Room</code>はpseudo-rootから始まるため、RoomがWorldの子ではなくpseudo-rootの直接の子になります。</p><p><strong>解決策:</strong> 子までの階層を含めて <code>"/World/Room"</code> と書きます。</p></article>
+        <article><h3><code>#usda 1.0</code>をPythonコメントだと思う</h3><p><strong>原因:</strong> USDAとPythonで <code>#</code> の役割を同じだと考えています。</p><p><strong>解決策:</strong> USDAファイル先頭では形式を示すヘッダーとして読みます。このレッスンのPythonコードには書きません。</p></article>
       </div>
     </section>
 
