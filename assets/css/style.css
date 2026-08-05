@@ -31,6 +31,10 @@ html[data-theme="dark"] {
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif; line-height: 1.65; transition: background .3s ease, color .3s ease; }
+:where(h1, h2, h3, h4, h5, h6) { overflow-wrap: normal; word-break: normal; line-break: strict; text-wrap: balance; }
+@supports (word-break: auto-phrase) {
+  :where(h1, h2, h3, h4, h5, h6) { word-break: auto-phrase; }
+}
 a { color: inherit; }
 .site-header { position: sticky; top: 0; z-index: 10; min-height: 64px; display: flex; align-items: center; gap: 32px; padding: 0 max(24px, calc((100vw - 1120px)/2)); border-bottom: 1px solid var(--line); background: var(--surface); backdrop-filter: saturate(180%) blur(18px); }
 .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; font-size: 14px; font-weight: 650; text-decoration: none; letter-spacing: -.01em; }
@@ -178,6 +182,7 @@ html[data-theme="dark"] .python-code { color: var(--python); }
   nav { display: none; }
   .theme-label { display: none; }
   .hero { padding-top: 92px; }
+  .hero h1, .lesson-hero h1 { font-size: clamp(40px, 12vw, 52px); line-height: 1.04; }
   footer { flex-direction: column; }
   .lesson { padding-inline: 18px; }
   .lesson-hero { padding: 80px 0 68px; }
