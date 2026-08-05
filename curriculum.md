@@ -21,7 +21,7 @@
 
 ## 3. コンポジション
 
-- **Lesson 12:** [コンポジションを一本につなぐ](lessons/12-composition.html) — Layer、Sublayer、Reference、Payload、Variant、Inherits、Specializes、LIVERPS
+- **Lesson 12:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、V・R・Sの使い分け、Opinionの上書き
 
 ## 4. アセット設計
 

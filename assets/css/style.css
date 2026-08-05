@@ -159,6 +159,13 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .note-list .academy-note { margin: 18px 0; }
 .note-list h3, .mistake-list h3 { margin: 0 0 8px; }
 .mistake-list p { color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 32px 0; border-block: 1px solid var(--line); }
+.table-wrap table { width: 100%; min-width: 700px; border-collapse: collapse; text-align: left; }
+.table-wrap th, .table-wrap td { padding: 18px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table-wrap thead th { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+.table-wrap tbody th { color: var(--text); white-space: nowrap; }
+.table-wrap td { color: var(--muted); }
+.table-wrap tr:last-child > * { border-bottom: 0; }
 .lesson-glossary > div { padding: 22px 0; border-top: 1px solid var(--line); }
 .lesson-glossary dt { font-weight: 750; }
 .lesson-glossary dd { margin: 6px 0 0; color: var(--muted); }

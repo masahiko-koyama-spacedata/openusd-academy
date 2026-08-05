@@ -38,7 +38,7 @@ root layerと再帰的なsublayerからなる順序付きのLayer集合。
 
 ### LIVERPS
 
-一つのPrim Indexを構成するときの基本的な強度順序を覚えるための略語。最終結果にはLayerの強度、List Editing、Variant選択、Pathなども関係する。
+Local、Inherits、Variant Sets、rElocates、References、Payloads、Specializesを強い順に並べた略語。SublayerのOpinionはLayer Stack内のLocalに含まれる。
 
 ### Metadata（メタデータ）
 
