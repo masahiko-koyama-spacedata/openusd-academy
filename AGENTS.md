@@ -8,8 +8,8 @@
 
 ## Source policy
 
-1. レッスンを書く、または技術内容を変更する前に、必ず [NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) の該当ページを確認する。
-2. NVIDIA Learn OpenUSDを一次情報とし、レッスン末尾に確認した公式ページへのリンクと確認日を記載する。
+1. レッスンを書く、または技術内容を変更する前に、必ず [NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) の該当ページを確認し、技術的な記述をOpenUSD公式仕様・APIリファレンスと照合する。
+2. OpenUSD公式仕様・APIリファレンスを技術上の一次情報、NVIDIA Learn OpenUSDを主要な学習資料として扱い、レッスン末尾に確認した公式ページへのリンクと確認日を記載する。
 3. 公式資料に基づく内容には「公式」、日本語化・比喩・補足・独自図解には「Academy補足」と明記する。
 4. 公式資料を長く転載せず、自分の言葉で説明する。引用する場合は必要最小限にする。
 

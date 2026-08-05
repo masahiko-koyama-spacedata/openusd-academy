@@ -8,9 +8,9 @@
 
 Primが持つ値のあるProperty。たとえば色、サイズ、位置などを表す。
 
-### ASCII
+### UTF-8
 
-文字として読めるデータ表現。USDAはASCII形式。
+Unicode文字を表す文字エンコーディング。USDAは人が読めるUTF-8テキスト形式。
 
 ### Composition（コンポジション）
 
@@ -38,7 +38,7 @@ root layerと再帰的なsublayerからなる順序付きのLayer集合。
 
 ### LIVERPS
 
-Composition Arcの強度順序を表す略語。
+一つのPrim Indexを構成するときの基本的な強度順序を覚えるための略語。最終結果にはLayerの強度、List Editing、Variant選択、Pathなども関係する。
 
 ### Metadata（メタデータ）
 
@@ -78,7 +78,7 @@ Prim Pathの後ろに `.` とProperty名を続けたPath。
 
 ### Relationship（リレーションシップ）
 
-あるPrimやPropertyから、別のオブジェクトへのつながりを表すProperty。
+0個以上のPrim PathまたはProperty Pathを対象として持てる、型のないProperty。
 
 ### Stage（ステージ）
 
@@ -98,15 +98,15 @@ PrimやPropertyの構造、意味、取得・作成APIを定める設計図。
 
 ### USDA
 
-人が読めるテキスト形式のOpenUSDファイル表現。構造や値を直接確認しやすい。
+人が読めるUTF-8テキスト形式のOpenUSDファイル表現。構造や値を直接確認しやすい。
 
 ### USDC
 
-圧縮されたバイナリのCrate形式。
+ランダムアクセスに対応するバイナリのCrate形式。
 
 ### USD
 
-ASCIIまたはバイナリを格納できるOpenUSDファイル拡張子。
+UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル拡張子。
 
 ### USDZ
 

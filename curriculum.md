@@ -1,6 +1,6 @@
 # OpenUSD Academy カリキュラム
 
-このカリキュラムは、[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) の学習領域を一次情報として確認し、日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-04）。各レッスンの内容は執筆時に該当する公式ページを再確認します。
+このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-05）。各レッスンの内容は執筆時に該当する公式ページを再確認します。Lesson 15〜72は予定で、個別HTMLはまだ公開していません。
 
 ## 1. OpenUSDの土台
 
@@ -33,7 +33,7 @@
 
 ## 6. Scene Descriptionの部品
 
-- **Lesson 15（予定）:** Scope — 変換を持たない整理用Prim
+- **Lesson 15（予定）:** 動かさずに整理するScope — 変換を持たない整理用Prim
 - **Lesson 16（予定）:** XformCommonAPI — よく使う変換を安全に設定する
 - **Lesson 17（予定）:** Translate・Rotate・Scale — 変換を一つずつ読む
 - **Lesson 18（予定）:** XformOpOrder — 変換順序で結果が変わる理由
