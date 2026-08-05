@@ -6,6 +6,10 @@
 
 `index.html` をブラウザで開いてください。ビルドや依存パッケージのインストールは不要です。簡易サーバーを使う場合は、プロジェクト直下で `python3 -m http.server 8000` を実行し、`http://localhost:8000/` を開きます。
 
+### VS CodeでUSDをすぐ確認する
+
+VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します。現在のファイルを`usdchecker`で検証し、成功した場合だけusdviewで表示します。検証だけ行う場合は、コマンドパレットの「Tasks: Run Task」から「USD: Validate Current File」を選びます。
+
 ## 編集方針
 
 - HTMLを教材のcanonical source（正本）とする

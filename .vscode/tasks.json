@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "USD: Validate and Preview Current File",
+      "type": "shell",
+      "command": "/usr/bin/usdchecker \"${file}\" && \"${env:HOME}/.local/bin/usdview\" \"${file}\"",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": false,
+        "showReuseMessage": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "USD: Validate Current File",
+      "type": "process",
+      "command": "/usr/bin/usdchecker",
+      "args": [
+        "${file}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}
