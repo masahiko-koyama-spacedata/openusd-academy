@@ -15,6 +15,7 @@ def Xform "World"
         }
     }
 }</code></pre></div><p>引用符内の <code>World</code>、<code>Geometry</code>、<code>Ball</code> がPrim名です。波括弧とインデントが親子関係を示します。<code>radius</code>はBall Primに属するPropertyです。</p></section>
+<section class="lesson-section"><h2>結果</h2><figure class="render-result"><img src="../assets/images/lesson-05/usdview.png" alt="usdviewの画面。root、World、Geometry、Ballの階層が展開され、Sphere型のBallが選択されている" width="1148" height="1034"><figcaption>左上の階層をたどるとPrim Path <code>/World/Geometry/Ball</code>になります。選択したBallのPropertyは左下に表示されます。</figcaption></figure><p class="example-link"><a href="../examples/lesson-05/paths.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>PrimからPropertyまで一方向にたどる</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">pseudo-root</span><strong>/</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Prim Path</span><strong>/World/Geometry/Ball</strong></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">Property Path</span><strong>/World/Geometry/Ball.radius</strong></div><figcaption>OpenUSD AcademyによるPathの読み順</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>同じPathで対象を取得する</h2><div class="code-card python-card"><div class="code-title"><span>read_paths.py</span><span>Python</span></div><pre><code>from pxr import Usd
 

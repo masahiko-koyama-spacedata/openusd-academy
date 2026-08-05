@@ -20,6 +20,7 @@ def Xform "Warehouse"
     {
     }
 }</code></pre></div><p><code>references</code>が共有元へのComposition Arc、<code>instanceable</code>がPrim Metadataです。<code>true</code>は真偽値、<code>@ @</code>はAsset Path、引用符はPrim名です。</p></section>
+<section class="lesson-section"><h2>結果</h2><figure class="render-result"><img src="../assets/images/lesson-14/usdview.png" alt="usdviewの画面。Warehouseの下にRobot_01とRobot_02があり、どちらにも共有されたBodyが表示されている" width="1148" height="1034"><figcaption><code>Robot_01</code>と<code>Robot_02</code>は青字のInstanceとして表示され、どちらも共有Prototype由来の<code>Body</code>を持ちます。</figcaption></figure><p class="example-link"><a href="../examples/lesson-14/warehouse.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>二つのInstance候補を作る</h2><div class="code-card python-card"><div class="code-title"><span>create_instances.py</span><span>Python</span></div><pre><code>from pxr import Usd, Sdf
 
 stage = Usd.Stage.CreateNew("warehouse.usda")

@@ -17,6 +17,7 @@ def Xform "World"
         custom rel members = &lt;/World/Ball&gt;
     }
 }</code></pre></div><p><code>double</code>は小数を扱える数値型、<code>radius</code>はAttribute名、<code>=</code>は右の値を指定する記号です。<code>custom</code>はカスタムProperty、<code>rel</code>はRelationship、<code>members</code>はその名前です。山括弧 <code>&lt; &gt;</code> は対象Pathを囲みます。</p></section>
+<section class="lesson-section"><h2>結果</h2><figure class="render-result"><img src="../assets/images/lesson-04/usdview.png" alt="usdviewの画面。Worldの下にSphere型のBallとSelectionが並び、Ballが選択されている" width="1148" height="1034"><figcaption>Stage Treeには<code>Ball</code>と<code>Selection</code>が並びます。Ballの<code>radius</code>はAttribute、Selectionの<code>members</code>はBallを指すRelationshipです。</figcaption></figure><p class="example-link"><a href="../examples/lesson-04/properties.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>値と矢印を分けて見る</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Attribute</span><strong>/World/Ball.radius = 2</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Relationship</span><strong>/World/Selection.members → /World/Ball</strong></div><figcaption>OpenUSD AcademyによるPropertyの役割図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>Schema APIとRelationship APIで作る</h2><div class="code-card python-card"><div class="code-title"><span>create_properties.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
 

@@ -8,6 +8,7 @@
 def Xform "World"
 {
 }</code></pre></div><p><code>#usda 1.0</code>はUSDAファイルの先頭に置く識別行です。<code>#</code>で始まりますが、この行は通常のコメントではありません。引用符はPrim名、波括弧はPrimの内容を囲みます。</p></section>
+<section class="lesson-section"><h2>結果</h2><figure class="render-result"><img src="../assets/images/lesson-06/usdview.png" alt="usdviewの画面。USDAファイルから読み込まれたXform型のWorldがStage Treeに表示されている" width="1148" height="1034"><figcaption><code>scene.usda</code>を開くと<code>World</code> Primが現れます。同じシーン記述はUSDCやUSDにも保存できます。</figcaption></figure><p class="example-link"><a href="../examples/lesson-06/scene.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>同じOpenUSDデータを目的別に保存する</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">編集して読む</span><strong>.usda · UTF-8 Text</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">効率よく格納</span><strong>.usdc · Binary Crate</strong></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">まとめて配布</span><strong>.usdz · Package</strong></div><figcaption><code>.usd</code>はUTF-8テキストまたはCrateバイナリを格納できます</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>拡張子を指定してStageを保存する</h2><div class="code-card python-card"><div class="code-title"><span>create_files.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
 

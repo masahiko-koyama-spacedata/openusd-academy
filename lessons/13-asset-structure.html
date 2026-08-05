@@ -13,6 +13,7 @@ def Xform "Chair" (
 )
 {
 }</code></pre></div><p>Layer Metadataの<code>defaultPrim</code>は、このLayerを外部からPrim Pathなしで参照するときの対象Primを指定します。Prim Metadataの<code>kind</code>はModel Hierarchy上の役割、<code>payload</code>は重い内容へのArcです。ここではcontents Layer内の<code>/Chair</code>を明示しています。<code>@ @</code>はAsset Path、山括弧は参照先のPrim Pathです。</p></section>
+<section class="lesson-section"><h2>結果</h2><figure class="render-result"><img src="../assets/images/lesson-13/usdview.png" alt="usdviewの画面。Componentの入口Chairの下にPayloadから読み込まれたCube型のGeometryが表示されている" width="1148" height="1034"><figcaption>Interface Layerの<code>Chair</code>を入口にして、Payloadの内容である<code>Geometry</code>がその子として読み込まれています。</figcaption></figure><p class="example-link"><a href="../examples/lesson-13/Chair.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>入口とKindとPayloadを設定する</h2><div class="code-card python-card"><div class="code-title"><span>create_asset.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom, Kind, Sdf
 
 stage = Usd.Stage.CreateNew("Chair.usda")
