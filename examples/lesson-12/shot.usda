@@ -1,0 +1,13 @@
+#usda 1.0
+(
+    subLayers = [@./layout.usda@]
+)
+
+def Xform "World"
+{
+    def "Chair" (
+        prepend references = @./chair.usda@</Chair>
+    )
+    {
+    }
+}

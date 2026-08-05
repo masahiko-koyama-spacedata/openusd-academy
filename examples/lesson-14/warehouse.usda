@@ -1,0 +1,18 @@
+#usda 1.0
+
+def Xform "Warehouse"
+{
+    def "Robot_01" (
+        prepend references = @./Robot.usda@</Robot>
+        instanceable = true
+    )
+    {
+    }
+
+    def "Robot_02" (
+        prepend references = @./Robot.usda@</Robot>
+        instanceable = true
+    )
+    {
+    }
+}

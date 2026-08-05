@@ -1,0 +1,10 @@
+#usda 1.0
+
+def Xform "World"
+{
+    double3 xformOp:translate = (10, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+    def Sphere "Ball"
+    {
+    }
+}
