@@ -22,6 +22,14 @@
 ## 3. コンポジション
 
 - **Lesson 12:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、V・R・Sの使い分け、Opinionの上書き
+- **Lesson 12A:** [SublayerとLayer Stack](lessons/12-sublayers.html) — 同じnamespaceを積み、Local内の強弱を追う
+- **Lesson 12B:** [L · Local Opinion](lessons/12-local.html) — 利用側の直接Opinionで上書きする
+- **Lesson 12C:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
+- **Lesson 12D:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
+- **Lesson 12E:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
+- **Lesson 12F:** [R · ReferencesとdefaultPrim](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
+- **Lesson 12G:** [P · PayloadsとdefaultPrim](lessons/12-payloads.html) — Load可能な内容を合成する
+- **Lesson 12H:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
 
 ## 4. アセット設計
 
