@@ -14,6 +14,8 @@
 - JavaScriptが無効でも本文とナビゲーションを読めるようにする
 - レッスンの必須構成は `AGENTS.md` に従う
 
+複数のPCで編集するときは、[複数PCでのGit運用](CONTRIBUTING.md)に従ってブランチを分け、GitHub経由で変更を引き継ぎます。
+
 ## 構成
 
 ```text
