@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.usd": "usd",
+    "*.usda": "usd",
+    "*.usdc": "usd",
+    "*.usda.in": "usd"
+  }
+}
