@@ -31,7 +31,7 @@ Primが持つ情報の中身に入ります。値の型と、対象の指し方�
 - **STEP 11 · Lesson 22:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、arrayとrole
 - **STEP 12 · Lesson 05:** [Prim PathとProperty Path](lessons/05-prim-property-paths.html) — Stage内の対象を正確に指す
 - **STEP 13 · Lesson 25:** [Relationship Target](lessons/25-relationship-target.html) — 一つと複数の対象を同じ仕組みで書く
-- **STEP 14 · Lesson 26（予定）:** Custom Properties — Schema外の情報を追加する
+- **STEP 14 · Lesson 26:** [Custom Properties](lessons/26-custom-properties.html) — Schema外の情報を追加する
 
 ## 4. Pythonから触る
 
