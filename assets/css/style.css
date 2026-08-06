@@ -204,6 +204,9 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .lesson-index .lesson-children li { padding: 20px 0; }
 .lesson-index .lesson-children li:last-child { border-bottom: 0; }
 .lesson-children strong { font-size: 18px; }
+.chapter-lead { margin: 10px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+.lesson-index .planned { display: block; color: var(--muted); font-weight: 700; }
+.lesson-index .planned > span { display: block; margin-top: 5px; font-size: 16px; line-height: 1.5; font-weight: 400; }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero > *, .lesson-hero > * { animation: rise .55s both; }
