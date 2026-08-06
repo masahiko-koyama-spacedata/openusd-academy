@@ -64,6 +64,14 @@ Layer Metadataで指定する、そのLayerの主な入口となるtop-level Pri
 
 PrimをX・Y・Z方向へ移動する変換操作。通常は<code>xformOp:translate</code>として記述する。
 
+### Rotate
+
+軸の周りにPrimの向きを変える変換操作。複数軸を使うときはRotation Orderも結果へ影響する。
+
+### Scale
+
+Primの各軸方向の大きさへ倍率を掛ける変換操作。変更しない倍率は1。
+
 ### Path（パス）
 
 Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Room`。

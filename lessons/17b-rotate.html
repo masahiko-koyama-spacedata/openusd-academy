@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 17B Rotate — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 17B · TRANSFORMS</p><h1>Rotate</h1><p class="lesson-lead">Primの向きを軸と角度で変える変換操作</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Rotateは角度だけでなく軸の適用順序も読む</h2><p><code>rotateXYZ</code>のXYZは三つの値の並びだけでなく、回転操作を適用する順序を表します。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>向きを変えて子へ伝える</h2><p><strong>公式:</strong> Xformはtranslation・rotation・scaleを保持でき、親Xformの変換は子Primへ階層的に作用します。XformCommonAPIは単一のrotationとRotation Orderを共通構成でauthor・retrieveします。</p><p><strong>公式:</strong> UsdGeomXformableでは任意のxformOp列を扱えます。複数の回転や異なる順序が必要な場合は、どの操作がどの順で評価されるかを<code>xformOpOrder</code>で追います。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>角度が同じでもRotation Orderが違えば最終的な向きは変わり得ます。「X・Y・Zの角度」と「回す順番」を一組で読みます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">なんのためにあるのか</p><h2>Geometryを書き換えず向きを変える</h2><p>ドアを開く、車輪を回す、Lightの照射方向を変える、Robotの関節から先をまとめて回すために使います。親へRotateを書くと子孫も一緒に回るため、関節や可動部を階層で表せます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Y軸の周りに90度回す</h2><figure class="concept-flow" aria-labelledby="rotate-caption"><div class="flow-node"><strong>開始</strong><span>前方が+Z</span></div><div class="flow-arrow" aria-hidden="true">↓ Y軸まわり +90°</div><div class="flow-node strong"><strong>回転後</strong><span>向きが変わる</span></div><figcaption id="rotate-caption">Rotateは位置そのものではなく向きを変えます。pivotや親変換がある場合は、見かけの位置も変わることがあります。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>Y軸へ45度回転する</h2><div class="code-card usda-card"><div class="code-title"><span>rotate.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "World" {
+    def Cube "Box" {
+        float3 xformOp:rotateXYZ = (0, 45, 0)
+        uniform token[] xformOpOrder = [
+            "xformOp:rotateXYZ"
+        ]
+    }
+}</code></pre></div><p><code>float3</code>は三つのfloat値を持つ型です。値はX・Y・Z各軸の角度をdegreeで表します。<code>rotateXYZ</code>のsuffixはRotation Orderです。引用符で囲んだ操作名を<code>xformOpOrder</code>へ入れて評価に参加させます。</p></section>
+<section class="lesson-section"><p class="section-kicker">記号を読む</p><h2><code>float3 xformOp:rotateXYZ = (0, 45, 0)</code>を分解する</h2><ol class="mapping-list"><li><p class="mapping-label"><code>float3</code></p><p>X・Y・Zの角度を保持する三成分型です。</p></li><li><p class="mapping-label"><code>xformOp:rotateXYZ</code></p><p>XYZ Rotation Orderの回転操作です。コロンはnamespaceの区切りです。</p></li><li><p class="mapping-label"><code>(0, 45, 0)</code></p><p>Xへ0度、Yへ45度、Zへ0度を指定します。</p></li><li><p class="mapping-label"><code>["xformOp:rotateXYZ"]</code></p><p>角括弧はtoken配列で、評価する操作名を列挙します。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Rotation Orderを明示する</h2><div class="code-card python-card"><div class="code-title"><span>create_rotate.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("rotate.usda")
+box = UsdGeom.Cube.Define(stage, "/World/Box")
+api = UsdGeom.XformCommonAPI(box)
+
+api.SetRotate(
+    (0.0, 45.0, 0.0),
+    UsdGeom.XformCommonAPI.RotationOrderXYZ
+)
+stage.Save()</code></pre></div><p><code>SetRotate()</code>の第1引数は三つの角度、第2引数はRotation Orderです。丸括弧内の引数はカンマで区切ります。長い呼び出しは括弧内で改行し、対応する行を字下げすると読みやすくなります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>回転値と順序を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">xformOp:rotateXYZ = (0, 45, 0)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">SetRotate((0, 45, 0), RotationOrderXYZ)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">xformOpOrder = ["xformOp:rotateXYZ"]</code><span class="mapping-arrow">↓</span><p>XformCommonAPIが共通構成の操作順をauthorします。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p><h2>回転値を読む</h2><div class="mistake-list"><article><h3>問題1 <code>(90, 0, 0)</code>はどの軸か</h3><p><strong>答え:</strong> X軸まわり90度です。成分はX・Y・Zの順です。</p></article><article><h3>問題2 ドアを蝶番から回したい</h3><p><strong>答え:</strong> Rotateに加え、回転中心となる階層またはpivotが必要です。pivotはLesson 17Dで扱います。</p></article><article><h3>問題3 Robotの腕全体を回したい</h3><p><strong>答え:</strong> 腕のrootとなる親XformへRotateを書きます。階層変換が子部品へ届くためです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>角度だけを見ない</h2><div class="mistake-list"><article><h3>XYZを値のラベルだけだと思う</h3><p><strong>原因:</strong> Rotation Orderを見落としています。</p><p><strong>解決策:</strong> <code>rotateXYZ</code>と<code>rotateZYX</code>は別の操作です。角度とorderを一緒に確認します。</p></article><article><h3>radianで書く</h3><p><strong>原因:</strong> 数学APIの角度単位と混同しています。</p><p><strong>解決策:</strong> ここで扱うrotate xformOpの角度はdegreeで読み書きします。</p></article><article><h3>xformOpOrderへ名前を入れない</h3><p><strong>原因:</strong> Attributeが存在すれば評価されると思っています。</p><p><strong>解決策:</strong> 操作名を<code>xformOpOrder</code>へ含めます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>Rotate</dt><dd>軸の周りにPrimの向きを変える変換操作。</dd></div><div><dt>Rotation Order</dt><dd>複数軸の回転を適用する順序。</dd></div><div><dt>degree</dt><dd>一周を360とする角度単位。</dd></div><div><dt>radian</dt><dd>円弧長を基準にした角度単位。このページのrotate値には使わない。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xform.html">Xform — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xformcommonapi.html">XformCommonAPI — NVIDIA Learn OpenUSD</a></li></ul></section>
+<nav class="lesson-footer-nav" aria-label="前後のレッスン"><a href="17a-translate.html">← Lesson 17A</a><a href="17c-scale.html">Lesson 17C →</a></nav></main><footer><p>OpenUSD Academy · Lesson 17B</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
