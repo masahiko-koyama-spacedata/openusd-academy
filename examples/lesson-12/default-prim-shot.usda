@@ -1,0 +1,15 @@
+#usda 1.0
+(
+    defaultPrim = "Set"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Set"
+{
+    def Xform "Prop_01" (
+        prepend references = @./default-prim-asset.usda@
+    )
+    {
+    }
+}

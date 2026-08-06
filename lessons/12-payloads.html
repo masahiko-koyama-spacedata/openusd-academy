@@ -2,10 +2,14 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>P · PayloadsとdefaultPrim — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
 <header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
 <main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 12 · COMPOSITION DETAIL</p><h1>P · PayloadsとdefaultPrim</h1><p class="lesson-lead">PayloadはReferenceと同様にPrim階層を接ぎ木するが、内容をLoad・Unloadできる</p></header>
-<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>PayloadはReferenceと同様にPrim階層を接ぎ木するが、内容をLoad・Unloadできる</h2></section>
-<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>このArcが解決すること</h2><p>重いcontents.usdaをAssetの入口から必要時だけロードする</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>大きなGeometryなど、Stageを開いた時点では不要な内容を作業集合から外したい場面。</p></aside></section>
-<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Opinionから合成結果へ</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Authored</span><strong>payload.usda</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Composition</span><strong>P · PayloadsとdefaultPrim</strong></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">Result</span><strong>Composed Stage</strong></div><figcaption>LoadNoneではPayload内容を辿らず、Load後に内容が合成されます。入口LayerのLocal情報はPayloadより強く、未ロードでも見せる設計にできます。</figcaption></figure></section>
-<section class="lesson-section"><p class="section-kicker">USDA</p><h2>記述を読む</h2><div class="code-card usda-card"><div class="code-title"><span>payload.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p>
+<h2>PayloadはReferenceと同様にPrim階層を接ぎ木するが、内容をLoad・Unloadできる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p>
+<h2>このArcが解決すること</h2><p>重いcontents.usdaをAssetの入口から必要時だけロードする</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>大きなGeometryなど、Stageを開いた時点では不要な内容を作業集合から外したい場面。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p>
+<h2>Opinionから合成結果へ</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Authored</span><strong>payload.usda</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Composition</span><strong>P · PayloadsとdefaultPrim</strong></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">Result</span><strong>Composed Stage</strong></div><figcaption>LoadNoneではPayload内容を辿らず、Load後に内容が合成されます。入口LayerのLocal情報はPayloadより強く、未ロードでも見せる設計にできます。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p>
+<h2>記述を読む</h2><div class="code-card usda-card"><div class="code-title"><span>payload.usda</span><span>USDA</span></div><pre><code>#usda 1.0
 (
     defaultPrim = "Robot"
 )
@@ -15,17 +19,24 @@ def Xform "Robot" (
 ) {
     string assetInfo:name = "Robot"
 }</code></pre></div><p><code>#usda 1.0</code>はUSDAヘッダーです。引用符は名前や文字列、波括弧はPrim内容、丸括弧はMetadata、<code>/</code>はPrim Pathの階層を表します。インデントは所属を読みやすくするためにそろえます。</p></section>
-<section class="lesson-section"><p class="section-kicker">結果</p><h2>どのOpinionが見えるか</h2><p>LoadNoneではPayload内容を辿らず、Load後に内容が合成されます。入口LayerのLocal情報はPayloadより強く、未ロードでも見せる設計にできます。</p></section>
-<section class="lesson-section"><p class="section-kicker">Python</p><h2>合成結果をAPIで確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">結果</p>
+<h2>どのOpinionが見えるか</h2><p>LoadNoneではPayload内容を辿らず、Load後に内容が合成されます。入口LayerのLocal情報はPayloadより強く、未ロードでも見せる設計にできます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p>
+<h2>合成結果をAPIで確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect.py</span><span>Python</span></div><pre><code>from pxr import Usd
 stage = Usd.Stage.Open("payload.usda", load=Usd.Stage.LoadNone)
 robot = stage.GetPrimAtPath("/Robot")
 print(robot.IsLoaded())
 robot.Load()
 print(robot.IsLoaded())</code></pre></div><p>ピリオドはオブジェクトの機能へ進む記号、丸括弧は関数への入力、引用符はPathやファイル名、字下げはPythonの処理範囲を表します。</p></section>
-<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>記述と確認を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">P · PayloadsとdefaultPrim</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.Open() → GetPrimAtPath()</code></li></ol></section>
-<section class="lesson-section"><p class="section-kicker">例題</p><h2>用途を判断する</h2><p><strong>問題:</strong> 重いcontents.usdaをAssetの入口から必要時だけロードする</p><p><strong>答え:</strong> P · PayloadsとdefaultPrim。大きなGeometryなど、Stageを開いた時点では不要な内容を作業集合から外したい場面。</p></section>
-<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>Referenceより弱いからPayloadを選ぶ</h2><div class="mistake-list"><article><h3>誤解</h3><p><strong>原因:</strong> Arcの役割と強度順序を混同しています。</p><p><strong>解決策:</strong> 主な選択理由はロード制御です。強度差だけで置き換えず、アセットの入口と重い内容を分けます。</p></article></div></section>
-<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>Opinion</dt><dd>Layerに記述された値や構造への寄与。</dd></div><div><dt>Composition Arc</dt><dd>シーン記述を合成する仕組み。</dd></div><div><dt>P · PayloadsとdefaultPrim</dt><dd>PayloadはReferenceと同様にPrim階層を接ぎ木するが、内容をLoad・Unloadできる</dd></div></dl></section>
-<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-05">2026年8月5日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/references-payloads/what-are-payloads.html">NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/strength-ordering/what-is-liverps.html">What Is LIVERPS?</a></li></ul></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p>
+<h2>記述と確認を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">P · PayloadsとdefaultPrim</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.Open() → GetPrimAtPath()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p>
+<h2>用途を判断する</h2><p><strong>問題:</strong> 重いcontents.usdaをAssetの入口から必要時だけロードする</p><p><strong>答え:</strong> P · PayloadsとdefaultPrim。大きなGeometryなど、Stageを開いた時点では不要な内容を作業集合から外したい場面。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式の論点を残す</p><h2>Arcは残り、内容を辿るかを制御する</h2><p><strong>公式:</strong> PayloadはReferenceと同様にExternalまたはInternalのPrimを対象にできますが、Load・UnloadでCompositionに内容を含めるか制御できます。<code>Usd.Stage.Open(..., load=Usd.Stage.LoadNone)</code>ではPayload Arc自体は記録されても、その先の内容を最初から辿りません。</p><p><strong>公式:</strong> LoadはPrim単位で作業集合を制御します。ReferenceとPayloadの主な使い分けは「弱いから」ではなく、内容を遅延ロードする必要があるかです。Prim Pathを省略するExternal PayloadでもdefaultPrimが入口になります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>入口Layerには名前やBoundsなど、Payloadを開く前にも必要な情報を置き、重いGeometryをPayload側へ分ける設計があります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p>
+<h2>Referenceより弱いからPayloadを選ぶ</h2><div class="mistake-list"><article><h3>誤解</h3><p><strong>原因:</strong> Arcの役割と強度順序を混同しています。</p><p><strong>解決策:</strong> 主な選択理由はロード制御です。強度差だけで置き換えず、アセットの入口と重い内容を分けます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p>
+<h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>Opinion</dt><dd>Layerに記述された値や構造への寄与。</dd></div><div><dt>Composition Arc</dt><dd>シーン記述を合成する仕組み。</dd></div><div><dt>P · PayloadsとdefaultPrim</dt><dd>PayloadはReferenceと同様にPrim階層を接ぎ木するが、内容をLoad・Unloadできる</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p>
+<h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/references-payloads/what-are-payloads.html">NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/strength-ordering/what-is-liverps.html">What Is LIVERPS?</a></li></ul></section>
 <nav class="lesson-footer-nav" aria-label="章内ナビゲーション"><a href="12-references.html">← 前へ</a><a href="12-specializes.html">次へ →</a></nav></main><footer><p>OpenUSD Academy · Composition</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
-

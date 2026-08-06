@@ -1,0 +1,17 @@
+#usda 1.0
+(
+    defaultPrim = "Chair"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Chair"
+{
+    def Cube "Seat"
+    {
+    }
+}
+
+def Xform "Lamp"
+{
+}
