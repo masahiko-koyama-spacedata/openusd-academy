@@ -1,0 +1,62 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 25: RelationshipのTarget — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 25 · PROPERTIES</p><h1>Relationshipの<span>Target</span></h1><p class="lesson-lead">一つの対象と複数の対象を、同じ仕組みで書き分けます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Targetは常に一覧であり 一つでも複数でも同じRelationshipに書ける</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Relationshipは対象のPathを保存する</h2><p>Relationshipは、ほかのScene要素を指すPath値を保存します。Targetは複数持つことができ、オブジェクトをまとめたり集めたりする用途に向いています。Targetに指定できるのはPrim Pathだけでなく、Property Pathも指定できます。Pythonでは<code>GetTargets</code>で取得し、<code>SetTargets</code>で一覧全体を設定し、<code>AddTarget</code>で一つ追加し、<code>RemoveTarget</code>で一つ削除します。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Targetは「一つ」と「複数」で別の仕組みになるのではなく、内部では常に一覧です。対象が一つのときは、要素が一つだけの一覧だと考えると、USDAの書き方の違いに迷いません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>一つなら山括弧 複数なら角括弧</h2><div class="code-card usda-card"><div class="code-title"><span>targets.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Sphere "Ball"
+    {
+        double radius = 2
+    }
+
+    def Cube "Box"
+    {
+        double size = 2
+    }
+
+    def Scope "Selection"
+    {
+        custom rel primary = &lt;/World/Ball&gt;
+
+        custom rel members = [
+            &lt;/World/Ball&gt;,
+            &lt;/World/Box&gt;,
+        ]
+
+        custom rel driver = &lt;/World/Ball.radius&gt;
+    }
+}</code></pre></div><p><code>primary</code>は対象が一つなので、山括弧で囲んだPathをそのまま書きます。<code>members</code>は対象が二つなので、角括弧 <code>[ ]</code> で一覧にし、各Pathをカンマで区切ります。<code>driver</code>はPrimではなくPropertyを指しており、Prim Pathの後ろにドットとProperty名を続けます。</p><p class="example-link"><a href="../examples/lesson-25/targets.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>矢印の本数で読み分ける</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Target 1個</span><strong>/World/Selection.primary → /World/Ball</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Target 2個</span><strong>/World/Selection.members → /World/Ball, /World/Box</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Property Pathを指す</span><strong>/World/Selection.driver → /World/Ball.radius</strong></div><figcaption>OpenUSD AcademyによるTargetの本数と行き先の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>SetTargetsへリストを渡す</h2><div class="code-card python-card"><div class="code-title"><span>create_targets.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("targets.usda")
+UsdGeom.Xform.Define(stage, "/World")
+ball = UsdGeom.Sphere.Define(stage, "/World/Ball")
+box = UsdGeom.Cube.Define(stage, "/World/Box")
+
+selection = UsdGeom.Scope.Define(stage, "/World/Selection").GetPrim()
+
+primary = selection.CreateRelationship("primary", custom=True)
+primary.SetTargets([ball.GetPath()])
+
+members = selection.CreateRelationship("members", custom=True)
+members.SetTargets([ball.GetPath(), box.GetPath()])
+
+driver = selection.CreateRelationship("driver", custom=True)
+driver.SetTargets([ball.GetPath().AppendProperty("radius")])
+
+stage.Save()</code></pre></div><p><code>SetTargets</code>には、対象が一つでも角括弧のリストを渡します。<code>ball.GetPath()</code>は<code>/World/Ball</code>というPathを返し、<code>AppendProperty("radius")</code>はその後ろにProperty名をつないで<code>/World/Ball.radius</code>にします。<code>custom=True</code>は、Schemaで定義されていないPropertyであることを示します。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>書き方を一行ずつ対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">custom rel primary = &lt;/World/Ball&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">primary.SetTargets([ball.GetPath()])</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">custom rel members = [&lt;/World/Ball&gt;, &lt;/World/Box&gt;]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">members.SetTargets([ball.GetPath(), box.GetPath()])</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">custom rel driver = &lt;/World/Ball.radius&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">driver.SetTargets([ball.GetPath().AppendProperty("radius")])</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>括弧とドットを見分ける</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>USDAでは、山括弧 <code>&lt; &gt;</code> が一つのPathを囲み、角括弧 <code>[ ]</code> がPathの一覧を囲みます。一覧の最後の要素の後ろにカンマを置いても構いません。Pathの中では、スラッシュ <code>/</code> がPrimの親子を区切り、ドット <code>.</code> がPrimとPropertyを区切ります。Pythonでは、角括弧がリスト、丸括弧が関数への入力、カンマが要素の区切りです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>一覧の書き方と行き先を取り違えない</h2><div class="mistake-list"><article><h3>複数のPathを角括弧なしで並べる</h3><p><code>custom rel members = &lt;/World/Ball&gt;, &lt;/World/Box&gt;</code>とは書けません。対象が二つ以上のときは角括弧で一覧にします。</p></article><article><h3>SetTargetsとAddTargetを取り違える</h3><p><code>SetTargets</code>は一覧を丸ごと置き換え、<code>AddTarget</code>は一つ追加します。追加したいのに<code>SetTargets</code>を呼ぶと、以前のTargetが消えます。</p></article><article><h3>Property Pathをスラッシュで書く</h3><p><code>/World/Ball/radius</code>はPrim Pathとして読まれ、<code>radius</code>という名前の子Primを指してしまいます。Propertyを指すときはドットを使い、<code>/World/Ball.radius</code>と書きます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Target List</dt><dd>Relationshipが持つTarget Pathの一覧。対象が一つのときも一覧として扱われる。</dd></div><div><dt>Property Path</dt><dd>Prim Pathの後ろにドットとProperty名を続けた、Propertyを指すPath。</dd></div><div><dt>SetTargets</dt><dd>Target Listを、渡した一覧の内容に置き換えるPython API。</dd></div><div><dt>AddTarget</dt><dd>既存のTarget Listへ、Target Pathを一つ追加するPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/properties/relationships.html">NVIDIA Learn OpenUSD — Relationships</a></li><li><a href="https://openusd.org/release/api/class_usd_relationship.html">OpenUSD — UsdRelationship API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="24g-primvar-inheritance.html">← Lesson 24G</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 25</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

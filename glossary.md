@@ -124,6 +124,10 @@ Prim Pathの後ろに `.` とProperty名を続けたPath。
 
 0個以上のPrim PathまたはProperty Pathを対象として持てる、型のないProperty。
 
+### Target List
+
+Relationshipが持つTarget Pathの一覧。対象が一つのときも一覧として扱われる。
+
 ### Stage（ステージ）
 
 合成されたOpenUSDシーンにアクセスするための中心的なオブジェクト。

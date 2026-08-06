@@ -62,7 +62,7 @@
 
 - **Lesson 21:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
 - **Lesson 22:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、array
-- **Lesson 25（予定）:** Relationship Target — 一つと複数の対象
+- **Lesson 25:** [Relationship Target](lessons/25-relationship-target.html) — 一つと複数の対象
 - **Lesson 26（予定）:** Custom Properties — Schema外の情報を追加する
 - **Lesson 23:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
 - **Lesson 24A:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
