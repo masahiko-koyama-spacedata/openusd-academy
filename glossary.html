@@ -9,52 +9,90 @@
   <header class="site-header"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="メインナビゲーション"><a href="index.html">ホーム</a><a href="curriculum.html">カリキュラム</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
   <main class="document">
     <p class="eyebrow">GLOSSARY</p><h1>OpenUSD用語集</h1>
-    <p class="lead">以下はAcademyによる初学者向け要約です。各レッスンでは公式資料を参照し、より厳密な意味と出典を示します。</p>
-    <section><h2>A–Z</h2><dl>
+    <p class="lead">以下はAcademyによる初学者向け要約です。各レッスンでは公式資料を参照し、より厳密な意味と出典を示します。アルファベット順に並べ、日本語で始まる語を最後にまとめています。</p>
+    <section><h2>用語一覧</h2><dl>
+      <dt>array</dt><dd>同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。</dd>
+      <dt>asset</dt><dd>他のファイルを指すパスのValue Typeです。USDAでは <code>@ball.usda@</code> のようにアットマークで囲みます。</dd>
       <dt>Attribute（アトリビュート）</dt><dd>Primが持つ値のあるProperty。色、サイズ、位置などを表します。</dd>
-      <dt>UTF-8</dt><dd>Unicode文字を表す文字エンコーディングです。USDAは人が読めるUTF-8テキスト形式です。</dd>
-      <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
+      <dt>catmullClark</dt><dd>OpenUSDのMeshで既定となっている細分化の方式です。</dd>
       <dt>Composition Arc</dt><dd>複数のシーン記述を組み合わせる演算子です。</dd>
-      <dt>Instance</dt><dd>共有するPrototypeをシーン内で繰り返し利用するものです。</dd>
-      <dt>Kind</dt><dd>PrimのModel Hierarchy上の役割を示すMetadataです。</dd>
-      <dt>Layer（レイヤー）</dt><dd>シーン記述の一部分を保持するデータの単位です。</dd>
-      <dt>Layer Stack</dt><dd>root layerと再帰的なsublayerからなる順序付きのLayer集合です。</dd>
-      <dt>LIVERPS</dt><dd>Local、Inherits、Variant Sets、rElocates、References、Payloads、Specializesを強い順に並べた略語です。SublayerのOpinionはLayer Stack内のLocalに含まれます。</dd>
-      <dt>Metadata（メタデータ）</dt><dd>Prim、Property、Layerに付ける時間変化しない補助情報です。</dd>
+      <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
+      <dt>ComputeFlattened</dt><dd>Indexed Primvarのindexを解いた後の値の並びを返すPython APIです。</dd>
+      <dt>constant</dt><dd>Gprim全体へ値を一つだけ対応させるPrimvar Interpolationです。値の個数は形によらず常に1です。</dd>
       <dt>Default Prim（デフォルトプリム）</dt><dd>Layer Metadataで指定する、そのLayerの主な入口となるtop-level Primです。</dd>
-      <dt>Module（モジュール）</dt><dd>関連するOpenUSD APIをまとめた単位です。例: Usd、Sdf、Gf。</dd>
-      <dt>Scope</dt><dd>変換を持たず、Primを論理的に整理するconcrete IsA Schemaです。</dd>
-      <dt>XformCommonAPI</dt><dd>一般的な移動・回転・拡縮・pivotを共通構成で扱うnon-applied API Schemaです。</dd>
-      <dt>Translate</dt><dd>PrimをX・Y・Z方向へ移動する変換操作です。通常は<code>xformOp:translate</code>として記述します。</dd>
-      <dt>Rotate</dt><dd>軸の周りにPrimの向きを変える変換操作です。複数軸を使うときはRotation Orderも結果へ影響します。</dd>
-      <dt>Scale</dt><dd>Primの各軸方向の大きさへ倍率を掛ける変換操作です。変更しない倍率は1です。</dd>
-      <dt>Pivot</dt><dd>回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。</dd>
-      <dt>XformOpOrder</dt><dd>使用するxformOpとtransform stack上の順序を保持するtoken配列です。</dd>
-      <dt>Path（パス）</dt><dd>Stage内のPrimやPropertyを指す住所のような識別子です。例: <code>/World/Room</code>。</dd>
-      <dt>Prim Path</dt><dd>Stage内のPrimを識別するPathです。Prim名を <code>/</code> で区切ります。</dd>
-      <dt>Prim name（Prim名）</dt><dd>階層内のPrimを識別し、Pathの一部分になる名前です。例: <code>World</code>。</dd>
-      <dt>Prim（プリム）</dt><dd>Stageを構成する基本要素。シーングラフ上のノードです。</dd>
-      <dt>Property（プロパティ）</dt><dd>Primが持つ情報。AttributeとRelationshipの2種類があります。</dd>
-      <dt>vertex interpolation</dt><dd>Meshでは各Pointへ一要素を対応させ、Surfaceの基底関数で補間する方式です。</dd>
-      <dt>varying</dt><dd>Surface PatchやCurve Segment上で線形基底関数を使うPrimvar interpolationです。</dd>
-      <dt>faceVarying</dt><dd>Meshの各Face Vertexへ一要素を対応させるPrimvar interpolationです。</dd>
+      <dt>def（デフ）</dt><dd>現在のLayerでPrimを具体的に定義するSpecifierです。</dd>
+      <dt>displayColor</dt><dd>Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは<code>constant</code>です。</dd>
+      <dt>Face</dt><dd>Meshを構成する面です。<code>faceVertexCounts</code>の要素数がFaceの枚数になります。</dd>
+      <dt>Face Vertex</dt><dd>あるFaceが頂点を使った一回分です。同じPointが複数のFaceから使われると、その回数だけ増えます。</dd>
+      <dt>faceVarying</dt><dd>Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。Faceの境目で値を不連続にできます。</dd>
+      <dt>faceVertexCounts</dt><dd>各Faceの頂点数を順に並べた配列です。要素数がFaceの枚数になります。</dd>
+      <dt>faceVertexIndices</dt><dd>各Faceがどのpointを使うかを、<code>points</code>の位置番号で並べた配列です。</dd>
+      <dt>FindPrimvarWithInheritance</dt><dd>自分に無ければ親をさかのぼってPrimvarを探すPython APIです。</dd>
+      <dt>GetAuthoredPrimvars</dt><dd>そのPrimに実際に記述されたPrimvarだけを返すPython APIです。</dd>
+      <dt>Gprim</dt><dd>MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。</dd>
+      <dt>Imageable</dt><dd>画像化される可能性のあるPrimに共通する性質をまとめたSchemaの基盤です。</dd>
       <dt>Indexed Primvar</dt><dd>値配列と、その値を参照するindex配列を分けたPrimvarです。</dd>
+      <dt>indices</dt><dd>値の配列の何番目を使うかを並べた <code>int[]</code> の配列です。Primvar名の後ろに <code>:indices</code> を付けて表します。</dd>
+      <dt>Instance</dt><dd>共有するPrototypeをシーン内で繰り返し利用するものです。</dd>
+      <dt>Interpolation（補間）</dt><dd>Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。</dd>
+      <dt>Kind</dt><dd>PrimのModel Hierarchy上の役割を示すMetadataです。</dd>
+      <dt>Layer Stack</dt><dd>root layerと再帰的なsublayerからなる順序付きのLayer集合です。</dd>
+      <dt>Layer（レイヤー）</dt><dd>シーン記述の一部分を保持するデータの単位です。</dd>
+      <dt>LIVERPS</dt><dd>Local、Inherits、Variant Sets、rElocates、References、Payloads、Specializesを強い順に並べた略語です。SublayerのOpinionはLayer Stack内のLocalに含まれます。</dd>
+      <dt>matrix</dt><dd>行と列に並んだ数のまとまりです。<code>matrix4d</code>は座標変換に使います。</dd>
+      <dt>Metadata（メタデータ）</dt><dd>Prim、Property、Layerに付ける時間変化しない補助情報です。</dd>
+      <dt>Module（モジュール）</dt><dd>関連するOpenUSD APIをまとめた単位です。例: Usd、Sdf、Gf。</dd>
+      <dt>Namespace（名前空間）</dt><dd>Property名をコロンで区切って階層的にまとめる仕組みです。</dd>
+      <dt>Path（パス）</dt><dd>Stage内のPrimやPropertyを指す住所のような識別子です。例: <code>/World/Room</code>。</dd>
+      <dt>Pivot</dt><dd>回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。</dd>
+      <dt>Point</dt><dd>Meshの頂点の位置です。<code>points</code>に並ぶ座標を指します。</dd>
+      <dt>Prim name（Prim名）</dt><dd>階層内のPrimを識別し、Pathの一部分になる名前です。例: <code>World</code>。</dd>
+      <dt>Prim Path</dt><dd>Stage内のPrimを識別するPathです。Prim名を <code>/</code> で区切ります。</dd>
+      <dt>Primvar</dt><dd>名前が <code>primvars:</code> で始まり、Interpolation・index・継承を扱えるAttributeです。</dd>
+      <dt>Primvar Inheritance</dt><dd><code>constant</code>のPrimvarがScene Namespaceを下って子のImageable Primへ適用される仕組みです。</dd>
+      <dt>PrimvarsAPI</dt><dd>Prim上のPrimvarを作成・取得するためのAPI Schemaです。</dd>
+      <dt>Prim（プリム）</dt><dd>Stageを構成する基本要素。シーングラフ上のノードです。</dd>
       <dt>Property Path</dt><dd>Prim Pathの後ろに <code>.</code> とProperty名を続けたPathです。</dd>
+      <dt>Property（プロパティ）</dt><dd>Primが持つ情報。AttributeとRelationshipの2種類があります。</dd>
       <dt>Prototype</dt><dd>複数のInstanceが共有するシーン構造です。</dd>
+      <dt>pseudo-root（疑似ルート）</dt><dd>Stage階層の出発点です。Pathでは <code>/</code> で表します。</dd>
       <dt>Relationship（リレーションシップ）</dt><dd>0個以上のPrim PathまたはProperty Pathを対象として持てる、型のないPropertyです。</dd>
-      <dt>Stage（ステージ）</dt><dd>合成されたOpenUSDシーンにアクセスする中心的なオブジェクトです。</dd>
+      <dt>role</dt><dd>値が位置・向き・法線・色・テクスチャ座標のどれを表すかという、Value Typeの意味の部分です。</dd>
+      <dt>Rotate</dt><dd>軸の周りにPrimの向きを変える変換操作です。複数軸を使うときはRotation Orderも結果へ影響します。</dd>
+      <dt>scalar</dt><dd>数が一つだけの値の形です。<code>double</code>や<code>int</code>などが該当します。</dd>
+      <dt>Scale</dt><dd>Primの各軸方向の大きさへ倍率を掛ける変換操作です。変更しない倍率は1です。</dd>
+      <dt>Scene Namespace</dt><dd>Primの親子関係でできた名前の階層です。Pathで表されます。</dd>
       <dt>Schema（スキーマ）</dt><dd>PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。</dd>
+      <dt>Scope</dt><dd>変換を持たず、Primを論理的に整理するconcrete IsA Schemaです。</dd>
+      <dt>Sdf.ValueTypeNames</dt><dd>PythonからAttributeのValue Typeを指定するための名前の一覧です。</dd>
+      <dt>Seam（継ぎ目）</dt><dd>Faceの境目で値が不連続になる場所です。UVを展開したときの切れ目などを指します。</dd>
+      <dt>Sparse Authoring（疎な記述）</dt><dd>同じ情報を必要な最小限の場所にだけ書く考え方です。</dd>
+      <dt>Stage（ステージ）</dt><dd>合成されたOpenUSDシーンにアクセスする中心的なオブジェクトです。</dd>
+      <dt>Subdivision Surface（細分化サーフェス）</dt><dd>粗い多角形Meshを規則にしたがって細かく分割し、なめらかな形を作る仕組みです。</dd>
+      <dt>subdivisionScheme</dt><dd>Meshを細分化するかどうかを決めるAttributeです。<code>none</code>は細分化せず、書いた多角形のまま扱います。</dd>
       <dt>Target List</dt><dd>Relationshipが持つTarget Pathの一覧です。対象が一つのときも一覧として扱われます。</dd>
       <dt>Time Code</dt><dd>単位を持たない時間上の位置です。</dd>
       <dt>Time Sample</dt><dd>特定のTime Codeに記述されたAttribute値です。</dd>
+      <dt>token</dt><dd>決まった語を効率よく扱うための文字列型です。選択肢が決まっている場所で使われます。</dd>
+      <dt>Topology（トポロジー）</dt><dd>PointとFaceのつながり方です。Primvarに必要な値の個数はこれで決まります。</dd>
+      <dt>Translate</dt><dd>PrimをX・Y・Z方向へ移動する変換操作です。通常は<code>xformOp:translate</code>として記述します。</dd>
+      <dt>uniform</dt><dd>Faceごとに一つの値を対応させるPrimvar Interpolationです。Attributeの宣言に付く<code>uniform</code>（時間変化しない）とは別の意味です。</dd>
+      <dt>USD</dt><dd>UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル拡張子です。</dd>
       <dt>USDA</dt><dd>人が読めるUTF-8テキスト形式のOpenUSDファイル表現です。</dd>
       <dt>USDC</dt><dd>ランダムアクセスに対応するバイナリのCrate形式です。</dd>
-      <dt>USD</dt><dd>UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル拡張子です。</dd>
       <dt>USDZ</dt><dd>複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージです。</dd>
-      <dt>Xform（エックスフォーム）</dt><dd>移動、回転、拡大縮小などの変換データを保持し、子Primに適用できるPrim型です。</dd>
+      <dt>UTF-8</dt><dd>Unicode文字を表す文字エンコーディングです。USDAは人が読めるUTF-8テキスト形式です。</dd>
+      <dt>UV</dt><dd>Surface上の位置をテクスチャ画像の座標へ対応させる値です。<code>faceVarying</code>で持たせることが多い値です。</dd>
+      <dt>Value Type</dt><dd>Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。</dd>
+      <dt>varying</dt><dd>Pointごとに一つの値を対応させ、Surface上を線形に補間するPrimvar Interpolationです。</dd>
+      <dt>vector</dt><dd>複数の数をひとまとまりにした値の形です。USDAでは丸括弧で囲みます。</dd>
+      <dt>vertex</dt><dd>Pointごとに一つの値を対応させ、Surfaceの基底関数で補間するPrimvar Interpolationです。</dd>
+      <dt>XformCommonAPI</dt><dd>一般的な移動・回転・拡縮・pivotを共通構成で扱うnon-applied API Schemaです。</dd>
       <dt>XformOp</dt><dd>Xformに記述される移動、回転、拡大縮小など一つの変換操作です。</dd>
-      <dt>def（デフ）</dt><dd>現在のLayerでPrimを具体的に定義するSpecifierです。</dd>
-      <dt>pseudo-root（疑似ルート）</dt><dd>Stage階層の出発点。Pathでは <code>/</code> で表します。</dd>
+      <dt>XformOpOrder</dt><dd>使用するxformOpとtransform stack上の順序を保持するtoken配列です。</dd>
+      <dt>Xform（エックスフォーム）</dt><dd>移動、回転、拡大縮小などの変換データを保持し、子Primに適用できるPrim型です。</dd>
+      <dt>基底関数（basis function）</dt><dd>Surface上の位置から値を求めるための重み付けの規則です。</dd>
+      <dt>線形補間</dt><dd>2つの値の間を、距離に比例した割合でまっすぐつなぐ補間です。</dd>
     </dl></section>
     <p><a class="back-link" href="index.html">← ホームへ戻る</a></p>
   </main>
