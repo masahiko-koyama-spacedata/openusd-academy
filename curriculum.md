@@ -49,15 +49,20 @@
 - **Lesson 17C:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
 - **Lesson 17D:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
 - **Lesson 18:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
-- **Lesson 19A（予定）:** UsdLux — Light Schema群の目的を知る
-- **Lesson 19B（予定）:** DistantLight — 方向光を記述する
-- **Lesson 19C（予定）:** SphereLight — 点状・球状の光を記述する
-- **Lesson 19D（予定）:** Rect・Disk・Cylinder Light — 面光源の形を選ぶ
-- **Lesson 19E（予定）:** DomeLight — 環境から照らす
-- **Lesson 19F（予定）:** Light intensityとcolor — 光の強さと色を設定する
+- **Lesson 19A:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
+- **Lesson 19B:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
+- **Lesson 19C（予定）:** group — Modelを正しい祖先階層へまとめる
+- **Lesson 19D（予定）:** assembly — 公開可能なaggregate Assetを作る
+- **Lesson 19E（予定）:** subcomponent — component内部の重要なPrimを示す
 - **Lesson 20A（予定）:** metersPerUnit — 長さの尺度をStageへ記録する
 - **Lesson 20B（予定）:** upAxis — 上方向をYまたはZで指定する
 - **Lesson 20C（予定）:** kilogramsPerUnit — Physicsの質量尺度を記録する
+
+### 後続の優先順
+
+- Value Resolution、Default Value、Time Sample
+- Primvars、constant・uniform・vertex・faceVarying interpolation
+- UsdLux、DistantLight、SphereLight、area light、DomeLight、intensity、color
 
 ## 7. Propertyを深く理解する
 
