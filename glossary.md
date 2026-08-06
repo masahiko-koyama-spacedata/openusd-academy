@@ -148,6 +148,10 @@ UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル
 
 Xformに記述される移動、回転、拡大縮小など一つの変換操作。
 
+### XformOpOrder
+
+使用するxformOpとtransform stack上の順序を保持するtoken配列。
+
 ### def（デフ）
 
 現在のLayerでPrimを具体的に定義するSpecifier。

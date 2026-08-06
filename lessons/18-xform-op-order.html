@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 18 XformOpOrder — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 18 · TRANSFORMS</p><h1>XformOpOrder</h1><p class="lesson-lead">どのxformOpを、どの順序で変換stackへ積むかを指定するtoken配列</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>変換結果は値だけでなくxformOpOrderで決まる</h2><p>Translate、Rotate、ScaleのAttributeが同じでも、<code>xformOpOrder</code>の並びが違えば結果は変わり得ます。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Attributeの表示順では評価順が分からない</h2><p><strong>公式:</strong> UsdGeomXformableの変換操作は<code>xformOp</code> namespaceの動的Attributeとして記述されます。Attributeは辞書順で表示されることがあるため、ファイル内で上に見える順を評価順として使いません。</p><p><strong>公式:</strong> <code>xformOpOrder</code>は操作Attributeの名前を、transform stackへpushする正確な順序で保持します。<code>AddXformOp()</code>は新しい操作を配列の末尾へ、よりlocalな操作として追加します。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>コードブロックを読むときは値を見つけたあと、必ず<code>xformOpOrder</code>へ視線を移します。Propertyの行順ではなく、この配列が説明書です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">なんのためにあるのか</p><h2>自由な変換列を失わず交換する</h2><p>OpenUSDは固定されたTranslate・Rotate・Scale欄だけに限定せず、複数のRotate、用途別suffix付きTranslate、pivot、逆操作を並べられます。その自由な操作列を正確に復元するため、操作名と順序を明示します。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>配列を上からtransform stackへ積む</h2><figure class="concept-flow" aria-labelledby="order-caption"><div class="flow-node"><strong>配列の先頭</strong><span>xformOp:translate</span></div><div class="flow-arrow" aria-hidden="true">↓ push</div><div class="flow-node"><strong>次の操作</strong><span>xformOp:rotateXYZ</span></div><div class="flow-arrow" aria-hidden="true">↓ push</div><div class="flow-node strong"><strong>最もlocal</strong><span>xformOp:scale</span></div><figcaption id="order-caption">公式の標準的なSRT例は配列上でTranslate、Rotate、Scaleと並びます。行列計算を文章の左から右へ行うという意味ではありません。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>標準的なTranslate・Rotate・Scaleを並べる</h2><div class="code-card usda-card"><div class="code-title"><span>ordered-transform.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "Crate" {
+    float3 xformOp:rotateXYZ = (0, 45, 0)
+    float3 xformOp:scale = (2, 2, 2)
+    double3 xformOp:translate = (5, 0, 0)
+    uniform token[] xformOpOrder = [
+        "xformOp:translate",
+        "xformOp:rotateXYZ",
+        "xformOp:scale"
+    ]
+}</code></pre></div><p>三つのAttributeは名前の辞書順に見えますが、評価の手順は最後のtoken配列から読みます。角括弧は配列、カンマは要素の区切り、引用符は各tokenの範囲です。インデントは配列の所属を読みやすくします。</p></section>
+<section class="lesson-section"><p class="section-kicker">一行ずつ読む</p><h2><code>uniform token[] xformOpOrder</code>を分解する</h2><ol class="mapping-list"><li><p class="mapping-label"><code>uniform</code></p><p>時間ごとに変化させる目的ではないProperty variabilityです。</p></li><li><p class="mapping-label"><code>token[]</code></p><p>tokenを複数保持する配列型です。<code>[]</code>が複数要素を示します。</p></li><li><p class="mapping-label"><code>xformOpOrder</code></p><p>使用する変換操作名とtransform stack上の順序を保持するAttributeです。</p></li><li><p class="mapping-label">配列の各文字列</p><p>実在するxformOp Attribute名と一致させます。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">順序で結果が変わる例題</p><h2>ScaleとTranslateを入れ替えて比較する</h2><p>原点にある点<code>(1, 0, 0)</code>を考えます。「2倍してからXへ3移動」なら結果は<code>(5, 0, 0)</code>です。「Xへ3移動してから全体を2倍」なら結果は<code>(8, 0, 0)</code>です。</p><div class="mistake-list"><article><h3>Scale → Translate</h3><p><code>1 × 2 + 3 = 5</code></p></article><article><h3>Translate → Scale</h3><p><code>(1 + 3) × 2 = 8</code></p></article></div><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この計算は「操作順で結果が変わる」ことを直感的に示す簡略例です。USDAの配列をそのまま左から算数式へ置き換えず、実際のlocal transformationはOpenUSD APIで確認します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">特殊なtoken</p><h2>inverseとstack resetも配列へ入る</h2><ol class="mapping-list"><li><p class="mapping-label"><code>!invert!xformOp:translate:pivot</code></p><p>対応するpivot操作の逆変換を評価します。逆値を別Attributeへ重複して保存しません。</p></li><li><p class="mapping-label"><code>!resetXformStack!</code></p><p>配列の先頭にあると、namespace上の親から変換を継承しないことを示します。</p></li></ol><p>どちらも通常のAttribute名ではなく、<code>xformOpOrder</code>内で特別な意味を持つtokenです。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>操作を追加してorderを確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect_order.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("ordered-transform.usda")
+crate = UsdGeom.Xform.Define(stage, "/Crate")
+xformable = UsdGeom.Xformable(crate)
+
+translate = xformable.AddTranslateOp()
+rotate = xformable.AddRotateXYZOp()
+scale = xformable.AddScaleOp()
+
+translate.Set(Gf.Vec3d(5, 0, 0))
+rotate.Set(Gf.Vec3f(0, 45, 0))
+scale.Set(Gf.Vec3f(2, 2, 2))
+
+print(xformable.GetXformOpOrderAttr().Get())
+stage.Save()</code></pre></div><p><code>Add...Op()</code>を呼んだ順に操作がorderへ追加されます。返されたxformOpへ<code>Set()</code>で値を設定します。最後の<code>Get()</code>はauthorされたtoken配列を取得します。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>配列とAPIを対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">"xformOp:translate"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">xformable.AddTranslateOp()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">"xformOp:rotateXYZ"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">xformable.AddRotateXYZOp()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">"xformOp:scale"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">xformable.AddScaleOp()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p><h2>どの操作が評価されるか答える</h2><div class="mistake-list"><article><h3>問題1 Scale Attributeはあるがorderに名前がない</h3><p><strong>答え:</strong> そのScaleはlocal transformationの評価へ参加しません。</p></article><article><h3>問題2 orderに存在しないAttribute名がある</h3><p><strong>答え:</strong> 正しい操作列を復元できません。名前の綴りとsuffixをAttributeに一致させます。</p></article><article><h3>問題3 親変換を継承したくない</h3><p><strong>答え:</strong> reset xform stackを使います。USDAでは配列先頭の<code>!resetXformStack!</code>として表れます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>Propertyの行順を評価順だと思わない</h2><div class="mistake-list"><article><h3>上に書かれたAttributeから実行する</h3><p><strong>原因:</strong> USDAの表示順を手続き型コードの実行順と考えています。</p><p><strong>解決策:</strong> <code>xformOpOrder</code>だけを操作列の根拠にします。</p></article><article><h3>配列内の綴りを省略する</h3><p><strong>原因:</strong> <code>translate</code>だけで通じると思っています。</p><p><strong>解決策:</strong> <code>xformOp:translate</code>の完全なAttribute名を書きます。</p></article><article><h3>配列を変えても結果は同じだと思う</h3><p><strong>原因:</strong> 変換操作は一般に可換だと考えています。</p><p><strong>解決策:</strong> Scale・Rotate・Translateは順序で結果が変わり得ます。小さい数値例か<code>GetLocalTransformation()</code>で確認します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>xformOpOrder</dt><dd>使用するxformOpとtransform stack上の順序を保持するtoken配列。</dd></div><div><dt>transform stack</dt><dd>複数の変換操作を順序付きで積み重ねる評価の考え方。</dd></div><div><dt>identity</dt><dd>変換結果を変えない値。Translateは0、Scaleは1など。</dd></div><div><dt>reset xform stack</dt><dd>親Primの変換継承を止める指定。</dd></div><div><dt>commutative</dt><dd>順序を入れ替えても結果が同じ性質。一般の変換操作は可換とは限らない。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xform.html">Xform — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xformcommonapi.html">XformCommonAPI — NVIDIA Learn OpenUSD</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_xformable.html">UsdGeomXformable — OpenUSD API</a></li></ul></section>
+<nav class="lesson-footer-nav" aria-label="前後のレッスン"><a href="17d-pivot.html">← Lesson 17D</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 18</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
