@@ -1,31 +1,62 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>varying interpolation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson">
-<header class="lesson-hero"><p class="eyebrow">LESSON 24D</p><h1>varying interpolation</h1><p class="lesson-lead">Pointごとの値を線形に補間する</p></header><section class="lesson-section takeaway"><p>今日これだけ</p><h2>MeshではPoint数へ合わせ線形に補間する</h2></section>
-<section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> varyingはSurface PatchまたはCurve Segment上で線形基底関数を使います。Meshでは各Pointにつき一要素を<code>points</code>順に用意します。Quadではbilinear、Triangleではbarycentric interpolationを使います。</p><aside class="academy-note">OpenUSD Academy Note: vertexと値数は同じですが、補間方法が違います。</aside></section>
-<section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">Pointごとの値</div><div class="flow-node">線形基底関数</div><div class="flow-node strong">直線的な変化</div><figcaption>Subdivision表示ではvertexとの差が見えます。</figcaption></figure></section>
-<section class="lesson-section"><h2>USDA</h2><pre class="lesson-code usda-block"><code>#usda 1.0
-def Mesh "Plane"
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 24D: varying interpolation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 24D · PRIMVAR INTERPOLATION</p><h1>varying<span> interpolation</span></h1><p class="lesson-lead">値の個数はvertexと同じ。違いが出るのは細分化したときだけです</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>varyingはPointごとに一値で 面の上を線形に補間する</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>個数はvertexと同じ 補間の規則だけが違う</h2><p><code>varying</code>は、<a href="24c-vertex.html"><code>vertex</code></a>と同じくPointごとに一つの値を対応させます。必要な値の個数はまったく同じで、このPanelなら6個です。違うのは面の内側をどう埋めるかで、<code>varying</code>はSurfaceの上を線形に補間します。<code>vertex</code>はSurfaceの基底関数にしたがうため、Meshを細分化する設定にしたときに結果が変わります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この2つは、初学者がいちばん「違いが分からない」と感じる組み合わせです。理由ははっきりしていて、<strong>細分化しないMeshでは結果が完全に同じになる</strong>からです。下で実際に確かめます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>vertexの例からinterpolationだけを変える</h2><div class="code-card usda-card"><div class="code-title"><span>varying.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
 {
-    point3f[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0)]
-    int[] faceVertexCounts = [4]
-    int[] faceVertexIndices = [0,1,2,3]
-    token subdivisionScheme = "none"
-    color3f[] primvars:displayColor = [(0,0,0), (0,0,0), (1,1,1), (1,1,1)] (
-        interpolation = "varying"
-    )
-}</code></pre><p>公式ガイドはSubdivisionしないPolygon Meshでvaryingと<code>subdivisionScheme = "none"</code>を組み合わせるよう説明しています。引用符はtoken値を囲みます。</p></section>
-<section class="lesson-section"><h2>Python</h2><pre class="lesson-code python-block"><code>from pxr import Gf, Usd, UsdGeom
+    def Mesh "Panel"
+    {
+        uniform token subdivisionScheme = "none"
+        int[] faceVertexCounts = [4, 4]
+        int[] faceVertexIndices = [0, 1, 4, 3, 1, 2, 5, 4]
+        point3f[] points = [
+            (0, 0, 0), (1, 0, 0), (2, 0, 0),
+            (0, 1, 0), (1, 1, 0), (2, 1, 0),
+        ]
+        color3f[] primvars:displayColor = [
+            (0.85, 0.2, 0.2), (0.95, 0.8, 0.15), (0.15, 0.35, 0.85),
+            (0.85, 0.2, 0.2), (0.2, 0.7, 0.3), (0.15, 0.35, 0.85),
+        ] (
+            interpolation = "varying"
+        )
+    }
+}</code></pre></div><p><a href="24c-vertex.html">Lesson 24C</a>のUSDAと比べると、変わっているのは<code>interpolation</code>の行だけです。値の並びも個数もそのままで構いません。</p><p class="example-link"><a href="../examples/lesson-24d/varying.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>細分化しないMeshでは vertexと完全に同じになる</h2><figure class="render-result"><img src="../assets/images/lesson-24d/varying.png" alt="横長の板が、左端の赤から中央の黄と緑を経て右端の青へなめらかに変化するグラデーションで塗られた描画結果" width="800" height="583"><figcaption><code>subdivisionScheme = "none"</code>のとき、この描画結果は<a href="24c-vertex.html">Lesson 24C</a>の<code>vertex</code>の画像とバイト単位で一致しました。<br><small>撮影: <code>examples/lesson-24d/varying.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p>同じ入力から同じ絵が出るので、細分化しないMeshだけを扱っているうちは、この2つを見分けることはできません。「見た目で区別できないのが正しい」と知っておくことが、この段階では大切です。</p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>細分化すると違いが現れる</h2><p>同じ6色のまま<code>subdivisionScheme</code>を<code>catmullClark</code>へ変え、細分化を有効にして描画すると、2つの結果は一致しなくなります。</p><figure class="render-result"><img src="../assets/images/lesson-24d/subdiv-vertex.png" alt="細分化したMeshにvertex interpolationを適用した描画結果。中央の黄色と緑がやわらかくならされている" width="800" height="583"><figcaption><code>interpolation = "vertex"</code> + <code>subdivisionScheme = "catmullClark"</code>。細分化の規則で補間されるため、中央付近の色がなだらかにならされます。<br><small>撮影: <code>examples/lesson-24d/subdiv-vertex.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><figure class="render-result"><img src="../assets/images/lesson-24d/subdiv-varying.png" alt="細分化したMeshにvarying interpolationを適用した描画結果。中央の黄色と緑が濃く残っている" width="800" height="583"><figcaption><code>interpolation = "varying"</code> + <code>subdivisionScheme = "catmullClark"</code>。線形補間なので、Pointに書いた色がより強く残ります。<br><small>撮影: <code>examples/lesson-24d/subdiv-varying.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p>差はわずかですが、中央の黄と緑を見比べると、<code>vertex</code>のほうが色がならされ、<code>varying</code>のほうが元の値が濃く残っているのが分かります。この2枚は画像として一致しません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>個数は同じ 規則だけが分かれる</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">共通</span><strong>Pointごとに一値（このPanelでは6個）</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">vertex</span><strong>Surfaceの基底関数で補間する</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">varying</span><strong>Surface上を線形に補間する</strong></div><figcaption>OpenUSD Academyによる、vertexとvaryingの分かれ方の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Tokens.varyingを指定する</h2><div class="code-card python-card"><div class="code-title"><span>create_varying.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+
 stage = Usd.Stage.CreateNew("varying.usda")
-mesh = UsdGeom.Mesh.Define(stage, "/Plane")
-mesh.CreatePointsAttr([(0,0,0), (1,0,0), (1,1,0), (0,1,0)])
-mesh.CreateFaceVertexCountsAttr([4])
-mesh.CreateFaceVertexIndicesAttr([0,1,2,3])
-mesh.CreateSubdivisionSchemeAttr(UsdGeom.Tokens.none)
-pv = mesh.GetDisplayColorPrimvar()
-pv.SetInterpolation(UsdGeom.Tokens.varying)
-pv.Set([Gf.Vec3f(0,0,0), Gf.Vec3f(0,0,0), Gf.Vec3f(1,1,1), Gf.Vec3f(1,1,1)])
-stage.Save()</code></pre><p>Pythonの<code>.</code>はMethodへ進む記号です。この例に字下げBlockはなく、Pathは<code>/</code>から始めます。</p></section>
-<section class="lesson-section"><h2>USDA → Python対応</h2><p><code>"varying"</code> → <code>UsdGeom.Tokens.varying</code><br><code>subdivisionScheme = "none"</code> → <code>CreateSubdivisionSchemeAttr(UsdGeom.Tokens.none)</code></p></section>
-<section class="lesson-section"><h2>例題</h2><p>SubdivisionしないPolygon MeshをRenderer間で直線的に補間したい場合は、<strong>varyingとnone</strong>を使います。</p></section>
-<section class="lesson-section"><h2>よくある間違い</h2><p><strong>症状:</strong> vertexと同じだと思う。<br><strong>原因:</strong> Meshでは値数が同じ。<br><strong>解決策:</strong> vertexはSurfaceの基底関数、varyingは線形基底関数と区別します。</p></section>
-<section class="lesson-section"><h2>このレッスンで出た言葉</h2><dl><dt>varying</dt><dd>PatchやSegment上を線形に補間する方式。</dd><dt>bilinear</dt><dd>Quad上を二方向へ線形補間する方法。</dd><dt>barycentric</dt><dd>Triangleの頂点値を面内へ補間する方法。</dd></dl></section>
-<section class="lesson-section references"><h2>公式リファレンス</h2><p><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a><br><a href="https://openusd.org/release/user_guides/primvars.html">OpenUSD — Primvars</a><br>確認日: 2026年8月6日</p></section><nav class="lesson-footer-nav"><a href="24c-vertex.html">← Lesson 24C</a><a href="24e-face-varying.html">Lesson 24E →</a></nav></main></body></html>
+UsdGeom.Xform.Define(stage, "/World")
+
+mesh = UsdGeom.Mesh.Define(stage, "/World/Panel")
+mesh.CreateSubdivisionSchemeAttr("none")
+mesh.CreateFaceVertexCountsAttr([4, 4])
+mesh.CreateFaceVertexIndicesAttr([0, 1, 4, 3, 1, 2, 5, 4])
+mesh.CreatePointsAttr([
+    Gf.Vec3f(0, 0, 0), Gf.Vec3f(1, 0, 0), Gf.Vec3f(2, 0, 0),
+    Gf.Vec3f(0, 1, 0), Gf.Vec3f(1, 1, 0), Gf.Vec3f(2, 1, 0),
+])
+
+pv = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar(
+    "displayColor", Sdf.ValueTypeNames.Color3fArray, UsdGeom.Tokens.varying)
+pv.Set([
+    Gf.Vec3f(0.85, 0.2, 0.2), Gf.Vec3f(0.95, 0.8, 0.15), Gf.Vec3f(0.15, 0.35, 0.85),
+    Gf.Vec3f(0.85, 0.2, 0.2), Gf.Vec3f(0.2, 0.7, 0.3), Gf.Vec3f(0.15, 0.35, 0.85),
+])
+
+stage.Save()</code></pre></div><p><code>UsdGeom.Tokens.vertex</code>を<code>UsdGeom.Tokens.varying</code>へ変えるだけです。値の側は何も変えません。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">interpolation = "varying"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.Tokens.varying</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">uniform token subdivisionScheme = "catmullClark"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">mesh.CreateSubdivisionSchemeAttr("catmullClark")</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>subdivisionSchemeの既定値に注意する</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>UsdGeomMesh</code>の<code>subdivisionScheme</code>を書かなかった場合、既定値は<code>catmullClark</code>です。つまり<strong>何も書かないと細分化される側</strong>になります。このAcademyの例では、書いた多角形をそのまま見せたいので、毎回<code>none</code>を明示しています。自分で試すときも、意図しない細分化を避けるために明示することを勧めます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>「違いが見えない＝間違い」と考えてしまう</h2><div class="mistake-list"><article><h3>差が出ないので設定を疑ってしまう</h3><p>細分化しないMeshでは<code>vertex</code>と<code>varying</code>は同じ絵になります。これは仕様どおりの動作で、設定の誤りではありません。</p></article><article><h3>個数がvertexと違うと思う</h3><p>どちらもPointの個数と同じです。<code>varying</code>だけ値を増やしたり減らしたりする必要はありません。</p></article><article><h3>Meshの種類によらず同じだと考える</h3><p>Meshを細分化する設定にしたときや、NURBSなど別のSurfaceを扱うときには、補間の規則の違いがそのまま結果の違いになります。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>varying（interpolation）</dt><dd>Pointごとに一つの値を対応させ、Surface上を線形に補間するPrimvar Interpolation。</dd></div><div><dt>線形補間</dt><dd>2つの値の間を、距離に比例した割合でまっすぐつなぐ補間。</dd></div><div><dt>Subdivision Surface（細分化サーフェス）</dt><dd>粗い多角形Meshを規則にしたがって細かく分割し、なめらかな形を作る仕組み。</dd></div><div><dt>catmullClark</dt><dd>OpenUSDのMeshで既定となっている細分化の方式。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_primvar.html">OpenUSD — UsdGeomPrimvar API</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_mesh.html">OpenUSD — UsdGeomMesh API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="24c-vertex.html">← Lesson 24C</a><a href="24e-face-varying.html">Lesson 24E →</a></nav></main><footer><p>OpenUSD Academy · Lesson 24D</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

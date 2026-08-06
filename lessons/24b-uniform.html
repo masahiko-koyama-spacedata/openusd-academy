@@ -1,5 +1,55 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>uniform — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 24B</p><h1>uniform</h1><p>Faceごとに一つの値を使うInterpolation</p></header><section class="lesson-section takeaway"><h2>今日これだけ: 値数はFace数</h2></section><section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> uniformは各Faceまたはcurveごとに一値を対応させます。</p><aside class="academy-note">Point数ではなくFace数を数えます。</aside></section><section class="lesson-section"><h2>目的とDiagram</h2><figure class="concept-flow"><div class="flow-node">2 Faces</div><div class="flow-node strong">2 values</div><figcaption>Face別の色や分類に使います。</figcaption></figure></section><section class="lesson-section"><h2>USDA</h2><pre class="lesson-code usda-block"><code>int[] faceVertexCounts = [4, 4]
-color3f[] primvars:displayColor = [(1, 0, 0), (0, 0, 1)] (
-    interpolation = "uniform"
-)</code></pre><p>Faceが2枚なので色も2値です。</p></section><section class="lesson-section"><h2>Python</h2><pre class="lesson-code python-block"><code>pv.SetInterpolation(UsdGeom.Tokens.uniform)
-pv.Set([red, blue])</code></pre></section><section class="lesson-section"><h2>USDA → Python</h2><p><code>"uniform"</code> → <code>Tokens.uniform</code></p></section><section class="lesson-section"><h2>例題</h2><p>6 FaceのCubeに必要な値数は？ <strong>6</strong>です。</p></section><section class="lesson-section"><h2>よくある間違い</h2><p><strong>原因:</strong> 英単語から「全体で同じ」と推測する。<br><strong>解決策:</strong> PrimvarのuniformはFaceごとに一値です。</p></section><section class="lesson-section"><h2>用語集</h2><dl><dt>uniform</dt><dd>Faceごとに一値。</dd><dt>Face</dt><dd>Meshの面。</dd></dl></section><section class="lesson-section references"><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">Primvars — 確認日2026年8月6日</a></section><nav class="lesson-footer-nav"><a href="24a-constant.html">← Lesson 24A</a><a href="24c-vertex.html">Lesson 24C →</a></nav></main></body></html>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 24B: uniform interpolation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 24B · PRIMVAR INTERPOLATION</p><h1>uniform<span> interpolation</span></h1><p class="lesson-lead">Faceごとに一つの値を持たせます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>uniformの値の個数はFaceの枚数と同じになる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Faceを単位として値を対応させる</h2><p><code>uniform</code>は、Meshの各Faceへ一つずつ値を対応させるInterpolationです。値の個数は、<code>faceVertexCounts</code>の要素数、つまりFaceの枚数と一致していなければなりません。Faceの内側では値が変化しないため、隣り合うFaceの間には必ずはっきりした境目ができます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>英語の uniform は「一様な」という意味なので、「Prim全体で同じ値」と読み違えやすい語です。OpenUSDのPrimvarでは、一様なのは<strong>一つのFaceの内側だけ</strong>です。Prim全体で一つにしたいときは<a href="24a-constant.html"><code>constant</code></a>を使います。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2枚のFaceへ2つの色を渡す</h2><div class="code-card usda-card"><div class="code-title"><span>uniform.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Mesh "Panel"
+    {
+        uniform token subdivisionScheme = "none"
+        int[] faceVertexCounts = [4, 4]
+        int[] faceVertexIndices = [0, 1, 4, 3, 1, 2, 5, 4]
+        point3f[] points = [
+            (0, 0, 0), (1, 0, 0), (2, 0, 0),
+            (0, 1, 0), (1, 1, 0), (2, 1, 0),
+        ]
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2), (0.15, 0.35, 0.85)] (
+            interpolation = "uniform"
+        )
+    }
+}</code></pre></div><p><code>faceVertexCounts = [4, 4]</code>は「4頂点の面が2枚ある」という意味なので、Faceは2枚です。そのため<code>primvars:displayColor</code>にも値を2つ書きます。1つ目の値が1枚目のFace、2つ目の値が2枚目のFaceに対応します。順番はFaceの並び順そのままです。</p><p class="example-link"><a href="../examples/lesson-24b/uniform.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>境目で色がはっきり切り替わる</h2><figure class="render-result"><img src="../assets/images/lesson-24b/uniform.png" alt="横長の板の左半分が赤、右半分が青に塗られ、中央に直線の境目がある描画結果" width="800" height="583"><figcaption>左のFaceが1つ目の値、右のFaceが2つ目の値です。Faceの内側は一色なので、中央にまっすぐな境目が出ます。<br><small>撮影: <code>examples/lesson-24b/uniform.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Faceの枚数を数えてから値を書く</h2><figure class="concept-flow"><div class="flow-node"><span>faceVertexCounts</span><strong>[4, 4]</strong></div><div class="flow-node"><span>Face</span><strong>2枚</strong></div><div class="flow-node strong"><span>必要な値</span><strong>2個</strong></div><figcaption>OpenUSD Academyによる、uniformの値の個数の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Tokens.uniformを指定する</h2><div class="code-card python-card"><div class="code-title"><span>create_uniform.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("uniform.usda")
+UsdGeom.Xform.Define(stage, "/World")
+
+mesh = UsdGeom.Mesh.Define(stage, "/World/Panel")
+mesh.CreateSubdivisionSchemeAttr("none")
+mesh.CreateFaceVertexCountsAttr([4, 4])
+mesh.CreateFaceVertexIndicesAttr([0, 1, 4, 3, 1, 2, 5, 4])
+mesh.CreatePointsAttr([
+    Gf.Vec3f(0, 0, 0), Gf.Vec3f(1, 0, 0), Gf.Vec3f(2, 0, 0),
+    Gf.Vec3f(0, 1, 0), Gf.Vec3f(1, 1, 0), Gf.Vec3f(2, 1, 0),
+])
+
+pv = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar(
+    "displayColor", Sdf.ValueTypeNames.Color3fArray, UsdGeom.Tokens.uniform)
+pv.Set([Gf.Vec3f(0.85, 0.2, 0.2), Gf.Vec3f(0.15, 0.35, 0.85)])
+
+stage.Save()</code></pre></div><p>渡すリストの要素数が、そのままFaceへの割り当てになります。<code>len(mesh.GetFaceVertexCountsAttr().Get())</code>でFaceの枚数を数えられるので、値を書く前に確認すると間違いが減ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">interpolation = "uniform"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.Tokens.uniform</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">= [(0.85, 0.2, 0.2), (0.15, 0.35, 0.85)]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">pv.Set([Gf.Vec3f(0.85, 0.2, 0.2), Gf.Vec3f(0.15, 0.35, 0.85)])</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>faceVertexCountsの読み方</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>faceVertexCounts</code>は「各Faceが何個の頂点でできているか」を順番に並べた配列です。<code>[4, 4]</code>なら四角形が2枚、<code>[3, 3, 3]</code>なら三角形が3枚です。<strong>要素の数がFaceの枚数</strong>で、<strong>要素の中身が各Faceの頂点数</strong>です。ここを取り違えると必要な値の個数を間違えます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>数える対象を間違える</h2><div class="mistake-list"><article><h3>Point数だけ値を書く</h3><p>このPanelはPointが6個ありますが、<code>uniform</code>で必要なのはFaceの枚数、つまり2個です。Pointごとに色を変えたいときは<a href="24c-vertex.html">Lesson 24C</a>の<code>vertex</code>を使います。</p></article><article><h3>faceVertexCountsの中身を足してしまう</h3><p><code>[4, 4]</code>を足して8個の値を書くのは誤りです。8はFace Vertexの総数で、これは<a href="24e-face-varying.html"><code>faceVarying</code></a>で使う数です。</p></article><article><h3>uniformを「Prim全体で同じ」と読む</h3><p>USDAには<code>uniform token subdivisionScheme</code>のように、Attributeの宣言に付く<code>uniform</code>もあります。こちらは「時間で変化しない」という別の意味です。同じ綴りでも、Primvarのinterpolationとは無関係です。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>uniform（interpolation）</dt><dd>Faceごとに一つの値を対応させるPrimvar Interpolation。</dd></div><div><dt>uniform（Attributeの宣言）</dt><dd>Attributeが時間で変化しないことを示す宣言。Primvar Interpolationの<code>uniform</code>とは別の意味。</dd></div><div><dt>faceVertexCounts</dt><dd>各Faceの頂点数を順に並べた配列。要素数がFaceの枚数になる。</dd></div><div><dt>faceVertexIndices</dt><dd>各Faceがどのpointを使うかを、<code>points</code>の位置番号で並べた配列。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_primvar.html">OpenUSD — UsdGeomPrimvar API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="24a-constant.html">← Lesson 24A</a><a href="24c-vertex.html">Lesson 24C →</a></nav></main><footer><p>OpenUSD Academy · Lesson 24B</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
