@@ -1,0 +1,31 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Indexed Primvars — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson">
+<header class="lesson-hero"><p class="eyebrow">LESSON 24F</p><h1>Indexed Primvars</h1><p class="lesson-lead">同じ値を繰り返さずindexで参照する</p></header><section class="lesson-section takeaway"><p>今日これだけ</p><h2>値の表と使う順番を二つの配列へ分ける</h2></section>
+<section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> Indexed Primvarは完全な要素を繰り返す代わりにindexで参照し、Memory使用量を減らせます。indexはPrimvarの要素を指します。</p><aside class="academy-note">OpenUSD Academy Note: 「色見本」と「使う見本の番号」を分ける仕組みです。番号は0から始まります。</aside></section>
+<section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">values = 赤 青</div><div class="flow-node">indices = 0 1 0 1</div><div class="flow-node strong">赤 青 赤 青</div><figcaption>index 0は最初のvalueです。</figcaption></figure></section>
+<section class="lesson-section"><h2>USDA</h2><pre><code>#usda 1.0
+def Mesh "TwoQuads"
+{
+    point3f[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0), (2,0,0), (2,1,0)]
+    int[] faceVertexCounts = [4,4]
+    int[] faceVertexIndices = [0,1,2,3, 1,4,5,2]
+    color3f[] primvars:displayColor = [(1,0,0), (0,0,1)] (
+        interpolation = "faceVarying"
+    )
+    int[] primvars:displayColor:indices = [0,0,1,1, 0,0,1,1]
+}</code></pre><p>値は2個、faceVaryingのDomainは8個なのでindicesは8個です。<code>:indices</code>は同じPrimvar namespaceの後ろへ付けます。</p></section>
+<section class="lesson-section"><h2>Python</h2><pre><code>from pxr import Gf, Usd, UsdGeom
+stage = Usd.Stage.CreateNew("indexed.usda")
+mesh = UsdGeom.Mesh.Define(stage, "/TwoQuads")
+mesh.CreatePointsAttr([(0,0,0), (1,0,0), (1,1,0), (0,1,0), (2,0,0), (2,1,0)])
+mesh.CreateFaceVertexCountsAttr([4,4])
+mesh.CreateFaceVertexIndicesAttr([0,1,2,3, 1,4,5,2])
+pv = mesh.GetDisplayColorPrimvar()
+pv.SetInterpolation(UsdGeom.Tokens.faceVarying)
+pv.Set([Gf.Vec3f(1,0,0), Gf.Vec3f(0,0,1)])
+pv.SetIndices([0,0,1,1, 0,0,1,1])
+stage.Save()</code></pre><p><code>.</code>はMethod Call、角括弧は順序付き配列です。引用符はPathやファイル名を囲みます。</p></section>
+<section class="lesson-section"><h2>USDA → Python対応</h2><p>Primvar値 → <code>pv.Set(...)</code><br><code>:indices</code> → <code>pv.SetIndices(...)</code></p></section>
+<section class="lesson-section"><h2>例題</h2><p>8 Face Vertexで2色を繰り返すなら、<strong>色2個とindex 8個</strong>に分けられます。</p></section>
+<section class="lesson-section"><h2>よくある間違い</h2><p><strong>症状:</strong> 範囲外indexになる。<br><strong>原因:</strong> 値が2個なのにindex 2を使った。<br><strong>解決策:</strong> 有効なindexは0と1です。</p><p><strong>症状:</strong> Block後もindicesが残る。<br><strong>原因:</strong> Attributeだけを<code>Block()</code>した。<br><strong>解決策:</strong> 値とindicesを対象にする<code>PrimvarsAPI.BlockPrimvar()</code>を使います。</p></section>
+<section class="lesson-section"><h2>このレッスンで出た言葉</h2><dl><dt>Indexed Primvar</dt><dd>値配列をindex配列から参照するPrimvar。</dd><dt>index</dt><dd>配列要素の位置を示す0始まりの整数。</dd><dt>BlockPrimvar</dt><dd>Primvarの値とindicesをまとめてBlockするAPI。</dd></dl></section>
+<section class="lesson-section references"><h2>公式リファレンス</h2><p><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a><br><a href="https://openusd.org/release/user_guides/primvars.html">OpenUSD — Primvars</a><br>確認日: 2026年8月6日</p></section><nav class="lesson-footer-nav"><a href="24e-face-varying.html">← Lesson 24E</a><a href="24g-primvar-inheritance.html">Lesson 24G →</a></nav></main></body></html>

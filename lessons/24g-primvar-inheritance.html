@@ -1,0 +1,32 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Primvar Inheritance — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson">
+<header class="lesson-hero"><p class="eyebrow">LESSON 24G</p><h1>Primvar Inheritance</h1><p class="lesson-lead">親のconstant Primvarを子へ届ける</p></header><section class="lesson-section takeaway"><p>今日これだけ</p><h2>階層を下って適用されるのはconstantだけ</h2></section>
+<section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> Primvarは多くの通常Attributeと異なり、Scene Namespaceを下って子のImageable Primへ暗黙に適用されます。子が同名PrimvarのOpinionを持てば上書きします。継承されるのはconstant interpolationだけです。</p><aside class="academy-note">OpenUSD Academy Note: Topology依存値を異なる形の子へ配ると個数が合わないため、vertexやfaceVaryingは継承されません。</aside></section>
+<section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">/World に赤</div><div class="flow-node">/World/Body は未記述</div><div class="flow-node strong">Bodyにも赤</div><figcaption>子が青を記述すれば、その子では青が勝ちます。</figcaption></figure></section>
+<section class="lesson-section"><h2>USDA</h2><pre><code>#usda 1.0
+def Xform "World"
+{
+    color3f[] primvars:displayColor = [(1,0,0)] (
+        interpolation = "constant"
+    )
+    def Cube "Body" { }
+    def Cube "BluePart"
+    {
+        color3f[] primvars:displayColor = [(0,0,1)] (
+            interpolation = "constant"
+        )
+    }
+}</code></pre><p><code>Body</code>は親の赤を受け取り、<code>BluePart</code>は自分のOpinionで青にします。波括弧はPrimの範囲、引用符はPrim名とtoken値を囲みます。</p></section>
+<section class="lesson-section"><h2>Python</h2><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+stage = Usd.Stage.CreateNew("inheritance.usda")
+world = UsdGeom.Xform.Define(stage, "/World")
+UsdGeom.Cube.Define(stage, "/World/Body")
+blue = UsdGeom.Cube.Define(stage, "/World/BluePart")
+pv = UsdGeom.PrimvarsAPI(world).CreatePrimvar("displayColor", Sdf.ValueTypeNames.Color3fArray, UsdGeom.Tokens.constant)
+pv.Set([Gf.Vec3f(1,0,0)])
+blue.GetDisplayColorPrimvar().Set([Gf.Vec3f(0,0,1)])
+stage.Save()</code></pre><p><code>/World/Body</code>はBodyがWorldの子であることを示します。分岐がないためインデントは左端をそろえます。</p></section>
+<section class="lesson-section"><h2>USDA → Python対応</h2><p>親のPrimvar → <code>PrimvarsAPI(world).CreatePrimvar(...)</code><br>子の同名Opinion → <code>blue.GetDisplayColorPrimvar().Set(...)</code></p></section>
+<section class="lesson-section"><h2>例題</h2><p>親のvertex Primvarは子へ届くでしょうか。<strong>届きません。</strong>継承されるのはconstantだけです。</p></section>
+<section class="lesson-section"><h2>よくある間違い</h2><p><strong>症状:</strong> 親のvertex colorが子へ届かない。<br><strong>原因:</strong> Topology依存Primvarも継承できると思った。<br><strong>解決策:</strong> 共有値にはconstantを使い、Topology依存値は対象Gprimへ直接書きます。</p></section>
+<section class="lesson-section"><h2>このレッスンで出た言葉</h2><dl><dt>Primvar Inheritance</dt><dd>constant PrimvarがNamespaceを下って子へ適用される仕組み。</dd><dt>Imageable</dt><dd>画像化されるPrimに共通する性質を持つSchema基盤。</dd><dt>Sparse Authoring</dt><dd>同じ情報を必要な最小箇所だけへ書く考え方。</dd></dl></section>
+<section class="lesson-section references"><h2>公式リファレンス</h2><p><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a><br><a href="https://openusd.org/release/user_guides/primvars.html">OpenUSD — Primvars</a><br>確認日: 2026年8月6日</p></section><nav class="lesson-footer-nav"><a href="24f-indexed-primvars.html">← Lesson 24F</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main></body></html>

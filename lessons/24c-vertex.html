@@ -1,0 +1,30 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>vertex interpolation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson">
+<header class="lesson-hero"><p class="eyebrow">LESSON 24C</p><h1>vertex interpolation</h1><p class="lesson-lead">各Pointに値を置きSurfaceの基底関数で補間する</p></header>
+<section class="lesson-section takeaway"><p>今日これだけ</p><h2>値の個数と順序をpointsへ合わせる</h2></section>
+<section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> Meshのvertex interpolationは各Pointにつき一要素を使い、配列順を<code>points</code>と一致させます。値はSurfaceの基底関数で補間されます。</p><aside class="academy-note">OpenUSD Academy Note: 名前はvertexでも、個数は<code>points</code>を数えます。Face Vertex数ではありません。</aside></section>
+<section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">points 4個</div><div class="flow-node">値 4個</div><div class="flow-node strong">Surface上を補間</div><figcaption>同じ配列位置どうしが対応します。</figcaption></figure></section>
+<section class="lesson-section"><h2>USDA</h2><pre><code>#usda 1.0
+def Mesh "Plane"
+{
+    point3f[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0)]
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0,1,2,3]
+    color3f[] primvars:displayColor = [(1,0,0), (1,1,0), (0,1,0), (0,0,1)] (
+        interpolation = "vertex"
+    )
+}</code></pre><p><code>[]</code>は配列、<code>{}</code>はPrimの内容、<code>()</code>内の<code>interpolation</code>はPrimvar Metadataです。4色は4 Pointと同じ順序です。</p></section>
+<section class="lesson-section"><h2>Python</h2><pre><code>from pxr import Gf, Usd, UsdGeom
+stage = Usd.Stage.CreateNew("vertex.usda")
+mesh = UsdGeom.Mesh.Define(stage, "/Plane")
+mesh.CreatePointsAttr([(0,0,0), (1,0,0), (1,1,0), (0,1,0)])
+mesh.CreateFaceVertexCountsAttr([4])
+mesh.CreateFaceVertexIndicesAttr([0,1,2,3])
+pv = mesh.GetDisplayColorPrimvar()
+pv.SetInterpolation(UsdGeom.Tokens.vertex)
+pv.Set([Gf.Vec3f(1,0,0), Gf.Vec3f(1,1,0), Gf.Vec3f(0,1,0), Gf.Vec3f(0,0,1)])
+stage.Save()</code></pre><p>分岐がないため各文のインデントは左端をそろえます。半角引用符はファイル名とPathを囲み、<code>/Plane</code>の先頭のスラッシュは絶対Prim Pathを示します。</p></section>
+<section class="lesson-section"><h2>USDA → Python対応</h2><p><code>interpolation = "vertex"</code> → <code>SetInterpolation(UsdGeom.Tokens.vertex)</code><br>色配列 → <code>pv.Set(...)</code></p></section>
+<section class="lesson-section"><h2>例題</h2><p>Point 6個、Face Vertex 8個なら値は<strong>6個</strong>です。</p></section>
+<section class="lesson-section"><h2>よくある間違い</h2><p><strong>症状:</strong> 色数がTopologyと合わない。<br><strong>原因:</strong> <code>faceVertexIndices</code>の個数へ合わせた。<br><strong>解決策:</strong> vertexでは<code>points</code>の個数と順序へ合わせます。</p></section>
+<section class="lesson-section"><h2>このレッスンで出た言葉</h2><dl><dt>vertex</dt><dd>MeshではPointごとに値を置く補間方式。</dd><dt>basis function</dt><dd>Surface上の値を補間する関数。</dd></dl></section>
+<section class="lesson-section references"><h2>公式リファレンス</h2><p><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a><br><a href="https://openusd.org/release/user_guides/primvars.html">OpenUSD — Primvars</a><br>確認日: 2026年8月6日</p></section><nav class="lesson-footer-nav"><a href="24b-uniform.html">← Lesson 24B</a><a href="24d-varying.html">Lesson 24D →</a></nav></main></body></html>

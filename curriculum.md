@@ -62,14 +62,16 @@
 
 - **Lesson 21:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
 - **Lesson 22:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、array
-- **Lesson 23（予定）:** Relationship Target — 一つと複数の対象
-- **Lesson 24（予定）:** Custom Properties — Schema外の情報を追加する
+- **Lesson 25（予定）:** Relationship Target — 一つと複数の対象
+- **Lesson 26（予定）:** Custom Properties — Schema外の情報を追加する
 - **Lesson 23:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
 - **Lesson 24A:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
 - **Lesson 24B:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
-- **Lesson 25D（予定）:** vertex interpolation — Pointごとに一つの値
-- **Lesson 25E（予定）:** faceVarying interpolation — Face Vertexごとに一つの値
-- **Lesson 25F（予定）:** Indexed Primvars — 値とindexを分けて再利用する
+- **Lesson 24C:** [vertex interpolation](lessons/24c-vertex.html) — Pointごとに一つの値
+- **Lesson 24D:** [varying interpolation](lessons/24d-varying.html) — Pointごとの値を線形補間する
+- **Lesson 24E:** [faceVarying interpolation](lessons/24e-face-varying.html) — Face Vertexごとに一つの値
+- **Lesson 24F:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
+- **Lesson 24G:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
 
 ## 8. Compositionの基本操作
 

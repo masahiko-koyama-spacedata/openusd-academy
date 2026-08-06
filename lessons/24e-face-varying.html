@@ -1,0 +1,29 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>faceVarying interpolation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"></head><body><main class="lesson">
+<header class="lesson-hero"><p class="eyebrow">LESSON 24E</p><h1>faceVarying interpolation</h1><p class="lesson-lead">同じPointでもFaceごとに別の値を持たせる</p></header><section class="lesson-section takeaway"><p>今日これだけ</p><h2>値の個数と順序をfaceVertexIndicesへ合わせる</h2></section>
+<section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> faceVaryingは各Faceの各Face Vertexへ別の要素を指定します。Meshでは配列の個数と順序を<code>faceVertexIndices</code>へ合わせます。BasisCurvesでは現在サポートされません。</p><aside class="academy-note">OpenUSD Academy Note: 一つのPointを共有する二つのFaceへ別々のUVを割り当てられるため、UV Seamを作れます。</aside></section>
+<section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">共有Point</div><div class="flow-node">左FaceのUV</div><div class="flow-node">右Faceの別UV</div><div class="flow-node strong">UV Seam</div><figcaption>Face VertexはFace側から見たPointです。</figcaption></figure></section>
+<section class="lesson-section"><h2>USDA</h2><pre><code>#usda 1.0
+def Mesh "TwoQuads"
+{
+    point3f[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0), (2,0,0), (2,1,0)]
+    int[] faceVertexCounts = [4, 4]
+    int[] faceVertexIndices = [0,1,2,3, 1,4,5,2]
+    texCoord2f[] primvars:st = [(0,0), (1,0), (1,1), (0,1),
+                               (0,0), (1,0), (1,1), (0,1)] (
+        interpolation = "faceVarying"
+    )
+}</code></pre><p><code>faceVertexIndices</code>が8要素なのでUVも8要素です。<code>[]</code>は配列、<code>{}</code>はPrimの範囲、<code>()</code>は座標の組とMetadataに使います。</p></section>
+<section class="lesson-section"><h2>Python</h2><pre><code>from pxr import Sdf, Usd, UsdGeom, Vt
+stage = Usd.Stage.CreateNew("face-varying.usda")
+mesh = UsdGeom.Mesh.Define(stage, "/TwoQuads")
+mesh.CreatePointsAttr([(0,0,0), (1,0,0), (1,1,0), (0,1,0), (2,0,0), (2,1,0)])
+mesh.CreateFaceVertexCountsAttr([4,4])
+mesh.CreateFaceVertexIndicesAttr([0,1,2,3, 1,4,5,2])
+pv = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.faceVarying)
+pv.Set(Vt.Vec2fArray([(0,0), (1,0), (1,1), (0,1), (0,0), (1,0), (1,1), (0,1)]))
+stage.Save()</code></pre><p>半角引用符は名前とファイルPath、<code>/TwoQuads</code>は絶対Prim Pathです。分岐がないのでインデントは左端をそろえています。</p></section>
+<section class="lesson-section"><h2>USDA → Python対応</h2><p><code>texCoord2f[] primvars:st</code> → <code>CreatePrimvar("st", Sdf.ValueTypeNames.TexCoord2fArray, ...)</code><br><code>"faceVarying"</code> → <code>UsdGeom.Tokens.faceVarying</code></p></section>
+<section class="lesson-section"><h2>例題</h2><p>6 Pointでも<code>faceVertexIndices</code>が8要素なら、非IndexedのfaceVarying UVは<strong>8個</strong>です。</p></section>
+<section class="lesson-section"><h2>よくある間違い</h2><p><strong>症状:</strong> TextureがSeam付近で引き伸ばされる。<br><strong>原因:</strong> vertexを使い共有Pointに一つしかUVを持たせていない。<br><strong>解決策:</strong> faceVaryingでFace VertexごとのUVを書きます。</p></section>
+<section class="lesson-section"><h2>このレッスンで出た言葉</h2><dl><dt>faceVarying</dt><dd>Face Vertexごとに要素を指定する補間方式。</dd><dt>Face Vertex</dt><dd>各Face側から見たPoint。</dd><dt>UV Seam</dt><dd>Texture Coordinateが不連続になる境界。</dd></dl></section>
+<section class="lesson-section references"><h2>公式リファレンス</h2><p><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/primvars.html">NVIDIA Learn OpenUSD — Primvars</a><br><a href="https://openusd.org/release/user_guides/primvars.html">OpenUSD — Primvars</a><br>確認日: 2026年8月6日</p></section><nav class="lesson-footer-nav"><a href="24d-varying.html">← Lesson 24D</a><a href="24f-indexed-primvars.html">Lesson 24F →</a></nav></main></body></html>

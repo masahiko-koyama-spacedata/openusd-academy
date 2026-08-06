@@ -96,6 +96,22 @@ Stageを構成する基本要素。シーングラフ上のノードとして、
 
 Primが持つ情報。AttributeとRelationshipの2種類がある。
 
+### faceVarying
+
+Meshの各Face Vertexへ一要素を対応させるPrimvar interpolation。
+
+### Indexed Primvar
+
+値の配列と、その値を参照するindex配列を分けたPrimvar。
+
+### varying
+
+Surface PatchやCurve Segment上で線形基底関数を使うPrimvar interpolation。
+
+### vertex interpolation
+
+Meshでは各Pointへ一要素を対応させ、Surfaceの基底関数で補間する方式。
+
 ### Property Path
 
 Prim Pathの後ろに `.` とProperty名を続けたPath。
