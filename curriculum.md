@@ -51,9 +51,9 @@
 - **Lesson 18:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
 - **Lesson 19A:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
 - **Lesson 19B:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
-- **Lesson 19C（予定）:** group — Modelを正しい祖先階層へまとめる
-- **Lesson 19D（予定）:** assembly — 公開可能なaggregate Assetを作る
-- **Lesson 19E（予定）:** subcomponent — component内部の重要なPrimを示す
+- **Lesson 19C:** [group](lessons/19c-group.html) — Modelを正しい祖先階層へまとめる
+- **Lesson 19D:** [assembly](lessons/19d-assembly.html) — 公開可能なaggregate Assetを作る
+- **Lesson 19E:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
 - **Lesson 20A（予定）:** metersPerUnit — 長さの尺度をStageへ記録する
 - **Lesson 20B（予定）:** upAxis — 上方向をYまたはZで指定する
 - **Lesson 20C（予定）:** kilogramsPerUnit — Physicsの質量尺度を記録する
