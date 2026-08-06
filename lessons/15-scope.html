@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 15 Scope — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 15 · SCENE DESCRIPTION</p><h1>Scope</h1><p class="lesson-lead">Primを移動させず、用途ごとに整理するための入れ物</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>整理だけならScopeを使う</h2><p>Scopeは子Primをまとめますが、変換機能を持ちません。位置・回転・大きさを親から与えたいときはXformを使います。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>大きなScenegraphを読みやすくする</h2><p><strong>公式:</strong> Scopeはscenegraph内でPrimを論理的にまとめるためのconcrete IsA Schemaです。Geometryや描画対象そのものを表さず、transformabilityを持たない軽量な整理用コンテナです。</p><p><strong>公式:</strong> Scopeの下に置いたtransformableな子Primは通常どおり評価されます。Actors、Environments、Materials、Lightsなど、役割ごとのまとまりを作る用途があります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>フォルダに近い役割ですが、ただの見た目上のグループではありません。<code>/World/Geometry/Chair</code>のようにScope名もPrim Pathの一部になります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">なんのためにあるのか</p><h2>変換と整理を分離する</h2><p>すべての親をXformにすると、そのPrimに変換を記述できてしまいます。Scopeを使うと「ここは移動用ではなく整理用」という意図をSchemaで伝えられます。ツールや人がscenegraphを読んだとき、役割を判断しやすくなります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Worldの下を役割で分ける</h2><figure class="hierarchy-figure" aria-labelledby="scope-tree-caption"><div class="tree-stage"><span class="tree-kind">Xform</span><strong>/World</strong><small>Scene全体を動かせるroot</small></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Scope</span><strong>/World/Geometry</strong><small>Geometryを整理するだけ</small></div><div class="tree-connector"></div><div class="tree-prim child"><span class="tree-kind">Cube</span><strong>/World/Geometry/Box</strong><small>子自身の変換は記述できる</small></div><figcaption id="scope-tree-caption">ScopeはPathの階層を作りますが、Scope自身にはxformOpを持たせません。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>GeometryとLightsを分ける</h2><div class="code-card usda-card"><div class="code-title"><span>scope.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "World" {
+    def Scope "Geometry" {
+        def Cube "Box" {
+            double size = 2
+        }
+    }
+
+    def Scope "Lights" {
+        def DistantLight "Sun" {
+        }
+    }
+}</code></pre></div><p><code>def</code>はPrimを定義するSpecifier、<code>Scope</code>はPrimの型、引用符内はPrim名です。波括弧はPrimの内容、インデントは親子関係を読みやすくします。<code>/World/Geometry/Box</code>のスラッシュはPathの階層を区切ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">一行ずつ読む</p><h2><code>def Scope "Geometry"</code>を分解する</h2><ol class="mapping-list"><li><p class="mapping-label"><code>def</code></p><p>Stageに存在するPrimとして定義します。</p></li><li><p class="mapping-label"><code>Scope</code></p><p>変換を持たない整理用Prim Schemaを指定します。</p></li><li><p class="mapping-label"><code>"Geometry"</code></p><p>Prim名です。親が<code>/World</code>なのでPathは<code>/World/Geometry</code>になります。</p></li><li><p class="mapping-label"><code>{ }</code></p><p>Scopeの子PrimやPropertyを書く範囲です。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Scopeを定義して型を確認する</h2><div class="code-card python-card"><div class="code-title"><span>create_scope.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("scope.usda")
+world = UsdGeom.Xform.Define(stage, "/World")
+geometry = UsdGeom.Scope.Define(stage, "/World/Geometry")
+UsdGeom.Cube.Define(stage, "/World/Geometry/Box")
+
+print(geometry.GetPrim().IsA(UsdGeom.Scope))
+stage.Save()</code></pre></div><p><code>from</code>はpackageからmoduleを読み込む語、ピリオドは機能へ進む記号、丸括弧は関数へ値を渡す記号です。<code>IsA()</code>はPrimが指定Schemaの型かを確認します。出力は<code>True</code>です。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>定義と確認を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">def Scope "Geometry"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.Scope.Define(stage, "/World/Geometry")</code></li><li><p class="mapping-label">型を確認</p><code class="python-code">prim.IsA(UsdGeom.Scope)</code><p>PrimがScope Schemaかを調べます。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p><h2>ScopeとXformを選ぶ</h2><div class="mistake-list"><article><h3>問題1 Materialsを用途別に整理する</h3><p><strong>答え:</strong> Scope。整理が目的で、親から位置を変える必要がないためです。</p></article><article><h3>問題2 Robot全体を一度に回転する</h3><p><strong>答え:</strong> Xform。子へ階層変換を与える必要があるためです。</p></article><article><h3>問題3 Actorsをまとめて一時的に無効化する</h3><p><strong>答え:</strong> Scopeをrootにしてまとめる方法があります。Scope Primをinactiveにすると、その子孫もStageからpruneされます。activeの詳細は独立レッスンで扱います。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>ScopeをXformの代わりにしない</h2><div class="mistake-list"><article><h3>Scopeへtranslateを書こうとする</h3><p><strong>原因:</strong> Scopeを一般的な変換グループだと考えています。</p><p><strong>解決策:</strong> 移動させる親にはXformを使います。Scopeはtransformableではありません。</p></article><article><h3>Scope名はPathに入らないと思う</h3><p><strong>原因:</strong> UI上のフォルダ表示だけだと考えています。</p><p><strong>解決策:</strong> ScopeもPrimです。<code>Geometry</code>の子<code>Box</code>は<code>/World/Geometry/Box</code>になります。</p></article><article><h3>Scopeの子は変換できないと思う</h3><p><strong>原因:</strong> 親の非transformable性を子へ混同しています。</p><p><strong>解決策:</strong> Scope自身は変換できませんが、子のCubeやXformは自身のxformOpで変換できます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>Scope</dt><dd>変換を持たず、Primを論理的に整理するconcrete IsA Schema。</dd></div><div><dt>transformability</dt><dd>xformOpによって空間変換を記述できる性質。</dd></div><div><dt>IsA Schema</dt><dd>Primが何であるかをtypeNameで示すSchema。</dd></div><div><dt>inactive</dt><dd>Primと子孫をComposition結果から一時的に除外する状態。詳細は後続レッスンで扱う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/scope.html">Scope — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/schemas.html">Schemas — NVIDIA Learn OpenUSD</a></li></ul></section>
+<nav class="lesson-footer-nav" aria-label="前後のレッスン"><a href="14-data-pipelines.html">← Lesson 14</a><a href="16-xform-common-api.html">Lesson 16 →</a></nav></main><footer><p>OpenUSD Academy · Lesson 15</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

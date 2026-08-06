@@ -52,6 +52,14 @@ Layer Metadataで指定する、そのLayerの主な入口となるtop-level Pri
 
 関連するOpenUSD APIをまとめた単位。例: Usd、Sdf、Gf。
 
+### Scope
+
+変換を持たず、Primを論理的に整理するconcrete IsA Schema。
+
+### XformCommonAPI
+
+一般的な単一の移動・回転・拡縮・pivotを、交換しやすい共通構成で扱うnon-applied API Schema。
+
 ### Path（パス）
 
 Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Room`。

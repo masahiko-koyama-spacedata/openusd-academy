@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 16 XformCommonAPI — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 16 · TRANSFORMS</p><h1>XformCommonAPI</h1><p class="lesson-lead">一般的な移動・回転・拡縮・pivotを、交換しやすい構成で扱うAPI</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>標準的な変換ならXformCommonAPIから始める</h2><p>自由なxformOp列ではなく、単一のtranslate・rotate・scale・pivotという共通構成で値を読み書きします。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>DCC間で扱いやすい変換を作る</h2><p><strong>公式:</strong> XformCommonAPIはnon-applied API Schemaです。一般的な単一のtranslation、rotation、scale、pivotをauthor・retrieveするための制限された構成を提供します。</p><p><strong>公式:</strong> UsdGeomXformableは任意のxformOp列を扱えます。自由度は高い一方、「この物体の位置はどれか」のような単純な問い合わせが難しくなることがあります。XformCommonAPIは一般的な交換を簡単にするため、許可する操作と順序を限定します。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>APIという名前ですが、値は最終的に通常の<code>xformOp:translate</code>などとしてUSDAへ保存されます。独自ファイル形式を追加する仕組みではありません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">なんのためにあるのか</p><h2>変換を見つけやすくする</h2><p>任意のxformOp列には複数の回転やpivotを置けます。高度な動きには必要ですが、importerやexporterが単一の位置・回転・scaleへ対応させるのは難しくなります。共通構成を使うことで、一般的なDCCのtransform channelへ対応させやすくします。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>API操作はUSDAのPropertyになる</h2><figure class="concept-flow" aria-labelledby="common-api-caption"><div class="flow-node"><strong>SetTranslate</strong><span>(10, 0, 0)</span></div><div class="flow-arrow" aria-hidden="true">↓ author</div><div class="flow-node strong"><strong>xformOp:translate</strong><span>Propertyへ保存</span></div><div class="flow-arrow" aria-hidden="true">↓ orderで評価</div><div class="flow-node"><strong>xformOpOrder</strong><span>操作順を列挙</span></div><figcaption id="common-api-caption">Python APIとUSDAは別の概念ではなく、同じscene descriptionを異なる方法で扱います。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>共通構成の変換を読む</h2><div class="code-card usda-card"><div class="code-title"><span>common-transform.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "Crate" {
+    double3 xformOp:translate = (10, 0, 0)
+    float3 xformOp:rotateXYZ = (0, 45, 0)
+    float3 xformOp:scale = (2, 2, 2)
+    uniform token[] xformOpOrder = [
+        "xformOp:translate",
+        "xformOp:rotateXYZ",
+        "xformOp:scale"
+    ]
+}</code></pre></div><p><code>double3</code>と<code>float3</code>は三つの数を持つ型、コロンはnamespaceを区切る記号です。角括弧は配列、カンマは要素の区切り、引用符はtoken値を示します。<code>uniform</code>は値が時間変化する目的ではないことを示します。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>対応可能か確認して値を書く</h2><div class="code-card python-card"><div class="code-title"><span>create_transform.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("common-transform.usda")
+crate = UsdGeom.Xform.Define(stage, "/Crate")
+api = UsdGeom.XformCommonAPI(crate)
+
+if not api:
+    raise RuntimeError("XformCommonAPIで扱えません")
+
+api.SetTranslate((10.0, 0.0, 0.0))
+api.SetRotate(
+    (0.0, 45.0, 0.0),
+    UsdGeom.XformCommonAPI.RotationOrderXYZ
+)
+api.SetScale((2.0, 2.0, 2.0))
+stage.Save()</code></pre></div><p><code>if not api:</code>はAPIがPrimと互換でない場合を調べます。コロンの次に字下げした行が条件内の処理です。<code>raise</code>はエラーを発生させます。複数行の丸括弧内では引数を改行でき、カンマで区切ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>Propertyとsetterを対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">xformOp:translate = (10, 0, 0)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">api.SetTranslate((10, 0, 0))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">xformOp:rotateXYZ = (0, 45, 0)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">api.SetRotate((0, 45, 0), RotationOrderXYZ)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">xformOp:scale = (2, 2, 2)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">api.SetScale((2, 2, 2))</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p><h2>どのAPIを選ぶか</h2><div class="mistake-list"><article><h3>問題1 DCCの一般的な位置・回転・scaleと交換する</h3><p><strong>答え:</strong> XformCommonAPIから始めます。標準的なcomponent transformを扱う目的に合います。</p></article><article><h3>問題2 惑星の公転と自転を別のpivotで二重に記述する</h3><p><strong>答え:</strong> 任意のxformOp列を扱えるUsdGeomXformableを検討します。XformCommonAPIの制限された共通構成では表しにくい例です。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>どのxformOp列にも使えると思わない</h2><div class="mistake-list"><article><h3>既存Primへ確認せずsetterを使う</h3><p><strong>原因:</strong> 任意の操作列が共通構成へ変換できると考えています。</p><p><strong>解決策:</strong> <code>UsdGeom.XformCommonAPI(prim)</code>の有効性を確認します。</p></article><article><h3>xformOpOrderを無視する</h3><p><strong>原因:</strong> Propertyが存在すれば自動で適用されると考えています。</p><p><strong>解決策:</strong> 変換評価には<code>xformOpOrder</code>へ操作名が入っている必要があります。順序の意味は独立レッスンで扱います。</p></article><article><h3>API SchemaをApplyする</h3><p><strong>原因:</strong> すべてのAPI Schemaがapplied APIだと考えています。</p><p><strong>解決策:</strong> XformCommonAPIはnon-applied API Schemaです。wrapperを作って互換性を確認します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>XformCommonAPI</dt><dd>一般的な単一の移動・回転・拡縮・pivotを扱うnon-applied API Schema。</dd></div><div><dt>non-applied API Schema</dt><dd>Primへ適用済み情報をauthorせず、互換なデータを操作するAPI Schema。</dd></div><div><dt>xformOp</dt><dd>translateやrotateなど、一つの変換操作を表すProperty。</dd></div><div><dt>xformOpOrder</dt><dd>使用するxformOpと評価順序を列挙するtoken配列。</dd></div><div><dt>pivot</dt><dd>回転や拡縮の中心。詳細は独立レッスンで扱う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xformcommonapi.html">XformCommonAPI — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xform.html">Xform — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/schemas.html">Schemas — NVIDIA Learn OpenUSD</a></li></ul></section>
+<nav class="lesson-footer-nav" aria-label="前後のレッスン"><a href="15-scope.html">← Lesson 15</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 16</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

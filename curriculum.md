@@ -42,12 +42,22 @@
 
 ## 6. Scene Descriptionの部品
 
-- **Lesson 15（予定）:** 動かさずに整理するScope — 変換を持たない整理用Prim
-- **Lesson 16（予定）:** XformCommonAPI — よく使う変換を安全に設定する
-- **Lesson 17（予定）:** Translate・Rotate・Scale — 変換を一つずつ読む
+- **Lesson 15:** [Scope](lessons/15-scope.html) — 変換を持たず、Primを用途ごとに整理する
+- **Lesson 16:** [XformCommonAPI](lessons/16-xform-common-api.html) — 一般的な変換を交換しやすい構成で扱う
+- **Lesson 17A（予定）:** Translate — 位置を三つの軸で記述する
+- **Lesson 17B（予定）:** Rotate — 回転角とRotation Orderを読む
+- **Lesson 17C（予定）:** Scale — 各軸の倍率を記述する
+- **Lesson 17D（予定）:** Pivot — 回転と拡縮の中心を決める
 - **Lesson 18（予定）:** XformOpOrder — 変換順序で結果が変わる理由
-- **Lesson 19（予定）:** Lights — Light Schemaの入口
-- **Lesson 20（予定）:** UnitsとUp Axis — 大きさと上方向をそろえる
+- **Lesson 19A（予定）:** UsdLux — Light Schema群の目的を知る
+- **Lesson 19B（予定）:** DistantLight — 方向光を記述する
+- **Lesson 19C（予定）:** SphereLight — 点状・球状の光を記述する
+- **Lesson 19D（予定）:** Rect・Disk・Cylinder Light — 面光源の形を選ぶ
+- **Lesson 19E（予定）:** DomeLight — 環境から照らす
+- **Lesson 19F（予定）:** Light intensityとcolor — 光の強さと色を設定する
+- **Lesson 20A（予定）:** metersPerUnit — 長さの尺度をStageへ記録する
+- **Lesson 20B（予定）:** upAxis — 上方向をYまたはZで指定する
+- **Lesson 20C（予定）:** kilogramsPerUnit — Physicsの質量尺度を記録する
 
 ## 7. Propertyを深く理解する
 
