@@ -47,7 +47,7 @@
 - **Lesson 17A:** [Translate](lessons/17a-translate.html) — 位置を三つの軸で記述する
 - **Lesson 17B:** [Rotate](lessons/17b-rotate.html) — 回転角とRotation Orderを読む
 - **Lesson 17C:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
-- **Lesson 17D（予定）:** Pivot — 回転と拡縮の中心を決める
+- **Lesson 17D:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
 - **Lesson 18（予定）:** XformOpOrder — 変換順序で結果が変わる理由
 - **Lesson 19A（予定）:** UsdLux — Light Schema群の目的を知る
 - **Lesson 19B（予定）:** DistantLight — 方向光を記述する
