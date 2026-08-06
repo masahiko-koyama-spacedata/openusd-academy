@@ -60,6 +60,10 @@ Layer Metadataで指定する、そのLayerの主な入口となるtop-level Pri
 
 一般的な単一の移動・回転・拡縮・pivotを、交換しやすい共通構成で扱うnon-applied API Schema。
 
+### Translate
+
+PrimをX・Y・Z方向へ移動する変換操作。通常は<code>xformOp:translate</code>として記述する。
+
 ### Path（パス）
 
 Stage内のPrimやPropertyを指す住所のような識別子。例: `/World/Room`。

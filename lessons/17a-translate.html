@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 17A Translate — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 17A · TRANSFORMS</p><h1>Translate</h1><p class="lesson-lead">PrimをX・Y・Z方向へ移動する変換操作</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Translateは三つの数で移動量を指定する</h2><p><code>(X, Y, Z)</code>の順に、Primのlocal空間でどれだけ移動するかを記述します。</p></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>位置を直接保存するのではなく変換操作を記述する</h2><p><strong>公式:</strong> XformとtransformableなGeometry Primは、translation・rotation・scaleなどのxformOpを持てます。親Primの変換は子孫へ階層的に作用します。</p><p><strong>公式:</strong> XformCommonAPIの<code>SetTranslate()</code>は一般的な単一のtranslationをauthorします。USDAでは通常、<code>xformOp:translate</code> Attributeと、その操作を列挙する<code>xformOpOrder</code>として保存されます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Translateは「最終的なworld座標を直接書く欄」とは限りません。親が動けば、同じlocal translateでもworld上の結果は変わります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">なんのためにあるのか</p><h2>形を変えずに配置を変える</h2><p>椅子を部屋の右側へ置く、Robot全体を開始位置へ移す、親Xformの下にある複数部品をまとめて動かすために使います。Geometryのpointsを書き換える方法と違い、元の形状データを保ったまま配置できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>三つの軸へ移動量を分ける</h2><figure class="concept-flow" aria-labelledby="translate-caption"><div class="flow-node"><strong>開始位置</strong><span>(0, 0, 0)</span></div><div class="flow-arrow" aria-hidden="true">↓ translate (3, 2, -1)</div><div class="flow-node strong"><strong>X方向</strong><span>+3</span></div><div class="flow-node strong"><strong>Y方向</strong><span>+2</span></div><div class="flow-node strong"><strong>Z方向</strong><span>-1</span></div><figcaption id="translate-caption">正負が方向、数の大きさが移動量です。どの軸が上方向かはStageのupAxis設定にも関係します。</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>CubeをX方向へ3移動する</h2><div class="code-card usda-card"><div class="code-title"><span>translate.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+
+def Xform "World" {
+    def Cube "Box" {
+        double size = 2
+        double3 xformOp:translate = (3, 0, 0)
+        uniform token[] xformOpOrder = [
+            "xformOp:translate"
+        ]
+    }
+}</code></pre></div><p><code>double3</code>はdouble精度の数を三つ持つ型です。<code>xformOp</code>と<code>translate</code>の間のコロンはnamespace区切り、<code>=</code>は値の設定、丸括弧は三成分の値をまとめます。角括弧は配列、引用符はtoken値の範囲です。</p></section>
+<section class="lesson-section"><p class="section-kicker">一行ずつ読む</p><h2><code>double3 xformOp:translate = (3, 0, 0)</code>を分解する</h2><ol class="mapping-list"><li><p class="mapping-label"><code>double3</code></p><p>X・Y・Zに対応する三つのdouble精度数を持つ型です。</p></li><li><p class="mapping-label"><code>xformOp:translate</code></p><p>translation操作のAttribute名です。</p></li><li><p class="mapping-label"><code>(3, 0, 0)</code></p><p>Xへ+3、YとZへ0移動します。カンマは三成分を区切ります。</p></li><li><p class="mapping-label"><code>xformOpOrder</code></p><p>このPrimの変換評価へ<code>xformOp:translate</code>を参加させます。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">親子関係</p><h2>親のTranslateは子にも届く</h2><div class="code-card usda-card"><div class="code-title"><span>parent-translate.usda</span><span>USDA</span></div><pre><code>def Xform "Robot" {
+    double3 xformOp:translate = (10, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    def Cube "Body" {
+        double3 xformOp:translate = (0, 2, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}</code></pre></div><p><code>/Robot</code>はlocalでXへ10移動します。<code>/Robot/Body</code>は親の空間でYへ2移動するため、回転やscaleがないこの最小例ではworld上の移動結果を<code>(10, 2, 0)</code>として考えられます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>親にrotationやscaleがある場合、world上の結果は単純な足し算だけでは求められません。変換順序と行列を後続ページで扱います。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>XformCommonAPIで移動を書く</h2><div class="code-card python-card"><div class="code-title"><span>create_translate.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("translate.usda")
+world = UsdGeom.Xform.Define(stage, "/World")
+box = UsdGeom.Cube.Define(stage, "/World/Box")
+
+api = UsdGeom.XformCommonAPI(box)
+api.SetTranslate(Gf.Vec3d(3.0, 0.0, 0.0))
+
+stage.Save()</code></pre></div><p><code>Gf.Vec3d</code>は三つのdouble精度数を持つvectorです。<code>SetTranslate()</code>へ渡すことで、対応するtranslate AttributeとxformOpOrderをauthorします。ピリオドはmoduleやobjectの機能へ進む記号です。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>値と操作を対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">double3 xformOp:translate = (3, 0, 0)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">api.SetTranslate(Gf.Vec3d(3, 0, 0))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">xformOpOrder = ["xformOp:translate"]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><p>XformCommonAPIが共通構成のorderをauthorします。</p></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">例題</p><h2>値と結果を答える</h2><div class="mistake-list"><article><h3>問題1 Xへ5、Yへ-2、Zへ0移動する</h3><p><strong>答え:</strong> <code>xformOp:translate = (5, -2, 0)</code>です。成分順はX・Y・Zです。</p></article><article><h3>問題2 親が(4, 0, 0)、子が(0, 3, 0)移動する</h3><p><strong>答え:</strong> 親子に回転・scaleがない最小条件では、子のworld上の結果を<code>(4, 3, 0)</code>と考えられます。</p></article><article><h3>問題3 Cubeの形状を変えずに別の場所へ置く</h3><p><strong>答え:</strong> pointsやsizeではなくtranslateを使います。配置と形状を分離できるためです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>値を書くだけで適用されると思わない</h2><div class="mistake-list"><article><h3>xformOpOrderへ追加しない</h3><p><strong>原因:</strong> Attributeの存在と変換評価を同じだと考えています。</p><p><strong>解決策:</strong> <code>"xformOp:translate"</code>を<code>xformOpOrder</code>へ含めます。</p></article><article><h3>成分をY・X・Zの順に書く</h3><p><strong>原因:</strong> 画面上の見た目だけで軸を推測しています。</p><p><strong>解決策:</strong> 値は<code>(X, Y, Z)</code>の順です。StageのupAxisとは「三成分の並び」と「どの軸を上として扱うか」を分けて考えます。</p></article><article><h3>local値をworld位置だと思う</h3><p><strong>原因:</strong> 親の階層変換を無視しています。</p><p><strong>解決策:</strong> translate AttributeはPrimのlocal変換に参加します。world変換は祖先の変換も合成して求めます。</p></article><article><h3>metersPerUnitが自動で数値を変えると思う</h3><p><strong>原因:</strong> 単位Metadataと変換値を混同しています。</p><p><strong>解決策:</strong> <code>metersPerUnit</code>は解釈する尺度を示します。異なる尺度のAssetをCompositionするときの補正は別ページで扱います。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このページで出た言葉</h2><dl class="lesson-glossary"><div><dt>Translate</dt><dd>X・Y・Z方向の移動量を表す変換操作。</dd></div><div><dt>local space</dt><dd>親Primを基準にした、そのPrim自身の座標空間。</dd></div><div><dt>world space</dt><dd>祖先の階層変換を合成したStage全体の座標空間。</dd></div><div><dt>Gf.Vec3d</dt><dd>三つのdouble精度数からなるGf moduleのvector型。</dd></div><div><dt>xformOpOrder</dt><dd>使用するxformOpと評価順序を列挙するtoken配列。詳細は独立ページで扱う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xform.html">Xform — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/scene-description-blueprints/xformcommonapi.html">XformCommonAPI — NVIDIA Learn OpenUSD</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/beyond-basics/units.html">Units in OpenUSD — NVIDIA Learn OpenUSD</a></li></ul></section>
+<nav class="lesson-footer-nav" aria-label="前後のレッスン"><a href="16-xform-common-api.html">← Lesson 16</a><a href="../curriculum.html">全カリキュラムへ →</a></nav></main><footer><p>OpenUSD Academy · Lesson 17A</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
