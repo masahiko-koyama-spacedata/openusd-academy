@@ -1,0 +1,39 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 20C: kilogramsPerUnit — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 20C · STAGE METADATA</p><h1><span>kilogramsPerUnit</span></h1><p class="lesson-lead">質量の「1」が何キログラムなのかを記録します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>kilogramsPerUnitは質量の尺度を宣言するMetadataで 既定値は1</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>長さと同じ考え方を質量にも当てはめる</h2><p><code>kilogramsPerUnit</code>は、そのLayerで使われる質量の「1」が実世界の何キログラムにあたるかを示すLayer Metadataです。<code>1</code>ならキログラム、<code>0.001</code>ならグラムです。Physicsを扱うSchemaが質量を解釈するときの基準になります。<a href="20a-meters-per-unit.html"><code>metersPerUnit</code></a>とまったく同じ考え方で、宣言であって自動変換ではありません。書かなかった場合の既定値は1です。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>このMetadataは<code>UsdPhysics</code>モジュールが扱います。長さの<code>metersPerUnit</code>が<code>UsdGeom</code>にあるのと対になっていると覚えると、どちらのモジュールを<code>import</code>すればよいか迷いません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>グラムで質量を扱うLayer</h2><div class="code-card usda-card"><div class="code-title"><span>mass-units.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+    kilogramsPerUnit = 0.001
+)
+
+def Xform "World"
+{
+    def Cube "Brick"
+    {
+        double size = 0.2
+        custom float academy:mass = 2500
+    }
+}</code></pre></div><p><code>kilogramsPerUnit = 0.001</code>なので、この世界の質量の「1」は1グラムです。<code>2500</code>は2500グラム、つまり2.5キログラムを意味します。<code>metersPerUnit</code>や<code>upAxis</code>と同じ丸括弧の中に並べて書きます。</p><p class="example-link"><a href="../examples/lesson-20c/mass-units.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>3つの尺度が同じ場所に並ぶ</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">長さ</span><strong>metersPerUnit — 1 は何メートルか</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">上方向</span><strong>upAxis — どの軸が上か</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">質量</span><strong>kilogramsPerUnit — 1 は何キログラムか</strong></div><figcaption>OpenUSD AcademyによるStage Metadataの並びの図</figcaption></figure><p>この3つはどれもLayer Metadataで、ファイル先頭の同じ丸括弧の中に書きます。どれも「宣言するだけで、値そのものは変えない」という性質を共有しています。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>UsdPhysicsから読み書きする</h2><div class="code-card python-card"><div class="code-title"><span>mass_units.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdPhysics
+
+stage = Usd.Stage.CreateNew("mass.usda")
+
+print(UsdPhysics.StageHasAuthoredKilogramsPerUnit(stage))   # False
+print(UsdPhysics.GetStageKilogramsPerUnit(stage))           # 1.0
+
+UsdPhysics.SetStageKilogramsPerUnit(stage, UsdPhysics.MassUnits.grams)
+print(UsdPhysics.GetStageKilogramsPerUnit(stage))           # 0.001
+
+stage.Save()</code></pre></div><p><code>UsdPhysics.MassUnits</code>には<code>kilograms</code>、<code>grams</code>、<code>slugs</code>が用意されています。<code>StageHasAuthoredKilogramsPerUnit</code>は、値が実際に書かれているかどうかを返します。既定値の1が返ってきたときに「書いてあって1なのか、書いていないだけなのか」を区別できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">kilogramsPerUnit = 0.001</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdPhysics.SetStageKilogramsPerUnit(stage, UsdPhysics.MassUnits.grams)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（値の確認）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdPhysics.GetStageKilogramsPerUnit(stage)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（記述の有無の確認）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdPhysics.StageHasAuthoredKilogramsPerUnit(stage)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>モジュールの分かれ方</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>長さの単位は<code>from pxr import UsdGeom</code>、質量の単位は<code>from pxr import UsdPhysics</code>です。同じLayer Metadataでも、扱うモジュールが分かれています。これは、Metadataの意味がどの領域に属するかで整理されているためです。<code>defaultPrim</code>のようにどの領域にも属さないものは、<code>Usd.Stage</code>から直接扱います。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>質量の単位を暗黙に決める</h2><div class="mistake-list"><article><h3>書かずにグラムのつもりで数値を入れる</h3><p>書かなければ既定値の1、つまりキログラムとして解釈されます。2500と書けば2500キログラムです。</p></article><article><h3>metersPerUnitに合わせて自動で決まると思う</h3><p>長さと質量の尺度は独立しています。センチメートルのシーンでも、質量の既定値はキログラムのままです。</p></article><article><h3>UsdGeomから探してしまう</h3><p><code>kilogramsPerUnit</code>を扱うのは<code>UsdPhysics</code>です。<code>UsdGeom</code>には用意されていません。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>kilogramsPerUnit</dt><dd>そのLayerの質量の「1」が実世界の何キログラムかを示すLayer Metadata。</dd></div><div><dt>MassUnits</dt><dd>Pythonで質量の単位を指定するための定数群。<code>kilograms</code>、<code>grams</code>、<code>slugs</code>。</dd></div><div><dt>UsdPhysics</dt><dd>物理シミュレーション向けのSchemaとAPIをまとめたモジュール。</dd></div><div><dt>StageHasAuthoredKilogramsPerUnit</dt><dd>値が実際に記述されているかどうかを返すPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/stage-metadata.html">NVIDIA Learn OpenUSD — Stage Metadata</a></li><li><a href="https://openusd.org/release/api/usd_physics_page_front.html">OpenUSD — UsdPhysics</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="20b-up-axis.html">← Lesson 20B</a><a href="10-xform-hierarchy.html">Lesson 10 →</a></nav></main><footer><p>OpenUSD Academy · Lesson 20C</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

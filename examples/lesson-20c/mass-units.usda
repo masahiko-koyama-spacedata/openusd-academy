@@ -1,0 +1,16 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+    kilogramsPerUnit = 0.001
+)
+
+def Xform "World"
+{
+    def Cube "Brick"
+    {
+        double size = 0.2
+        custom float academy:mass = 2500
+    }
+}

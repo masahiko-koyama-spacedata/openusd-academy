@@ -1,0 +1,72 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 20A: metersPerUnit — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 20A · STAGE METADATA</p><h1><span>metersPerUnit</span></h1><p class="lesson-lead">「1」が何メートルなのかを、Stageに記録します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>metersPerUnitは長さの尺度を宣言するだけで 形を自動では変えない</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>数値1つ分が何メートルかを表す</h2><p><code>metersPerUnit</code>は、Layerの先頭に書くLayer Metadataです。そのLayerの中で使われる長さの「1」が、実世界の何メートルにあたるかを示します。<code>1</code>ならメートル、<code>0.01</code>ならセンチメートル、<code>0.001</code>ならミリメートルです。これは<strong>宣言</strong>であり、OpenUSDがこの値を見て形を自動で拡大縮小することはありません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>「書いておけば揃えてくれる」と期待すると必ず失敗します。<code>metersPerUnit</code>は、他のツールや人が読んだときに正しく解釈するための<strong>ラベル</strong>です。実際に大きさを合わせるのは、読み込む側の仕事です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>センチメートルで作られた箱</h2><div class="code-card usda-card"><div class="code-title"><span>crate-in-centimetres.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Crate"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+def Xform "Crate"
+{
+    def Cube "Body"
+    {
+        double size = 100
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+    }
+}</code></pre></div><p><code>metersPerUnit = 0.01</code>なので、この世界の「1」は1センチメートルです。<code>size = 100</code>は100センチメートル、つまり1メートルの箱を意味します。ファイルの先頭にある丸括弧の中がLayer Metadataを書く場所で、Primの外側にあることに注目してください。</p><p class="example-link"><a href="../examples/lesson-20a/crate-in-centimetres.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>メートルの世界へそのまま読み込む</h2><div class="code-card usda-card"><div class="code-title"><span>unit-mismatch.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Cube "LocalCrate"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        double3 xformOp:translate = (-1.2, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "ImportedCrate" (
+        references = @crate-in-centimetres.usda@
+    )
+    {
+        double3 xformOp:translate = (1.2, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}</code></pre></div><p>こちらは<code>metersPerUnit = 1</code>、つまりメートルの世界です。赤い<code>LocalCrate</code>は<code>size = 1</code>で1メートル。青い<code>ImportedCrate</code>は先ほどのセンチメートルの箱を読み込んでいますが、中身の<code>size = 100</code>はそのまま100として扱われます。結果として、1メートルの隣に100メートルの箱が置かれます。</p><p class="example-link"><a href="../examples/lesson-20a/unit-mismatch.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>100倍の箱が画面を埋めつくす</h2><figure class="render-result"><img src="../assets/images/lesson-20a/unit-mismatch.png" alt="画面全体を青い巨大な立方体が占め、赤い箱はどこにも見えない描画結果" width="800" height="583"><figcaption>1メートルの赤い箱は、100メートルになった青い箱の内側に完全に埋まってしまい、外からは見えません。カメラを420単位まで引いても、青い箱だけで画面が埋まります。<br><small>撮影: <code>examples/lesson-20a/unit-mismatch.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">直し方</p><h2>読み込む側でscaleを掛ける</h2><div class="code-card usda-card"><div class="code-title"><span>unit-corrected.usda（該当部分）</span><span>USDA</span></div><pre><code>    def "ImportedCrate" (
+        references = @crate-in-centimetres.usda@
+    )
+    {
+        double3 xformOp:translate = (1.2, 0, 0)
+        double3 xformOp:scale = (0.01, 0.01, 0.01)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }</code></pre></div><p>読み込む側の<code>metersPerUnit</code>（1）を、読み込まれる側の<code>metersPerUnit</code>（0.01）で割ると100になります。その逆数<code>0.01</code>を<code>xformOp:scale</code>に掛けると、大きさが揃います。<code>xformOpOrder</code>にscaleを追加することを忘れないでください。書いただけでは有効になりません。</p><figure class="render-result"><img src="../assets/images/lesson-20a/unit-corrected.png" alt="同じ大きさの赤い立方体と青い立方体が並んで描画された結果" width="800" height="583"><figcaption>scaleで補正すると、どちらも1メートルの箱として同じ大きさになります。<br><small>撮影: <code>examples/lesson-20a/unit-corrected.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p class="example-link"><a href="../examples/lesson-20a/unit-corrected.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>補正の計算</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">読み込まれる側</span><strong>metersPerUnit = 0.01（センチメートル）</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">読み込む側</span><strong>metersPerUnit = 1（メートル）</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">掛けるscale</span><strong>0.01 ÷ 1 = 0.01</strong></div><figcaption>OpenUSD Academyによる、単位補正の計算の図</figcaption></figure><p>一般には「読み込まれる側の値 ÷ 読み込む側の値」が掛けるべきscaleになります。センチメートルのアセットをメートルのシーンへ入れるなら0.01、逆にメートルのアセットをセンチメートルのシーンへ入れるなら100です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>UsdGeomから読み書きする</h2><div class="code-card python-card"><div class="code-title"><span>units.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("scene.usda")
+
+UsdGeom.SetStageMetersPerUnit(stage, UsdGeom.LinearUnits.centimeters)
+print(UsdGeom.GetStageMetersPerUnit(stage))   # 0.01
+
+UsdGeom.SetStageMetersPerUnit(stage, UsdGeom.LinearUnits.meters)
+print(UsdGeom.GetStageMetersPerUnit(stage))   # 1.0
+
+stage.Save()</code></pre></div><p><code>UsdGeom.LinearUnits</code>には<code>millimeters</code>、<code>centimeters</code>、<code>meters</code>、<code>kilometers</code>、<code>inches</code>、<code>feet</code>、<code>yards</code>、<code>miles</code>などが用意されています。数値を直接書くより、この定数を使うほうが読み違いを防げます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">metersPerUnit = 0.01</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.SetStageMetersPerUnit(stage, UsdGeom.LinearUnits.centimeters)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（値の確認）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.GetStageMetersPerUnit(stage)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">double3 xformOp:scale = (0.01, 0.01, 0.01)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.Xformable(prim).AddScaleOp().Set(Gf.Vec3f(0.01))</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Layer Metadataの書く場所</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>metersPerUnit</code>は、ファイル先頭の<code>#usda 1.0</code>のすぐ後ろにある丸括弧の中に書きます。この丸括弧はLayer Metadata専用の場所で、Primの<code>{ }</code>とは別物です。<code>defaultPrim</code>や<code>upAxis</code>も同じ場所に並びます。Primの中に書いてもLayer Metadataにはならないので注意してください。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>宣言と補正を混同する</h2><div class="mistake-list"><article><h3>metersPerUnitを書けば揃うと思う</h3><p>この値は宣言にすぎません。実際に大きさを合わせるには、読み込む側で<code>xformOp:scale</code>を掛けます。</p></article><article><h3>読み込む側の値を書き換えて解決しようとする</h3><p>シーン側の<code>metersPerUnit</code>を0.01へ変えても、シーン内の他のアセットが全部100倍になるだけで、問題は移動するだけです。</p></article><article><h3>scaleをxformOpOrderへ足し忘れる</h3><p><code>xformOp:scale</code>を書いても、<code>xformOpOrder</code>に名前が入っていなければ無視されます。</p></article><article><h3>そもそも書かない</h3><p><code>metersPerUnit</code>を省略した場合の既定値は1（メートル）です。センチメートルで作ったのに書き忘れると、受け取った側が必ず誤解します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>metersPerUnit</dt><dd>そのLayerの長さの「1」が実世界の何メートルかを示すLayer Metadata。</dd></div><div><dt>Layer Metadata</dt><dd>ファイル先頭の丸括弧の中に書く、Layer全体に関わるMetadata。</dd></div><div><dt>LinearUnits</dt><dd>Pythonで長さの単位を指定するための定数群。<code>UsdGeom.LinearUnits.centimeters</code>など。</dd></div><div><dt>References</dt><dd>別のLayerの内容を、あるPrimの下へ読み込むComposition Arc。</dd></div><div><dt>xformOp:scale</dt><dd>Primの大きさへ倍率を掛けるXformOp。単位の補正にも使う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/stage-setting/stage-metadata.html">NVIDIA Learn OpenUSD — Stage Metadata</a></li><li><a href="https://openusd.org/release/api/group___usd_geom_linear_units__group.html">OpenUSD — Linear Units</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="09a-default-prim.html">← Lesson 09A</a><a href="20b-up-axis.html">Lesson 20B →</a></nav></main><footer><p>OpenUSD Academy · Lesson 20A</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

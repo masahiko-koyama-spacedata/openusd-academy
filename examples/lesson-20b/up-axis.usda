@@ -1,0 +1,79 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Xform "BuiltUpY"
+    {
+        def Cylinder "Trunk"
+        {
+            double height = 1.5
+            double radius = 0.18
+            uniform token axis = "Y"
+            color3f[] primvars:displayColor = [(0.55, 0.35, 0.2)]
+        }
+
+        def Sphere "Crown"
+        {
+            double radius = 0.42
+            color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+            double3 xformOp:translate = (0, 0.75, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+        double3 xformOp:translate = (-2.3, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+    def Xform "BuiltUpZ"
+    {
+        def Cylinder "Trunk"
+        {
+            double height = 1.5
+            double radius = 0.18
+            uniform token axis = "Z"
+            color3f[] primvars:displayColor = [(0.55, 0.35, 0.2)]
+        }
+
+        def Sphere "Crown"
+        {
+            double radius = 0.42
+            color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+            double3 xformOp:translate = (0, 0, 0.75)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+    def Xform "BuiltUpZFixed"
+    {
+        def Cylinder "Trunk"
+        {
+            double height = 1.5
+            double radius = 0.18
+            uniform token axis = "Z"
+            color3f[] primvars:displayColor = [(0.55, 0.35, 0.2)]
+        }
+
+        def Sphere "Crown"
+        {
+            double radius = 0.42
+            color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+            double3 xformOp:translate = (0, 0, 0.75)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+        double3 xformOp:translate = (2.3, 0, 0)
+        float xformOp:rotateX = -90
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (0, 0.55, 14)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
