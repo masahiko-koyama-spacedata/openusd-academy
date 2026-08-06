@@ -10,6 +10,16 @@
 
 VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します。現在のファイルを`usdchecker`で検証し、成功した場合だけusdviewで表示します。検証だけ行う場合は、コマンドパレットの「Tasks: Run Task」から「USD: Validate Current File」を選びます。
 
+### 教材の画像を作り直す
+
+レッスンの描画結果は、macOS標準のApple USD Tools（`/usr/bin/usdrecord`）で`examples/`のUSDAから生成しています。各画像のキャプションに、使用したファイル名・バージョン・撮影環境を記載しています。
+
+```bash
+usdchecker examples/lesson-24b/uniform.usda
+usdrecord --camera ShotCam --imageWidth 800 -c high \
+  examples/lesson-24b/uniform.usda assets/images/lesson-24b/uniform.png
+```
+
 ## 編集方針
 
 - HTMLを教材のcanonical source（正本）とする
@@ -17,6 +27,9 @@ VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します
 - 公式情報とAcademy独自の補足を明示的に分ける
 - JavaScriptが無効でも本文とナビゲーションを読めるようにする
 - レッスンの必須構成は `AGENTS.md` に従う
+- 学習順序は `tools/reorder.py` の `PLAN` を正本とし、カリキュラムと前後ナビを生成する
+- 用語集は `tools/gen_glossary.py` の `TERMS` を正本とし、HTMLとMarkdownを生成する
+- 変更後は `python3 tools/check_site.py` でリンクと必須要素を検査する
 
 複数のPCで編集するときは、[複数PCでのGit運用](CONTRIBUTING.md)に従ってブランチを分け、GitHub経由で変更を引き継ぎます。
 
@@ -24,23 +37,22 @@ VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します
 
 ```text
 .
-├── index.html
-├── curriculum.html
-├── glossary.html
-├── curriculum.md
-├── glossary.md
-├── lessons/
-│   ├── 01-reading-usda.html
-│   ├── 02-what-is-openusd.html
-│   ├── 03-stage-prim-property.html
-│   ├── 04-attributes-relationships.html
-│   ├── 05-prim-property-paths.html
-│   └── 06-usd-file-formats.html
-└── assets/
-    ├── css/style.css
-    └── js/app.js
+├── index.html          サイトの入口。STEP単位の学習コース
+├── curriculum.html     全STEPの一覧（tools/reorder.py が生成）
+├── glossary.html       サイト全体の用語集（tools/gen_glossary.py が生成）
+├── curriculum.md       curriculum.html と同じ内容のMarkdown
+├── glossary.md         glossary.html と同じ内容のMarkdown
+├── lessons/            レッスン本体のHTML（正本）
+├── examples/           各レッスンのUSDAサンプル
+├── assets/
+│   ├── css/style.css
+│   ├── js/app.js
+│   └── images/         usdrecordで生成した描画結果
+└── tools/              並び順・用語集の生成と、リンク検査
 ```
 
 ## 現在の状態
 
-Section 1〜5のLesson 01〜14を収録しています。NVIDIA Learn OpenUSDの主要領域を細かく学ぶSection 6〜14、Lesson 15〜72を今後追加する計画です。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。
+全15章・91STEPの計画のうち、61レッスンを収録しています。残りは `curriculum.html` に「（予定）」として並べています。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。
+
+**STEP番号が学習の順番です。** Lesson番号はファイルの識別子で、教材を追加してきた順に付いています。初学者がつまずきにくい順序を優先しているため、両者は一致しません。各レッスンの前後リンクはSTEPの順に並んでいます。
