@@ -61,12 +61,12 @@
 ## 7. Propertyを深く理解する
 
 - **Lesson 21:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
-- **Lesson 22（予定）:** AttributeのValue Type — scalar、vector、matrix、array
+- **Lesson 22:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、array
 - **Lesson 23（予定）:** Relationship Target — 一つと複数の対象
 - **Lesson 24（予定）:** Custom Properties — Schema外の情報を追加する
-- **Lesson 25A（予定）:** Primvars — Attributeとの違いと三つの機能
-- **Lesson 25B（予定）:** constant interpolation — Prim全体へ一つの値
-- **Lesson 25C（予定）:** uniform interpolation — Faceごとに一つの値
+- **Lesson 23:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
+- **Lesson 24A:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
+- **Lesson 24B:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
 - **Lesson 25D（予定）:** vertex interpolation — Pointごとに一つの値
 - **Lesson 25E（予定）:** faceVarying interpolation — Face Vertexごとに一つの値
 - **Lesson 25F（予定）:** Indexed Primvars — 値とindexを分けて再利用する
