@@ -2,7 +2,7 @@
 <header class="lesson-hero"><p class="eyebrow">LESSON 24G</p><h1>Primvar Inheritance</h1><p class="lesson-lead">親のconstant Primvarを子へ届ける</p></header><section class="lesson-section takeaway"><p>今日これだけ</p><h2>階層を下って適用されるのはconstantだけ</h2></section>
 <section class="lesson-section"><h2>公式情報に基づく説明</h2><p><strong>公式:</strong> Primvarは多くの通常Attributeと異なり、Scene Namespaceを下って子のImageable Primへ暗黙に適用されます。子が同名PrimvarのOpinionを持てば上書きします。継承されるのはconstant interpolationだけです。</p><aside class="academy-note">OpenUSD Academy Note: Topology依存値を異なる形の子へ配ると個数が合わないため、vertexやfaceVaryingは継承されません。</aside></section>
 <section class="lesson-section"><h2>概念図</h2><figure class="concept-flow"><div class="flow-node">/World に赤</div><div class="flow-node">/World/Body は未記述</div><div class="flow-node strong">Bodyにも赤</div><figcaption>子が青を記述すれば、その子では青が勝ちます。</figcaption></figure></section>
-<section class="lesson-section"><h2>USDA</h2><pre><code>#usda 1.0
+<section class="lesson-section"><h2>USDA</h2><pre class="lesson-code usda-block"><code>#usda 1.0
 def Xform "World"
 {
     color3f[] primvars:displayColor = [(1,0,0)] (
@@ -16,7 +16,7 @@ def Xform "World"
         )
     }
 }</code></pre><p><code>Body</code>は親の赤を受け取り、<code>BluePart</code>は自分のOpinionで青にします。波括弧はPrimの範囲、引用符はPrim名とtoken値を囲みます。</p></section>
-<section class="lesson-section"><h2>Python</h2><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+<section class="lesson-section"><h2>Python</h2><pre class="lesson-code python-block"><code>from pxr import Gf, Sdf, Usd, UsdGeom
 stage = Usd.Stage.CreateNew("inheritance.usda")
 world = UsdGeom.Xform.Define(stage, "/World")
 UsdGeom.Cube.Define(stage, "/World/Body")
