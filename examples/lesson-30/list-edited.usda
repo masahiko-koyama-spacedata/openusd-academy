@@ -1,0 +1,19 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    subLayers = [
+        @list-base.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "World"
+{
+    over "Team"
+    {
+        prepend rel members = </World/C>
+        append rel members = </World/D>
+        delete rel members = </World/A>
+    }
+}

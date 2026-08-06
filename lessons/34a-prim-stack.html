@@ -1,0 +1,51 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 34A: Prim Stack — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 34A · COMPOSITION</p><h1>Prim <span>Stack</span></h1><p class="lesson-lead">そのPrimが、どのファイルの記述からできているかを調べます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>GetPrimStackは寄与するPrim Specを強い順に返す</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>合成前の記述を強い順に並べたもの</h2><p>Stage上の一つのPrimは、複数のLayerに書かれた<a href="27a-def.html">Prim Spec</a>が合成されてできています。<code>GetPrimStack()</code>は、そのPrimへ寄与しているPrim Specを<strong>強い順</strong>に並べたリストを返します。各要素からは、どのLayerの、どのPathに、どんなSpecifierで書かれているかが分かります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>これはOpenUSDのデバッグで最初に使う道具です。「なぜこの値になるのか分からない」と思ったとき、まずPrim Stackを表示すれば、関係しているファイルが一目で並びます。合成の結果だけを見ていても原因は分かりません。<strong>寄与している記述の一覧を見る</strong>のが最短です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2><a href="27b-over.html">Lesson 27B</a>のsublayerの例を使う</h2><div class="code-card usda-card"><div class="code-title"><span>specifier-over.usda（抜粋）</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    subLayers = [
+        @specifier-base.usda@
+    ]
+)
+
+over "World"
+{
+    over "Retouched"
+    {
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+    }
+}</code></pre></div><p>土台の<code>specifier-base.usda</code>には<code>def Cube "Retouched"</code>があり、赤い色が書かれています。上のLayerは<code>over</code>で青を重ねています。つまり<code>/World/Retouched</code>には、2つのファイルからの記述が寄与しています。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-over.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>2つのPrim Specが強い順に並ぶ</h2><div class="code-card python-card"><div class="code-title"><span>prim_stack.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("specifier-over.usda")
+prim = stage.GetPrimAtPath("/World/Retouched")
+
+for spec in prim.GetPrimStack():
+    print(spec.layer.GetDisplayName(), spec.path, spec.specifier)
+
+# specifier-over.usda  /World/Retouched  Sdf.SpecifierOver
+# specifier-base.usda  /World/Retouched  Sdf.SpecifierDef</code></pre></div><p>1行目が強い側です。上のLayerが<code>over</code>で、下のLayerが<code>def</code>であることが読み取れます。<a href="27b-over.html">Lesson 27B</a>で確かめた「書いたのは<code>over</code>だが、合成後の<code>GetSpecifier()</code>は<code>def</code>」という話が、このリストを見れば一目で分かります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Stackの読み方</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">先頭 = 最も強い</span><strong>specifier-over.usda の over — ここの記述が優先される</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">後ろ = より弱い</span><strong>specifier-base.usda の def — ここが定義を与えている</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">合成結果</span><strong>定義は下から、色の値は上から</strong></div><figcaption>OpenUSD AcademyによるPrim Stackの読み方の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>調べたい情報を取り出す</h2><div class="code-card python-card"><div class="code-title"><span>inspect_stack.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("specifier-over.usda")
+prim = stage.GetPrimAtPath("/World/Retouched")
+
+for spec in prim.GetPrimStack():
+    print("layer      :", spec.layer.identifier)   # ファイルの場所
+    print("path       :", spec.path)               # そのLayer内でのPath
+    print("specifier  :", spec.specifier)          # def / over / class
+    print("properties :", list(spec.properties.keys()))
+    print("---")
+
+# どのLayerが定義を与えているかだけ知りたいとき
+defining = [s for s in prim.GetPrimStack()
+            if s.specifier == Sdf.SpecifierDef]</code></pre></div><p>返ってくるのは<code>Sdf.PrimSpec</code>で、これは<strong>合成前の生の記述</strong>です。<code>spec.properties</code>には、そのLayerに書かれたPropertyだけが入ります。合成後の値ではないので、Stage側の<code>GetAttribute(...).Get()</code>とは結果が違います。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>目的ごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">寄与している記述を強い順に見る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetPrimStack()</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">どのファイルか知る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">spec.layer.identifier</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">Specifierを確認する</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">spec.specifier</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>PathはLayerごとに違うことがある</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Sublayerの場合、寄与するLayerの中でも同じPathになります。しかし<a href="12-references.html">Reference</a>で持ち込まれた場合は、参照先のファイル内では<code>/Crate/Body</code>のような別のPathになっています。Prim Stackの<code>path</code>は<strong>そのLayerの中でのPath</strong>なので、行き先のファイルを開いて探すときに役立ちます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>合成結果と生の記述を混同する</h2><div class="mistake-list"><article><h3>PrimSpecから合成後の値を取ろうとする</h3><p><code>spec.properties</code>はそのLayerに書かれた分だけです。最終値は<code>prim.GetAttribute(...).Get()</code>で取ります。</p></article><article><h3>1つしか返らないので合成されていないと思う</h3><p>1つのLayerにしか書かれていなければ、要素は1つです。それが正常です。</p></article><article><h3>順番を弱い順だと思う</h3><p>先頭が最も強い側です。上書きの原因を探すときは先頭から見ます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Prim Stack</dt><dd>あるPrimへ寄与するPrim Specを、強い順に並べたリスト。</dd></div><div><dt>Sdf.PrimSpec</dt><dd>一つのLayerに書かれた、合成前のPrimの記述を表すオブジェクト。</dd></div><div><dt>identifier（Layer）</dt><dd>そのLayerを一意に示す文字列。多くはファイルのPath。</dd></div><div><dt>寄与する（contribute）</dt><dd>あるLayerの記述が、合成結果に関わっていること。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_prim.html">OpenUSD — UsdPrim API</a></li><li><a href="https://openusd.org/release/api/class_sdf_prim_spec.html">OpenUSD — SdfPrimSpec API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="30-list-editing.html">← Lesson 30</a><a href="34b-property-stack.html">Lesson 34B →</a></nav></main><footer><p>OpenUSD Academy · Lesson 34A</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

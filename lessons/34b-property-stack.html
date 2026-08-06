@@ -1,0 +1,53 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 34B: Property Stack — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 34B · COMPOSITION</p><h1>Property <span>Stack</span></h1><p class="lesson-lead">その値が、どのファイルから来たのかを突き止めます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>GetPropertyStackは値を主張しているSpecを強い順に返す</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Propertyの単位で寄与を並べる</h2><p><a href="34a-prim-stack.html">Prim Stack</a>がPrimの単位で寄与を並べるのに対し、<code>GetPropertyStack()</code>は<strong>一つのProperty</strong>について、値を主張しているSpecを強い順に並べます。引数にはTime Codeを渡します。先頭の要素が、<a href="21-value-resolution.html">Value Resolution</a>で勝つ側です。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>「思っていた色にならない」という問題は、ほぼこれで解決します。Property Stackを表示すれば、どのファイルのどの行が勝っているのかが1行目に出ます。あとはそのファイルを開くだけです。推測でLayerを一つずつ開いて探す必要はありません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2つのLayerが同じ色を主張している</h2><div class="code-card usda-card"><div class="code-title"><span>specifier-base.usda（弱い側）</span><span>USDA</span></div><pre><code>    def Cube "Retouched"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }</code></pre></div><div class="code-card usda-card"><div class="code-title"><span>specifier-over.usda（強い側）</span><span>USDA</span></div><pre><code>    over "Retouched"
+    {
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+    }</code></pre></div><p>同じ<code>primvars:displayColor</code>に、赤と青の2つの主張があります。合成結果は青ですが、それを確かめる方法を見ます。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-over.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>勝っている側が先頭に来る</h2><div class="code-card python-card"><div class="code-title"><span>property_stack.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("specifier-over.usda")
+attr = stage.GetPrimAtPath("/World/Retouched").GetAttribute("primvars:displayColor")
+
+for spec in attr.GetPropertyStack(Usd.TimeCode.Default()):
+    print(spec.layer.GetDisplayName(), spec.path, spec.default)
+
+# specifier-over.usda  /World/Retouched.primvars:displayColor  [(0.15, 0.35, 0.85)]
+# specifier-base.usda  /World/Retouched.primvars:displayColor  [(0.85, 0.2, 0.2)]
+
+print(attr.Get())
+# [(0.15, 0.35, 0.85)]   … 先頭と一致する</code></pre></div><p>先頭が<code>specifier-over.usda</code>の青で、最終値もそれと一致しています。<code>spec.default</code>は、そのLayerに書かれたdefault値です。Time Sampleがある場合は<code>spec.GetInfo("timeSamples")</code>のように別の入れ物に入ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>2つのStackの使い分け</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Prim Stack</span><strong>「このPrimはどのファイルからできているか」— 構造を調べる</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">Property Stack</span><strong>「この値はどこから来たか」— 値の出どころを調べる</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">どちらも先頭が強い</span><strong>1行目が勝っている側</strong></div><figcaption>OpenUSD Academyによる、2つのStackの使い分けの図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>調査用の小さな関数にする</h2><div class="code-card python-card"><div class="code-title"><span>who_wins.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+
+def who_wins(stage, prim_path, prop_name, time=Usd.TimeCode.Default()):
+    """そのPropertyの値が、どのLayerから来ているかを表示する。"""
+    attr = stage.GetPrimAtPath(prim_path).GetAttribute(prop_name)
+    stack = attr.GetPropertyStack(time)
+    if not stack:
+        print("どのLayerにも記述がありません（Schemaの既定値のみ）")
+        return
+    for i, spec in enumerate(stack):
+        mark = "勝ち" if i == 0 else "    "
+        print("%s %-24s %s" % (mark, spec.layer.GetDisplayName(), spec.default))
+
+
+stage = Usd.Stage.Open("specifier-over.usda")
+who_wins(stage, "/World/Retouched", "primvars:displayColor")
+who_wins(stage, "/World/Kept", "primvars:displayColor")</code></pre></div><p>Stackが空のときは、どのLayerにも記述が無く、Schemaの既定値が使われている状態です。値が取れるのに空という場合は、たいてい<a href="24g-primvar-inheritance.html">Primvarの継承</a>のように、そのPrim以外から来ています。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>目的ごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">値を主張しているSpecを強い順に見る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">attr.GetPropertyStack(Usd.TimeCode.Default())</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">そのLayerに書かれた値を見る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">spec.default</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">合成後の最終値を見る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">attr.Get()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Time Codeを渡す理由</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Propertyは<a href="11-time-codes-samples.html">Time Sample</a>を持てるため、時刻によって「どのLayerが勝つか」が変わることがあります。だから<code>GetPropertyStack</code>はTime Codeを取ります。時間変化を扱っていないなら<code>Usd.TimeCode.Default()</code>を渡します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>Stackが空なのを不具合だと思う</h2><div class="mistake-list"><article><h3>Schemaの既定値もStackに出ると思う</h3><p>Stackに出るのは、実際にLayerへ書かれたSpecだけです。既定値は含まれません。</p></article><article><h3>Time Codeを渡し忘れる</h3><p>引数が必要です。時間を扱わないときも<code>Usd.TimeCode.Default()</code>を渡します。</p></article><article><h3>先頭以外の値が使われていると思う</h3><p>defaultの解決では先頭が勝ちます。2行目以降は「負けた主張」で、なぜその値にならないかを説明してくれます。</p></article><article><h3>Prim Stackで値を探す</h3><p>値の出どころを追うのはProperty Stackです。Prim Stackは構造を追うためのものです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Property Stack</dt><dd>あるPropertyへ値を主張しているSpecを、強い順に並べたリスト。</dd></div><div><dt>Sdf.AttributeSpec</dt><dd>一つのLayerに書かれた、合成前のAttributeの記述を表すオブジェクト。</dd></div><div><dt>default（Spec）</dt><dd>そのLayerに書かれた、時間に依存しない値。</dd></div><div><dt>Usd.TimeCode.Default()</dt><dd>時間に依存しない値を指すTime Code。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_property.html">OpenUSD — UsdProperty API</a></li><li><a href="https://openusd.org/release/api/class_sdf_attribute_spec.html">OpenUSD — SdfAttributeSpec API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="34a-prim-stack.html">← Lesson 34A</a><a href="19a-kind.html">Lesson 19A →</a></nav></main><footer><p>OpenUSD Academy · Lesson 34B</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

@@ -1,0 +1,37 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Scope "Team"
+    {
+        custom rel members = [
+            </World/A>,
+            </World/B>,
+        ]
+    }
+
+    def Cube "A"
+    {
+        double size = 1
+    }
+
+    def Cube "B"
+    {
+        double size = 1
+    }
+
+    def Cube "C"
+    {
+        double size = 1
+    }
+
+    def Cube "D"
+    {
+        double size = 1
+    }
+}

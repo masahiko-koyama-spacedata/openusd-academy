@@ -24,7 +24,10 @@ def Xform "World" (
         kind = "component"
     )
     {
-        def Cube "Body" { double size = 1 }
+        def Cube "Body"
+        {
+            double size = 1
+        }
 
         def Cube "Spare" (
             active = false

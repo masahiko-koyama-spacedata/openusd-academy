@@ -1,0 +1,70 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 30: List Editing — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 30 · COMPOSITION</p><h1>List <span>Editing</span></h1><p class="lesson-lead">一覧を丸ごと置き換えずに、足す・消す・並べ替えます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>prepend・append・delete・reorderは一覧を部分的に編集する</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>一覧を持つ項目だけの特別な書き方</h2><p>OpenUSDには、値ではなく<strong>一覧</strong>を持つ項目がいくつかあります。<a href="25-relationship-target.html">Relationshipのtarget</a>、<a href="12-references.html">references</a>、<a href="12-inherits.html">inherits</a>、<a href="12-payloads.html">payload</a>、specializes、apiSchemasなどです。こうした一覧に対しては、上のLayerから<code>prepend</code>（先頭へ足す）、<code>append</code>（末尾へ足す）、<code>delete</code>（取り除く）、<code>reorder</code>（並べ替える）という編集を書けます。この仕組みをList Editingと呼びます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>キーワードを付けずに<code>rel members = ...</code>と書くと、下のLayerの一覧を<strong>丸ごと置き換え</strong>ます。これをexplicitな記述と呼びます。他の人が下のLayerで足した項目まで消えてしまうため、共同作業では<code>prepend</code>や<code>append</code>を使うほうが安全です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>土台の一覧を用意する</h2><div class="code-card usda-card"><div class="code-title"><span>list-base.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Scope "Team"
+    {
+        custom rel members = [
+            &lt;/World/A&gt;,
+            &lt;/World/B&gt;,
+        ]
+    }
+
+    def Cube "A"
+    {
+        double size = 1
+    }
+
+    ... B, C, D も同様に定義 ...
+}</code></pre></div><p>この時点の<code>members</code>は<code>[A, B]</code>です。</p><p class="example-link"><a href="../examples/lesson-30/list-base.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>3種類の編集を同時に書く</h2><div class="code-card usda-card"><div class="code-title"><span>list-edited.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    subLayers = [
+        @list-base.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "World"
+{
+    over "Team"
+    {
+        prepend rel members = &lt;/World/C&gt;
+        append rel members = &lt;/World/D&gt;
+        delete rel members = &lt;/World/A&gt;
+    }
+}</code></pre></div><p>キーワードは型名<code>rel</code>の<strong>前</strong>に置きます。同じProperty名に対して、3種類の編集を並べて書けます。</p><p class="example-link"><a href="../examples/lesson-30/list-edited.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>合成すると [C, B, D] になる</h2><div class="code-card python-card"><div class="code-title"><span>check_list.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+base = Usd.Stage.Open("list-base.usda")
+print(base.GetPrimAtPath("/World/Team").GetRelationship("members").GetTargets())
+# [Sdf.Path('/World/A'), Sdf.Path('/World/B')]
+
+edited = Usd.Stage.Open("list-edited.usda")
+print(edited.GetPrimAtPath("/World/Team").GetRelationship("members").GetTargets())
+# [Sdf.Path('/World/C'), Sdf.Path('/World/B'), Sdf.Path('/World/D')]</code></pre></div><p>順を追うと、まず土台の<code>[A, B]</code>から<code>delete</code>でAが消えて<code>[B]</code>になり、<code>prepend</code>でCが先頭に付いて<code>[C, B]</code>、<code>append</code>でDが末尾に付いて<code>[C, B, D]</code>です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>4つのキーワードの働き</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">キーワードなし（explicit）</span><strong>下のLayerの一覧を丸ごと置き換える</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">prepend</span><strong>先頭へ足す — 強い側に置きたいときに使う</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">append</span><strong>末尾へ足す — 弱い側に置きたいときに使う</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">delete</span><strong>一覧から取り除く</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">reorder</span><strong>既にある項目の順番だけを変える。足しも消しもしない</strong></div><figcaption>OpenUSD AcademyによるList Editingの4つのキーワードの図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>explicitとreorderの違い</h2><p>同じ土台に対して、キーワードを変えるとどうなるかを実際に確かめた結果です。</p><div class="code-card usda-card"><div class="code-title"><span>explicitな記述</span><span>USDA</span></div><pre><code>        rel members = &lt;/World/D&gt;</code></pre></div><p>合成結果は<code>[D]</code>です。土台の<code>[A, B]</code>は完全に消えます。</p><div class="code-card usda-card"><div class="code-title"><span>reorderの記述</span><span>USDA</span></div><pre><code>        reorder rel members = [&lt;/World/B&gt;, &lt;/World/A&gt;]</code></pre></div><p>合成結果は<code>[B, A]</code>です。項目は増えも減りもせず、順番だけが入れ替わります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Sdfから一覧の中身を見る</h2><div class="code-card python-card"><div class="code-title"><span>inspect_list.py</span><span>Python</span></div><pre><code>from pxr import Sdf
+
+layer = Sdf.Layer.FindOrOpen("list-edited.usda")
+spec = layer.GetPropertyAtPath("/World/Team.members")
+targets = spec.targetPathList
+
+print(targets.isExplicit)        # False
+print(list(targets.explicitItems))    # []
+print(list(targets.prependedItems))   # [Sdf.Path('/World/C')]
+print(list(targets.appendedItems))    # [Sdf.Path('/World/D')]
+print(list(targets.deletedItems))     # [Sdf.Path('/World/A')]
+print(list(targets.orderedItems))     # []</code></pre></div><p>List Editingの中身は、<code>Sdf</code>側のListOpとして5つの入れ物に分かれて保存されています。<code>isExplicit</code>が<code>True</code>のときは<code>explicitItems</code>だけが使われ、他の4つは無視されます。Relationshipなら<code>targetPathList</code>、Referenceなら<code>referenceList</code>のように、項目ごとに名前が違います。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">prepend rel members = &lt;/World/C&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">rel.AddTarget(path, Usd.ListPositionFrontOfPrependList)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">append rel members = &lt;/World/D&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">rel.AddTarget(path, Usd.ListPositionBackOfAppendList)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">delete rel members = &lt;/World/A&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">rel.RemoveTarget(path)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">rel members = ...（explicit）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">rel.SetTargets([...])</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>なぜ順番が大事なのか</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Relationshipのtargetでは、順番は「対象の並び」という意味しか持ちません。しかし<code>references</code>や<code>inherits</code>では、<strong>先に書かれたものほど強い</strong>という規則があります。だから<code>prepend</code>は「今までのどれより強くする」、<code>append</code>は「今までのどれより弱くする」という意味になります。<a href="12-composition.html">Lesson 12</a>で扱った強度の話が、ここで具体的な書き方として出てきます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>explicitで他人の記述を消してしまう</h2><div class="mistake-list"><article><h3>キーワードを付けずに書く</h3><p><code>rel members = ...</code>は置き換えです。下のLayerで他の人が足した項目も消えます。足したいだけなら<code>prepend</code>か<code>append</code>を使います。</p></article><article><h3>キーワードを型名の後ろに置く</h3><p><code>rel prepend members</code>とは書けません。キーワードは<code>prepend rel members</code>のように、いちばん前に置きます。</p></article><article><h3>reorderで項目を足そうとする</h3><p><code>reorder</code>は既にある項目の順番を変えるだけです。一覧に無いPathを書いても追加されません。</p></article><article><h3>deleteしたのに残っていると悩む</h3><p><code>delete</code>が効くのは、より弱いLayerが持つ項目に対してです。同じLayerの中で<code>append</code>と<code>delete</code>の両方に同じPathを書いた場合の結果は直感的でないため、避けてください。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>List Editing</dt><dd>一覧を持つ項目に対して、部分的な追加・削除・並べ替えを記述する仕組み。</dd></div><div><dt>prepend</dt><dd>一覧の先頭へ項目を足すキーワード。</dd></div><div><dt>append</dt><dd>一覧の末尾へ項目を足すキーワード。</dd></div><div><dt>delete</dt><dd>一覧から項目を取り除くキーワード。</dd></div><div><dt>reorder</dt><dd>既にある項目の順番だけを変えるキーワード。</dd></div><div><dt>explicit</dt><dd>キーワードを付けずに書き、一覧を丸ごと置き換える記述。</dd></div><div><dt>ListOp</dt><dd>List Editingの内容を保持する<code>Sdf</code>側のデータ構造。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-listediting">OpenUSD Glossary — List Editing</a></li><li><a href="https://openusd.org/release/api/class_sdf_listop.html">OpenUSD — SdfListOp API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="21-value-resolution.html">← Lesson 21</a><a href="34a-prim-stack.html">Lesson 34A →</a></nav></main><footer><p>OpenUSD Academy · Lesson 30</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

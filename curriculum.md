@@ -101,12 +101,12 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 
 - **STEP 47 · Lesson 28（予定）:** Prim Composition — 複数のPrim Specが一つになる
 - **STEP 48 · Lesson 29（予定）:** Internal ArcとExternal Arc — 同じLayer内と別ファイル
-- **STEP 49 · Lesson 30（予定）:** List Editing — prepend・append・delete・reorder
+- **STEP 49 · Lesson 30:** [List Editing](lessons/30-list-editing.html) — prepend・append・delete・reorder
 - **STEP 50 · Lesson 31（予定）:** Encapsulation — Assetの境界を守る
 - **STEP 51 · Lesson 32（予定）:** Variant Edit Context — 選択肢の中へ書く
 - **STEP 52 · Lesson 33（予定）:** Direct ArcとAncestral Arc — 同じArc内の強度を追う
-- **STEP 53 · Lesson 34A（予定）:** Prim Stack — Primへ寄与するPrim Specを調べる
-- **STEP 54 · Lesson 34B（予定）:** Property Stack — Propertyへ寄与するSpecを調べる
+- **STEP 53 · Lesson 34A:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
+- **STEP 54 · Lesson 34B:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
 
 ## 11. モデル階層とアセット設計
 
