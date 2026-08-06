@@ -1,0 +1,84 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 27B: over — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 27B · SPECIFIER</p><h1><span>over</span> — 上書きする</h1><p class="lesson-lead">既にあるPrimへ、意見だけを重ねます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>overは意見を足すだけで それ単独ではPrimを存在させない</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>定義せずに意見だけを重ねる</h2><p><code>over</code>は「上書き」を意味するSpecifierです。そのPathに対して値の意見（Opinion）を持ちますが、Primを定義はしません。どこか別のLayerに<code>def</code>があって初めて、その意見が生きたPrimへ反映されます。<code>def</code>がどこにも無ければ、そのPathのPrimはdefinedにならず、描画もされません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>over</code>は「元のファイルに触らずに、上から付箋を貼る」やり方です。たとえば納品されたアセットの色だけを自分のシーンで変えたいとき、アセット本体を書き換えずに済みます。この非破壊の編集こそが、OpenUSDでレイヤーを重ねる最大の利点です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>土台のLayerを用意する</h2><div class="code-card usda-card"><div class="code-title"><span>specifier-base.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Cube "Kept"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        double3 xformOp:translate = (-1.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "Retouched" { ... 同じく赤 ... }
+    def Cube "Ghost"     { ... 同じく赤 ... }
+}</code></pre></div><p>3つとも<code>def</code>で、色はすべて赤です。このファイルには一切手を加えません。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-base.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>上に重ねるLayerを書く</h2><div class="code-card usda-card"><div class="code-title"><span>specifier-over.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    subLayers = [
+        @specifier-base.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "World"
+{
+    over "Retouched"
+    {
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+    }
+
+    over "NotThere"
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+    }
+}</code></pre></div><p><code>subLayers</code>で土台のファイルを重ねています。<code>over "Retouched"</code>は土台にある<code>def Cube "Retouched"</code>と同じPathを指すので、色の意見が上書きとして効きます。一方<code>over "NotThere"</code>は、土台のどこにも対応する<code>def</code>がありません。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-over.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>1つだけ色が変わり、4つ目は現れない</h2><figure class="render-result"><img src="../assets/images/lesson-27b/over.png" alt="赤・青・赤の3つの立方体が横に並び、4つ目の立方体は存在しない描画結果" width="800" height="583"><figcaption>中央の<code>Retouched</code>だけが青へ変わりました。<code>over "NotThere"</code>に緑を書きましたが、対応する<code>def</code>が無いため4つ目の箱は現れません。<br><small>撮影: <code>examples/lesson-27b/specifier-over.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>NotThereは「無い」のではなく「定義されていない」</h2><p>ここが<code>over</code>で最もつまずきやすい部分です。<code>/World/NotThere</code>はStage上に<strong>存在します</strong>。ただし<code>def</code>が無いため定義されておらず、既定の走査からも描画からも外れます。</p><div class="code-card python-card"><div class="code-title"><span>check_over.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("specifier-over.usda")
+
+for prim in stage.Traverse():
+    print(prim.GetPath())
+# /World
+# /World/Kept
+# /World/Retouched
+# /World/Ghost
+# /World/ShotCam        … NotThere は出てこない
+
+not_there = stage.GetPrimAtPath("/World/NotThere")
+print(bool(not_there))            # True   … Primオブジェクトとしては取得できる
+print(not_there.GetSpecifier())   # Sdf.SpecifierOver
+print(not_there.IsDefined())      # False  … しかし定義されていない</code></pre></div><p><code>Traverse()</code>は既定でdefinedなPrimだけを回ります。定義されていないPrimまで含めたいときは<code>TraverseAll()</code>を使うと、<code>/World/NotThere</code>も現れます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>defがあるかないかで結果が分かれる</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">/World/Retouched</span><strong>土台に def あり ＋ over の意見 → 青で描画される</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">/World/Ghost</span><strong>土台に def あり ＋ over なし → 赤のまま</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">/World/NotThere</span><strong>def なし ＋ over の意見のみ → 存在するが定義されず、描画されない</strong></div><figcaption>OpenUSD Academyによる、overと定義の関係の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>OverridePrimでoverを作る</h2><div class="code-card python-card"><div class="code-title"><span>create_over.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("overlay.usda")
+stage.GetRootLayer().subLayerPaths.append("specifier-base.usda")
+
+over = stage.OverridePrim("/World/Retouched")
+
+UsdGeom.PrimvarsAPI(over).CreatePrimvar(
+    "displayColor", Sdf.ValueTypeNames.Color3fArray,
+    UsdGeom.Tokens.constant).Set([Gf.Vec3f(0.15, 0.35, 0.85)])
+
+stage.Save()
+
+# 書き込んだLayer側のPrim Specは over
+print(stage.GetRootLayer().GetPrimAtPath("/World/Retouched").specifier)
+# Sdf.SpecifierOver
+
+# Composition後のPrimは def（土台のdefが効いているため）
+print(over.GetSpecifier())   # Sdf.SpecifierDef
+print(over.IsDefined())      # True</code></pre></div><p><code>OverridePrim</code>は、書き込み先のLayerに<code>over</code>のPrim Specを作ります。<code>subLayerPaths</code>はLayerが重ねるファイルの一覧で、リストとして扱えます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>ここは間違えやすい場所です。<code>UsdPrim.GetSpecifier()</code>が返すのは<strong>Composition後の</strong>Specifierです。土台に<code>def</code>があるPathへ<code>OverridePrim</code>すると、書いたのは<code>over</code>でも、返ってくるのは<code>Sdf.SpecifierDef</code>になります。「自分がどう書いたか」を知りたいときは、Layerから<code>GetPrimAtPath(...).specifier</code>で<strong>Prim Specのほう</strong>を見ます。逆に、土台に<code>def</code>が無いPathであれば、Composition後も<code>Sdf.SpecifierOver</code>のままです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">over "Retouched"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.OverridePrim("/World/Retouched")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">subLayers = [ @specifier-base.usda@ ]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetRootLayer().subLayerPaths.append("specifier-base.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（定義されているかの確認）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.IsDefined()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>overには型名を書かない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>over "Retouched"</code>のように、<code>over</code>では型名を省くのが普通です。型は土台の<code>def</code>が既に決めているからです。また、Pathさえ合っていれば、土台のPrimがどのファイルにあっても意見は届きます。逆にPath（つまりPrim名の綴り）が1文字でも違うと、まったく別のPrimへの意見になり、今回の<code>NotThere</code>と同じ結果になります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>効かない上書きの原因は、ほぼPathの不一致</h2><div class="mistake-list"><article><h3>Prim名を書き間違える</h3><p>上書きが効かないときは、まずPathを確かめます。<code>over</code>は存在しないPathにも黙って書けてしまうため、エラーになりません。</p></article><article><h3>overだけでPrimを作ろうとする</h3><p><code>over</code>はPrimを定義しません。新しくPrimを作りたいときは<code>def</code>を使います。</p></article><article><h3>subLayersの順番を意識しない</h3><p><code>subLayers</code>に並べたLayerより、それを書いているLayer自身のほうが強くなります。だから上書きが効きます。順序については<a href="12-sublayers.html">Lesson 12 Sublayers</a>で詳しく扱います。</p></article><article><h3>IsDefinedとPrimの取得を混同する</h3><p><code>GetPrimAtPath</code>はPrimオブジェクトを返しますが、それが定義済みとは限りません。存在の判定には<code>IsDefined()</code>を使います。</p></article><article><h3>GetSpecifierで「overを書いたか」を確かめようとする</h3><p><code>UsdPrim.GetSpecifier()</code>はComposition後の結果を返します。土台に<code>def</code>があれば<code>Sdf.SpecifierDef</code>が返り、自分が<code>over</code>を書いたことは分かりません。Layer側の<code>GetPrimAtPath(path).specifier</code>を見ます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>over</dt><dd>Primを定義せず、意見だけを重ねるSpecifier。</dd></div><div><dt>Opinion（意見）</dt><dd>あるLayerが、あるPropertyやMetadataに対して持つ値の主張。</dd></div><div><dt>subLayers</dt><dd>あるLayerが重ねる他のLayerの一覧を示すLayer Metadata。</dd></div><div><dt>OverridePrim</dt><dd><code>over</code>のPrim Specを作るPython API。</dd></div><div><dt>Traverse / TraverseAll</dt><dd>Stage上のPrimを順に回るPython API。前者は既定で定義済みのPrimだけ、後者は定義されていないPrimも含む。</dd></div><div><dt>非破壊編集</dt><dd>元のファイルを書き換えずに、上のLayerで変更を表現する編集の仕方。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-over">OpenUSD Glossary — Over</a></li><li><a href="https://openusd.org/release/api/class_usd_stage.html">OpenUSD — UsdStage API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="27a-def.html">← Lesson 27A</a><a href="27c-class.html">Lesson 27C →</a></nav></main><footer><p>OpenUSD Academy · Lesson 27B</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
