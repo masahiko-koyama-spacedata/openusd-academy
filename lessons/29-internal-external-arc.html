@@ -1,0 +1,88 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 29: Internal ArcとExternal Arc — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 29 · COMPOSITION</p><h1>Internal Arcと<span>External Arc</span></h1><p class="lesson-lead">同じファイルの中を指すか、別のファイルを指すかの違いです</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>ファイル名を書けばExternal Pathだけ書けばInternal</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>行き先がどこかで呼び分ける</h2><p><a href="12-references.html">References</a>のようなComposition Arcは、別のファイルを指すことも、同じファイルの中の別のPrimを指すこともできます。前者をExternal Arc、後者をInternal Arcと呼びます。書き方の違いは一点だけで、<code>@ファイル名@</code>を書けばExternal、<code>&lt;/Path&gt;</code>だけを書けばInternalです。合成の規則はどちらも同じです。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Internal Arcは、同じファイルの中で「同じ構造を何度も使いたい」ときに役立ちます。たとえば1本の椅子を定義して、それを4本のInternal Referenceで並べれば、あとで元の椅子を直すだけで全部に反映されます。ファイルを分けるほどではない規模のときに便利です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>外部ファイル側</h2><div class="code-card usda-card"><div class="code-title"><span>shared-part.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Part"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Part"
+{
+    def Cube "Body"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+    }
+}</code></pre></div><p>緑の箱を持つ、独立したファイルです。<code>defaultPrim = "Part"</code>を書いてあるので、外から参照するときにPathを省略できます。</p><p class="example-link"><a href="../examples/lesson-29/shared-part.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2種類のArcを並べて書く</h2><div class="code-card usda-card"><div class="code-title"><span>arcs.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Xform "Master"
+    {
+        def Cube "Body"
+        {
+            double size = 1
+            color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        }
+        double3 xformOp:translate = (-2.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Xform "CopyInternal" (
+        references = &lt;/World/Master&gt;
+    )
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Xform "CopyExternal" (
+        references = @shared-part.usda@
+    )
+    {
+        double3 xformOp:translate = (2.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}</code></pre></div><p><code>CopyInternal</code>は同じファイルの<code>/World/Master</code>を指しています。ファイル名は書きません。<code>CopyExternal</code>は<code>@shared-part.usda@</code>というファイルを指しています。Pathを書いていないので、そのファイルの<a href="09a-default-prim.html">Default Prim</a>が使われます。</p><p class="example-link"><a href="../examples/lesson-29/arcs.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>どちらも中身が取り込まれる</h2><figure class="render-result"><img src="../assets/images/lesson-29/arcs.png" alt="赤い立方体が2つと、緑の立方体が1つ、横に並んで描画された結果" width="800" height="583"><figcaption>左が<code>Master</code>、中央が<code>CopyInternal</code>で、同じファイルの<code>Master</code>を取り込んだので赤です。右の<code>CopyExternal</code>は外部ファイルの緑を取り込んでいます。<br><small>撮影: <code>examples/lesson-29/arcs.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p>走査すると、どちらのコピーにも<code>Body</code>が現れていることが分かります。</p><div class="code-card python-card"><div class="code-title"><span>traverse.py の出力</span><span>Python</span></div><pre><code>['/World', '/World/Master', '/World/Master/Body',
+ '/World/CopyInternal', '/World/CopyInternal/Body',
+ '/World/CopyExternal', '/World/CopyExternal/Body',
+ '/World/ShotCam']</code></pre></div></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>Arcの行き先を調べる</h2><div class="code-card python-card"><div class="code-title"><span>check_arcs.py</span><span>Python</span></div><pre><code>from pxr import Pcp, Usd
+
+stage = Usd.Stage.Open("arcs.usda")
+
+for path in ("/World/CopyInternal", "/World/CopyExternal"):
+    query = Usd.PrimCompositionQuery(stage.GetPrimAtPath(path))
+    for arc in query.GetCompositionArcs():
+        if arc.GetArcType() == Pcp.ArcTypeRoot:
+            continue
+        node = arc.GetTargetNode()
+        layer = node.layerStack.identifier.rootLayer.GetDisplayName()
+        print(path, arc.GetArcType(), "->", layer, node.path)
+
+# /World/CopyInternal  Pcp.ArcTypeReference -> arcs.usda        /World/Master
+# /World/CopyExternal  Pcp.ArcTypeReference -> shared-part.usda /Part</code></pre></div><p>どちらも<code>Pcp.ArcTypeReference</code>です。違うのは行き先のLayerだけで、<code>CopyInternal</code>は自分と同じ<code>arcs.usda</code>を、<code>CopyExternal</code>は<code>shared-part.usda</code>を指しています。これがInternalとExternalの実体です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>行き先で呼び方が変わるだけ</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">Internal Arc</span><strong>references = &lt;/World/Master&gt; — 同じLayerの中のPathを指す</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">External Arc</span><strong>references = @shared-part.usda@ — 別のファイルを指す</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">両方の書き方</span><strong>references = @file.usda@&lt;/Path&gt; — ファイルと行き先Pathの両方を指定する</strong></div><figcaption>OpenUSD AcademyによるInternal ArcとExternal Arcの図</figcaption></figure><p>3つ目のように、ファイル名とPathを続けて書くこともできます。この場合は、そのファイルのDefault Primではなく、指定したPathが取り込まれます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>どちらもAddReferenceで作る</h2><div class="code-card python-card"><div class="code-title"><span>create_arcs.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("arcs.usda")
+UsdGeom.Xform.Define(stage, "/World")
+UsdGeom.Xform.Define(stage, "/World/Master")
+
+internal = UsdGeom.Xform.Define(stage, "/World/CopyInternal")
+internal.GetPrim().GetReferences().AddInternalReference(Sdf.Path("/World/Master"))
+
+external = UsdGeom.Xform.Define(stage, "/World/CopyExternal")
+external.GetPrim().GetReferences().AddReference("shared-part.usda")
+
+stage.Save()</code></pre></div><p>Internalには専用の<code>AddInternalReference</code>があり、Pathだけを渡します。Externalは<code>AddReference</code>にファイル名を渡します。<code>AddReference("shared-part.usda", "/Part")</code>のように第2引数へPathを渡すと、Default Prim以外を指定できます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>保存されたUSDAを見ると<code>prepend references = ...</code>となり、上に載せた手書きの例と少し違います。Python APIは既定で<a href="30-list-editing.html">List Editing</a>の<code>prepend</code>として追加するためです。合成結果は同じですが、既にreferencesがある場合の並び順に関わります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">references = &lt;/World/Master&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetReferences().AddInternalReference(Sdf.Path("/World/Master"))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">references = @shared-part.usda@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetReferences().AddReference("shared-part.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">references = @shared-part.usda@&lt;/Part&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetReferences().AddReference("shared-part.usda", "/Part")</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Internal Arcは自分自身を指せない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Internal Referenceで自分自身や自分の祖先を指すと、無限に入れ子になってしまうため許されません。指せるのは、自分の外側にある別の枝です。この例で<code>/World/CopyInternal</code>が<code>/World/Master</code>を指せるのは、<code>Master</code>が<code>CopyInternal</code>の中にも上にも無いからです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>書き分けを取り違える</h2><div class="mistake-list"><article><h3>Internalのつもりでファイル名を書く</h3><p><code>@self.usda@&lt;/World/Master&gt;</code>のように自分のファイル名を明示すると、Externalとして扱われます。読み込みの経路が変わるため、Internalにしたいならファイル名は書きません。</p></article><article><h3>ExternalでdefaultPrimが無いファイルを指す</h3><p>Pathを省略できるのは、指し先のファイルに<code>defaultPrim</code>があるときだけです。無い場合はPathまで書きます。</p></article><article><h3>相対パスの基準を間違える</h3><p><code>@shared-part.usda@</code>のような相対パスは、それを<strong>書いているファイル</strong>の場所を基準に解決されます。Stageのルートではありません。</p></article><article><h3>Internalなら軽いと思う</h3><p>Internal Referenceでも構造は展開されます。同じものを大量に並べるなら、<a href="14-data-pipelines.html">Instancing</a>を検討します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Internal Arc</dt><dd>同じLayerの中の別のPrimを指すComposition Arc。</dd></div><div><dt>External Arc</dt><dd>別のファイルを指すComposition Arc。</dd></div><div><dt>AddInternalReference</dt><dd>Internal ReferenceをPythonから追加するAPI。</dd></div><div><dt>Pcp</dt><dd>Compositionの計算を担当するモジュール。Arcの種類は<code>Pcp.ArcType…</code>で表される。</dd></div><div><dt>PrimCompositionQuery</dt><dd>あるPrimに効いているComposition Arcを調べるPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-references">OpenUSD Glossary — References</a></li><li><a href="https://openusd.org/release/api/class_usd_prim_composition_query.html">OpenUSD — UsdPrimCompositionQuery API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="21-value-resolution.html">← Lesson 21</a><a href="30-list-editing.html">Lesson 30 →</a></nav></main><footer><p>OpenUSD Academy · Lesson 29</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

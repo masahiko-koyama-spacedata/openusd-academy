@@ -100,7 +100,7 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 合成の仕組みが分かったところで、実際の組み立て方と調べ方へ進みます。
 
 - **STEP 47 · Lesson 28（予定）:** Prim Composition — 複数のPrim Specが一つになる
-- **STEP 48 · Lesson 29（予定）:** Internal ArcとExternal Arc — 同じLayer内と別ファイル
+- **STEP 48 · Lesson 29:** [Internal ArcとExternal Arc](lessons/29-internal-external-arc.html) — 同じLayer内と別ファイル
 - **STEP 49 · Lesson 30:** [List Editing](lessons/30-list-editing.html) — prepend・append・delete・reorder
 - **STEP 50 · Lesson 31（予定）:** Encapsulation — Assetの境界を守る
 - **STEP 51 · Lesson 32（予定）:** Variant Edit Context — 選択肢の中へ書く
