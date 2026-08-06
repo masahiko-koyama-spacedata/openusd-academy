@@ -44,6 +44,10 @@ Local、Inherits、Variant Sets、rElocates、References、Payloads、Specialize
 
 Prim、Property、Layerに付ける時間変化しない補助情報。
 
+### Default Prim（デフォルトプリム）
+
+Layer Metadataで指定する、そのLayerの主な入口となるtop-level Prim。外部ReferenceやPayloadで対象Prim Pathを省略するときに使われる。
+
 ### Module（モジュール）
 
 関連するOpenUSD APIをまとめた単位。例: Usd、Sdf、Gf。

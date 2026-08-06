@@ -16,6 +16,7 @@
 - **Lesson 07:** [USDAの基本構文](lessons/07-usda-syntax.html) — 型・名前・波括弧・Propertyを読む
 - **Lesson 08:** [Pythonとpxrモジュール](lessons/08-python-pxr-modules.html) — Usd・Sdf・Gf・UsdGeomを使い分ける
 - **Lesson 09:** [MetadataとSchema](lessons/09-metadata-schemas.html) — 補助情報とデータの設計図を分ける
+- **Lesson 09A:** [Default Prim](lessons/09a-default-prim.html) — Layerを外から利用するときの入口を決める
 - **Lesson 10:** [Xformと階層](lessons/10-xform-hierarchy.html) — 親の変換が子へ届く仕組みを知る
 - **Lesson 11:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
 
@@ -27,8 +28,8 @@
 - **Lesson 12C:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
 - **Lesson 12D:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
 - **Lesson 12E:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
-- **Lesson 12F:** [R · ReferencesとdefaultPrim](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
-- **Lesson 12G:** [P · PayloadsとdefaultPrim](lessons/12-payloads.html) — Load可能な内容を合成する
+- **Lesson 12F:** [R · References](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
+- **Lesson 12G:** [P · Payloads](lessons/12-payloads.html) — Load可能な内容を合成する
 - **Lesson 12H:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
 
 ## 4. アセット設計
