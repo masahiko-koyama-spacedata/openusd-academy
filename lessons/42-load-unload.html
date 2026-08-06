@@ -1,0 +1,75 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Lesson 42: LoadとUnload — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">LESSON 42 · STAGE CONTROL</p><h1>Loadと<span>Unload</span></h1><p class="lesson-lead">Payloadの中身を、開くか開かないかを選びます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Payloadの中身はLoadしたときだけStageに現れる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>読み込みを後回しにできる唯一のArc</h2><p><a href="12-payloads.html">Payload</a>は、他のComposition Arcと違って「読み込むかどうか」を実行時に選べます。Loadされていないとき、そのPayloadが持ち込むはずのPrimはStageに現れません。Stageを開くときに全部Loadするか、一つもLoadしないかを指定でき、開いたあとから個別に切り替えることもできます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><a href="41-active-inactive.html">Lesson 41</a>のInactiveと似ていますが、目的が違います。Inactiveは「このPrimはこのシーンでは要らない」という<strong>データの意思表示</strong>で、ファイルに書きます。Loadは「今は開かなくていい」という<strong>実行時の都合</strong>で、Stageを開く側が決めます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>重い部分をPayloadに分ける</h2><div class="code-card usda-card"><div class="code-title"><span>payload-detail.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Detail"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Detail"
+{
+    def Cube "PartA" { ... 青い箱 ... }
+    def Cube "PartB" { ... 緑の箱 ... }
+}</code></pre></div><div class="code-card usda-card"><div class="code-title"><span>payload-scene.usda</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Cube "Always"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        double3 xformOp:translate = (-2.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Heavy" (
+        payload = @payload-detail.usda@
+    )
+    {
+        double3 xformOp:translate = (1.2, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}</code></pre></div><p>赤い<code>Always</code>はこのファイルが直接持っています。<code>Heavy</code>は自分では中身を持たず、<code>payload</code>で別ファイルを指しているだけです。<code>payload</code>はPrim Metadataなので、Prim名の後ろの丸括弧に書きます。</p><p class="example-link"><a href="../examples/lesson-42/payload-scene.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>Loadすると中身が現れる</h2><figure class="render-result"><img src="../assets/images/lesson-42/payload-loaded.png" alt="赤い立方体と、右側に青と緑の立方体が描画された結果" width="800" height="583"><figcaption>すべてLoadした状態。<code>Heavy</code>の下に<code>PartA</code>と<code>PartB</code>が現れています。<br><small>撮影: <code>examples/lesson-42/payload-scene.usda</code>（既定のLoadAll）/ Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><figure class="render-result"><img src="../assets/images/lesson-42/payload-unloaded.png" alt="赤い立方体だけが描画され、右側には何もない結果" width="800" height="583"><figcaption>一つもLoadしない状態。赤い<code>Always</code>だけが残り、Payloadの中身は現れません。<code>Heavy</code>というPrim自体は存在しています。<br><small>撮影: <code>examples/lesson-42/payload-scene.usda</code> を <code>Usd.Stage.LoadNone</code> で開き、<code>Flatten()</code>して描画 / Apple USD Tools 0.25.2 の<code>usdrecord</code> / macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>走査結果が変わる</h2><div class="code-card python-card"><div class="code-title"><span>check_load.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+loaded = Usd.Stage.Open("payload-scene.usda", Usd.Stage.LoadAll)
+print([str(p.GetPath()) for p in loaded.Traverse()])
+# ['/World', '/World/Always', '/World/Heavy',
+#  '/World/Heavy/PartA', '/World/Heavy/PartB', '/World/ShotCam']
+
+unloaded = Usd.Stage.Open("payload-scene.usda", Usd.Stage.LoadNone)
+print([str(p.GetPath()) for p in unloaded.Traverse()])
+# ['/World', '/World/Always', '/World/ShotCam']
+
+heavy = unloaded.GetPrimAtPath("/World/Heavy")
+print(heavy.IsLoaded())     # False
+heavy.Load()                # あとから開く
+print(heavy.IsLoaded())     # True
+heavy.Unload()              # また閉じる</code></pre></div><p>Loadしていない状態でも<code>/World/Heavy</code>そのものは存在し、<code>xformOp:translate</code>のような、このファイルに直接書かれた情報は読めます。読めなくなるのはPayloadの<strong>中身</strong>だけです。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Load状態で見えるものが変わる</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">LoadAll（既定）</span><strong>/World/Heavy と その下の PartA・PartB が見える</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">LoadNone</span><strong>/World/Heavy は見えるが、その下は現れない</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">個別のLoad / Unload</span><strong>Primごとに、あとから切り替えられる</strong></div><figcaption>OpenUSD AcademyによるPayloadのLoad状態の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Stage全体と個別を使い分ける</h2><div class="code-card python-card"><div class="code-title"><span>load_control.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("payload-scene.usda", Usd.Stage.LoadNone)
+
+# Stage全体をまとめて切り替える
+stage.Load("/World/Heavy")
+stage.Unload("/World/Heavy")
+
+# 今どれが開いているかを調べる
+print(stage.GetLoadSet())
+# 開けるPayloadの一覧を調べる
+print(stage.FindLoadable())
+
+# Prim側から切り替える
+prim = stage.GetPrimAtPath("/World/Heavy")
+prim.Load()
+print(prim.IsLoaded())   # True</code></pre></div><p><code>Usd.Stage.LoadAll</code>と<code>Usd.Stage.LoadNone</code>はStageを開くときの初期状態です。開いたあとは<code>Load</code>と<code>Unload</code>でいつでも切り替えられ、切り替えのたびにStageが再構成されます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">payload = @payload-detail.usda@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetPayloads().AddPayload("payload-detail.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（開かずにStageを読む）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.Open(path, Usd.Stage.LoadNone)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（あとから開く）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.Load()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>ReferenceとPayloadの違い</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>書き方も効果もよく似ていますが、<a href="12-references.html">Reference</a>は必ず読み込まれ、Payloadは読み込みを後回しにできます。だから、大きなシーンでは「軽い情報はReferenceで見せ、重い中身はPayloadに置く」という分け方をします。この設計はLesson 52で扱う予定です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>Load状態をファイルの内容だと思う</h2><div class="mistake-list"><article><h3>UnloadすればPayloadの記述が消えると思う</h3><p>消えるのは読み込んだ中身だけです。<code>payload = @...@</code>という記述はファイルに残り続けます。</p></article><article><h3>Loadしていないから壊れていると考える</h3><p>Payloadの中身が見えないのは正しい動作の場合があります。まず<code>prim.IsLoaded()</code>を確認します。</p></article><article><h3>Inactiveで代用しようとする</h3><p>Inactiveはファイルに書く意思表示で、他の人がそのファイルを開いても外れたままです。一時的に開かないだけならLoadを使います。</p></article><article><h3>Referenceに対してLoadを呼ぶ</h3><p>Load制御が効くのはPayloadだけです。Referenceは常に読み込まれます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Payload</dt><dd>読み込みを後回しにできるComposition Arc。</dd></div><div><dt>Load / Unload</dt><dd>Payloadの中身をStageへ読み込む、または外す操作。</dd></div><div><dt>LoadAll / LoadNone</dt><dd>Stageを開くときの初期Load状態を指定する定数。</dd></div><div><dt>Load Set</dt><dd>現在Loadされているものの集合。<code>GetLoadSet()</code>で取得できる。</dd></div><div><dt>FindLoadable</dt><dd>Load可能なPrimの一覧を返すPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-06">2026年8月6日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-payload">OpenUSD Glossary — Payload</a></li><li><a href="https://openusd.org/release/api/class_usd_stage.html">OpenUSD — UsdStage API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="41-active-inactive.html">← Lesson 41</a><a href="43-stage-traversal.html">Lesson 43 →</a></nav></main><footer><p>OpenUSD Academy · Lesson 42</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

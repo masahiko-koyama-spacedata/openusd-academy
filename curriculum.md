@@ -123,10 +123,10 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 
 大きなシーンを扱うための、読み込みと走査の制御です。
 
-- **STEP 61 · Lesson 41（予定）:** ActiveとInactive — Compositionから除外する
-- **STEP 62 · Lesson 42（予定）:** LoadとUnload — Payloadを制御する
-- **STEP 63 · Lesson 43（予定）:** Stage Traversal — Primを順番に調べる
-- **STEP 64 · Lesson 44（予定）:** Traversal Predicate — 調べるPrimを絞る
+- **STEP 61 · Lesson 41:** [ActiveとInactive](lessons/41-active-inactive.html) — Compositionから除外する
+- **STEP 62 · Lesson 42:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
+- **STEP 63 · Lesson 43:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
+- **STEP 64 · Lesson 44:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
 - **STEP 65 · Lesson 45（予定）:** Hydra — Scene Indexとレンダリングの入口
 
 ## 13. パイプラインとData Exchange

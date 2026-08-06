@@ -1,0 +1,24 @@
+#usda 1.0
+(
+    defaultPrim = "Detail"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Detail"
+{
+    def Cube "PartA"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+        double3 xformOp:translate = (-0.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+    def Cube "PartB"
+    {
+        double size = 1
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
+        double3 xformOp:translate = (0.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
