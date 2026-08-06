@@ -190,7 +190,13 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .lesson-index { margin: 34px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
 .lesson-index li { padding: 22px 0; border-bottom: 1px solid var(--line); }
 .lesson-index a { color: var(--text); font-weight: 700; text-decoration: none; }
+.lesson-index a > span { display: block; margin-top: 5px; color: var(--muted); font-size: 16px; line-height: 1.5; font-weight: 400; }
 .lesson-index a:hover { color: var(--accent); }
+.lesson-index .lesson-parent { padding-bottom: 0; }
+.lesson-children { margin: 22px 0 0 28px; padding: 0 0 0 28px; list-style: none; border-left: 2px solid var(--accent-soft); }
+.lesson-index .lesson-children li { padding: 20px 0; }
+.lesson-index .lesson-children li:last-child { border-bottom: 0; }
+.lesson-children strong { font-size: 18px; }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero > *, .lesson-hero > * { animation: rise .55s both; }
@@ -217,4 +223,6 @@ html[data-theme="dark"] .python-code { color: var(--python); }
   .takeaway .section-kicker { font-size: 15px; }
   .takeaway h2 { font-size: clamp(30px, 8.8vw, 40px); }
   .code-card pre { padding: 22px 18px; font-size: 15px; }
+  .lesson-children { margin-left: 12px; padding-left: 18px; }
+  .lesson-index a > span { font-size: 15px; }
 }
