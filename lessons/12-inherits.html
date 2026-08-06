@@ -26,7 +26,7 @@ def Sphere "BallB" (
     double radius = 2
 }</code></pre></div><p><code>#usda 1.0</code>はUSDAヘッダーです。引用符は名前や文字列、波括弧はPrim内容、丸括弧はMetadata、<code>/</code>はPrim Pathの階層を表します。インデントは所属を読みやすくするためにそろえます。</p></section>
 <section class="lesson-section"><p class="section-kicker">結果</p>
-<h2>どのOpinionが見えるか</h2><p>BallAは継承値1、BallBはより強いLocal値2。クラスを直すと未上書きの継承先へ変更が届きます。</p></section>
+<h2>どのOpinionが見えるか</h2><p>BallAは継承値1、BallBはより強いLocal値2。クラスを直すと未上書きの継承先へ変更が届きます。</p><figure class="concept-flow" aria-labelledby="inherits-broadcast-caption"><div class="flow-node strong"><strong>class /_BallClass</strong><span>radius = 1 · broadcast元</span></div><div class="flow-arrow" aria-hidden="true">↓ inherits</div><div class="flow-node"><strong>/BallA</strong><span>Localなし → radius = 1</span></div><div class="flow-arrow" aria-hidden="true">↓ 同じsourceを継承</div><div class="flow-node"><strong>/BallB</strong><span>Local radius = 2 → 結果は2</span></div><figcaption id="inherits-broadcast-caption">classの変更は両方へ届きますが、BallBではより強いLocal Opinionが最終値になります。</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p>
 <h2>合成結果をAPIで確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect.py</span><span>Python</span></div><pre><code>from pxr import Usd
 stage = Usd.Stage.Open("inherits.usda")

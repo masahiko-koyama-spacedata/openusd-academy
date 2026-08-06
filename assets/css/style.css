@@ -122,6 +122,17 @@ footer a { text-decoration: none; }
 .tree-kind { font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
 .tree-connector { width: 1px; height: 26px; margin: auto; background: var(--line); }
 .hierarchy-figure figcaption { margin-top: 28px; color: var(--muted); font-size: 16px; line-height: 1.6; text-align: center; }
+.concept-flow { margin: 32px 0 0; padding: clamp(26px, 6vw, 52px); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 26px; }
+.flow-node { max-width: 680px; margin: 0 auto; padding: 20px 22px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; text-align: center; }
+.flow-node strong, .flow-node span { display: block; }
+.flow-node strong { font-size: 21px; line-height: 1.35; }
+.flow-node span { margin-top: 5px; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.flow-node.strong { color: #fff; background: var(--accent); border-color: transparent; }
+.flow-node.strong span { color: rgba(255,255,255,.82); }
+.flow-node.muted { border-style: dashed; }
+.flow-arrow { display: grid; place-items: center; min-height: 52px; color: var(--accent); font-size: 25px; font-weight: 700; }
+.flow-divider { max-width: 680px; margin: 20px auto; border: 0; border-top: 1px solid var(--line); }
+.concept-flow figcaption { max-width: 700px; margin: 28px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; text-align: center; }
 .render-result { margin: 34px 0 0; }
 .render-result img { display: block; width: 100%; height: auto; border-radius: 24px; background: #000; }
 .render-result figcaption { max-width: 720px; margin: 18px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; text-align: center; }

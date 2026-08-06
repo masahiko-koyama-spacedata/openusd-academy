@@ -17,7 +17,7 @@ def Sphere "Ball" (
     double radius = 3
 }</code></pre></div><p><code>#usda 1.0</code>はUSDAヘッダーです。引用符は名前や文字列、波括弧はPrim内容、丸括弧はMetadata、<code>/</code>はPrim Pathの階層を表します。インデントは所属を読みやすくするためにそろえます。</p></section>
 <section class="lesson-section"><p class="section-kicker">結果</p>
-<h2>どのOpinionが見えるか</h2><p>Localの3がReferenceの1に勝つ。Localを消すと、隠れていた1が再び結果になります。</p></section>
+<h2>どのOpinionが見えるか</h2><p>Localの3がReferenceの1に勝つ。Localを消すと、隠れていた1が再び結果になります。</p><figure class="concept-flow" aria-labelledby="local-winner-caption"><div class="flow-node"><strong>R · Reference</strong><span>ball.usda · radius = 1</span></div><div class="flow-arrow" aria-hidden="true">↑ LがRに勝つ</div><div class="flow-node strong"><strong>L · Local</strong><span>shot.usda · radius = 3</span></div><div class="flow-arrow" aria-hidden="true">↓</div><div class="flow-node"><strong>合成結果</strong><span>radius = 3</span></div><figcaption id="local-winner-caption">弱い値1は削除されません。Local値3を消すと、Reference値1が再び見えます。</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p>
 <h2>合成結果をAPIで確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect.py</span><span>Python</span></div><pre><code>from pxr import Usd
 stage = Usd.Stage.Open("shot.usda")

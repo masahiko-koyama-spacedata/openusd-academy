@@ -21,7 +21,7 @@ def Sphere "Ball" (
     }
 }</code></pre></div><p><code>#usda 1.0</code>はUSDAヘッダーです。引用符は名前や文字列、波括弧はPrim内容、丸括弧はMetadata、<code>/</code>はPrim Pathの階層を表します。インデントは所属を読みやすくするためにそろえます。</p></section>
 <section class="lesson-section"><p class="section-kicker">結果</p>
-<h2>どのOpinionが見えるか</h2><p>large選択時は3、small選択時は1。ただし同じPropertyへLocal値があれば、LはVより強いのでLocalが勝ちます。</p></section>
+<h2>どのOpinionが見えるか</h2><p>large選択時は3、small選択時は1。ただし同じPropertyへLocal値があれば、LはVより強いのでLocalが勝ちます。</p><figure class="concept-flow" aria-labelledby="variant-choice-caption"><div class="flow-node"><strong>Variant Set「size」</strong><span>small / large</span></div><div class="flow-arrow" aria-hidden="true">↓ selection = "large"</div><div class="flow-node strong"><strong>large Variantだけを合成</strong><span>radius = 3</span></div><div class="flow-arrow" aria-hidden="true">↓</div><div class="flow-node"><strong>Stageの結果</strong><span>/Ball.radius = 3</span></div><figcaption id="variant-choice-caption">Setには複数の選択肢が残り、Selectionで選ばれたVariantのOpinionだけが結果へ参加します。</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p>
 <h2>合成結果をAPIで確認する</h2><div class="code-card python-card"><div class="code-title"><span>inspect.py</span><span>Python</span></div><pre><code>from pxr import Usd
 stage = Usd.Stage.Open("variants.usda")
