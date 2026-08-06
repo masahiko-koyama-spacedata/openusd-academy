@@ -60,7 +60,7 @@
 
 ## 7. Propertyを深く理解する
 
-- **Lesson 21（予定）:** Value Resolution — Composition後のPropertyから最終値を選ぶ
+- **Lesson 21:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
 - **Lesson 22（予定）:** AttributeのValue Type — scalar、vector、matrix、array
 - **Lesson 23（予定）:** Relationship Target — 一つと複数の対象
 - **Lesson 24（予定）:** Custom Properties — Schema外の情報を追加する
