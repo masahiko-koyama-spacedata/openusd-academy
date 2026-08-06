@@ -1,6 +1,6 @@
 # OpenUSD Academy カリキュラム
 
-このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-05）。各レッスンの内容は執筆時に該当する公式ページを再確認します。Lesson 15〜72は予定で、個別HTMLはまだ公開していません。
+このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-06）。各レッスンの内容は執筆時に該当する公式ページを再確認します。リンクのない項目は予定です。
 
 ## 1. OpenUSDの土台
 
@@ -58,40 +58,35 @@
 - **Lesson 20B（予定）:** upAxis — 上方向をYまたはZで指定する
 - **Lesson 20C（予定）:** kilogramsPerUnit — Physicsの質量尺度を記録する
 
-### 後続の優先順
-
-- Value Resolution、Default Value、Time Sample
-- Primvars、constant・uniform・vertex・faceVarying interpolation
-- UsdLux、DistantLight、SphereLight、area light、DomeLight、intensity、color
-
 ## 7. Propertyを深く理解する
 
-- **Lesson 21（予定）:** Attributeの型 — scalar、vector、array
-- **Lesson 22（予定）:** Default ValueとTime Sample — 静的な値と時間変化
+- **Lesson 21（予定）:** Value Resolution — Composition後のPropertyから最終値を選ぶ
+- **Lesson 22（予定）:** AttributeのValue Type — scalar、vector、matrix、array
 - **Lesson 23（予定）:** Relationship Target — 一つと複数の対象
 - **Lesson 24（予定）:** Custom Properties — Schema外の情報を追加する
-- **Lesson 25（予定）:** Primvars — Geometryへ補間可能なデータを渡す
-- **Lesson 26（予定）:** Value Resolution — 最終値が決まるまでを追う
+- **Lesson 25A（予定）:** Primvars — Attributeとの違いと三つの機能
+- **Lesson 25B（予定）:** constant interpolation — Prim全体へ一つの値
+- **Lesson 25C（予定）:** uniform interpolation — Faceごとに一つの値
+- **Lesson 25D（予定）:** vertex interpolation — Pointごとに一つの値
+- **Lesson 25E（予定）:** faceVarying interpolation — Face Vertexごとに一つの値
+- **Lesson 25F（予定）:** Indexed Primvars — 値とindexを分けて再利用する
 
 ## 8. Compositionの基本操作
 
-- **Lesson 27（予定）:** def・over・class — 三つのSpecifier
-- **Lesson 28（予定）:** Default Prim — Assetの入口を決める
-- **Lesson 29（予定）:** Prim Composition — 複数のPrim Specが一つになる
-- **Lesson 30（予定）:** Sublayer — Layer Stackを作る
-- **Lesson 31（予定）:** Reference — Assetを再利用する
-- **Lesson 32（予定）:** Payload — 必要なときだけロードする
-- **Lesson 33（予定）:** Internal ArcとExternal Arc — 同じLayer内と別ファイル
+- **Lesson 27A（予定）:** def — 具体的に定義されたPrim Spec
+- **Lesson 27B（予定）:** over — 既存PrimへOpinionを追加するPrim Spec
+- **Lesson 27C（予定）:** class — Inherits用の抽象Prim Spec
+- **Lesson 28（予定）:** Prim Composition — 複数のPrim Specが一つになる
+- **Lesson 29（予定）:** Internal ArcとExternal Arc — 同じLayer内と別ファイル
+- **Lesson 30（予定）:** List Editing — prepend・append・delete・reorder
 
 ## 9. Compositionを使い分ける
 
-- **Lesson 34（予定）:** Encapsulation — Assetの境界を守る
-- **Lesson 35（予定）:** Variant Set — 選択肢を作る
-- **Lesson 36（予定）:** Variant Edit Context — 選択肢の中へ書く
-- **Lesson 37（予定）:** Inherits — 複数PrimでOpinionを共有する
-- **Lesson 38（予定）:** Specializes — 弱いFallbackを作る
-- **Lesson 39（予定）:** LIVERPS — 強度順序を一段ずつ追う
-- **Lesson 40（予定）:** Prim StackとProperty Stack — 結果の出所を調べる
+- **Lesson 31（予定）:** Encapsulation — Assetの境界を守る
+- **Lesson 32（予定）:** Variant Edit Context — 選択肢の中へ書く
+- **Lesson 33（予定）:** Direct ArcとAncestral Arc — 同じArc内の強度を追う
+- **Lesson 34A（予定）:** Prim Stack — Primへ寄与するPrim Specを調べる
+- **Lesson 34B（予定）:** Property Stack — Propertyへ寄与するSpecを調べる
 
 ## 10. Stageを調べて制御する
 
@@ -99,15 +94,13 @@
 - **Lesson 42（予定）:** LoadとUnload — Payloadを制御する
 - **Lesson 43（予定）:** Stage Traversal — Primを順番に調べる
 - **Lesson 44（予定）:** Traversal Predicate — 調べるPrimを絞る
-- **Lesson 45（予定）:** Model Kinds — 高水準の階層を検索する
-- **Lesson 46（予定）:** Hydra — Scene Delegateとレンダリングの入口
+- **Lesson 45（予定）:** Hydra — Scene Indexとレンダリングの入口
 
 ## 11. Asset Structureを実践する
 
 - **Lesson 47（予定）:** Asset Entry Point — 参照される入口を作る
 - **Lesson 48（予定）:** Asset Interface — 公開する情報を選ぶ
-- **Lesson 49（予定）:** Component・Group・Assembly — Kind階層を作る
-- **Lesson 50（予定）:** Workstream Layers — 作業をLayerで分ける
+- **Lesson 49（予定）:** Workstream Layers — 作業をLayerで分ける
 - **Lesson 51（予定）:** Asset Parameterization — 下流から変更できる値
 - **Lesson 52（予定）:** Reference/Payload Pattern — InterfaceとContentsを分ける
 - **Lesson 53（予定）:** Lofting — Payloadを開かず重要情報を見せる
