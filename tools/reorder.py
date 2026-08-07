@@ -367,15 +367,16 @@ def rewrite_navs():
     for i, (fn, _label, _title, chapter) in enumerate(seq):
         path = os.path.join(REPO, "lessons", fn)
         text = open(path, encoding="utf-8").read()
+        _r, steps_by_file, _t = step_numbers()
         parts = []
         if i > 0:
-            parts.append('<a href="%s">← %s</a>' % (seq[i - 1][0], seq[i - 1][1]))
+            parts.append('<a href="%s">← STEP %02d</a>' % (seq[i - 1][0], steps_by_file[seq[i - 1][0]]))
         else:
             parts.append('<a href="../curriculum.html">← カリキュラム</a>')
         parts.append('<a class="nav-chapter" href="../chapters/%s.html">%s</a>'
                      % (chapter["slug"], chapter["title"]))
         if i < len(seq) - 1:
-            parts.append('<a href="%s">%s →</a>' % (seq[i + 1][0], seq[i + 1][1]))
+            parts.append('<a href="%s">STEP %02d →</a>' % (seq[i + 1][0], steps_by_file[seq[i + 1][0]]))
         else:
             parts.append('<a href="../curriculum.html">全カリキュラムへ →</a>')
         nav = '<nav class="lesson-footer-nav">%s</nav>' % "".join(parts)
@@ -408,11 +409,11 @@ def write_chapter_pages():
         for fn, label, title, desc in ch["items"]:
             step += 1
             if fn and exists(fn):
-                lis.append('<li><a href="../lessons/%s"><strong>STEP %02d · %s: %s</strong>'
-                           '<span>%s</span></a></li>' % (fn, step, label, title, desc))
+                lis.append('<li><a href="../lessons/%s"><strong>STEP %02d: %s</strong>'
+                           '<span>%s</span></a></li>' % (fn, step, title, desc))
             else:
-                lis.append('<li><span class="planned"><strong>STEP %02d · %s: %s（予定）</strong>'
-                           '<span>%s</span></span></li>' % (step, label, title, desc))
+                lis.append('<li><span class="planned"><strong>STEP %02d: %s（予定）</strong>'
+                           '<span>%s</span></span></li>' % (step, title, desc))
         outcomes = "".join("<li>%s</li>" % o for o in ch["outcomes"])
         first, last = ranges[ci]
         number = ch["title"].split(".")[0]
@@ -457,14 +458,14 @@ def render_curriculum():
         for fn, label, title, desc in ch["items"]:
             step += 1
             if fn and exists(fn):
-                lis.append('<li><a href="lessons/%s"><strong>STEP %02d · %s: %s</strong>'
-                           '<span>%s</span></a></li>' % (fn, step, label, title, desc))
-                md_lines.append("- **STEP %02d · %s:** [%s](lessons/%s) — %s"
-                                % (step, label, title, fn, desc))
+                lis.append('<li><a href="lessons/%s"><strong>STEP %02d: %s</strong>'
+                           '<span>%s</span></a></li>' % (fn, step, title, desc))
+                md_lines.append("- **STEP %02d:** [%s](lessons/%s) — %s"
+                                % (step, title, fn, desc))
             else:
-                lis.append('<li><span class="planned"><strong>STEP %02d · %s: %s（予定）</strong>'
-                           '<span>%s</span></span></li>' % (step, label, title, desc))
-                md_lines.append("- **STEP %02d · %s（予定）:** %s — %s" % (step, label, title, desc))
+                lis.append('<li><span class="planned"><strong>STEP %02d: %s（予定）</strong>'
+                           '<span>%s</span></span></li>' % (step, title, desc))
+                md_lines.append("- **STEP %02d（予定）:** %s — %s" % (step, title, desc))
         html_sections.append(
             '<section><h2><a href="chapters/%s.html">%s</a></h2><p class="chapter-lead">%s</p>'
             '<ol class="lesson-index">%s</ol></section>'
@@ -475,10 +476,9 @@ def render_curriculum():
     intro = ("このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、"
              "[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、"
              "日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-06）。")
-    note = ("**STEP番号が学習の順番です。** Lesson番号はファイルの識別子で、教材を追加してきた順に付いています。"
-            "初学者がつまずきにくい順序を優先した結果、Lesson番号とSTEP番号は一致しません。"
-            "各レッスンの前後リンクもSTEPの順に並んでいるので、上から順にたどれば迷いません。"
-            "章の見出しをたどると、その章の全体像をまとめたページへ移動します。")
+    note = ("**STEP番号のとおりに上から進めてください。** 各ページの前後リンクも同じ並びなので、"
+            "順にたどるだけで迷いません。章の見出しをたどると、その章の全体像をまとめたページへ移動します。"
+            "初学者がつまずきにくい順序を優先しているため、公式資料の章立てとは並びが異なります。")
 
     html = '''<!doctype html>
 <html lang="ja">
@@ -510,9 +510,70 @@ def render_curriculum():
     return step
 
 
+def normalize_labels():
+    """Replace every "Lesson NN" label with the current "STEP NN".
+
+    The learner only ever sees STEP numbers. Lesson numbers stay as file names.
+    Linked references derive their STEP from the href, so this stays correct when
+    the order changes; plain-text mentions use the label map.
+    """
+    _ranges, steps_by_file, _total = step_numbers()
+    label_step, n = {}, 0
+    for ch in PLAN:
+        for fn, label, _t, _d in ch["items"]:
+            n += 1
+            label_step[label] = n
+    # longest labels first so "Lesson 12A" is not eaten by "Lesson 12"
+    labels = sorted(label_step, key=len, reverse=True)
+
+    changed = 0
+    for sub in ("lessons", "chapters"):
+        folder = os.path.join(REPO, sub)
+        if not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            if not name.endswith(".html"):
+                continue
+            path = os.path.join(folder, name)
+            text = original = open(path, encoding="utf-8").read()
+
+            # 1. links to other lessons -> STEP derived from the href
+            def relabel(m):
+                href, inner = m.group(1), m.group(2)
+                target = steps_by_file.get(os.path.basename(href))
+                if target is None:
+                    return m.group(0)
+                rest = re.sub(r"^(?:Lesson\s+[0-9]+[A-Z]?|STEP\s+[0-9]+)\s*", "", inner)
+                label = "STEP %02d" % target
+                return '<a href="%s">%s</a>' % (href, (label + " " + rest).strip() if rest else label)
+
+            text = re.sub(r'<a href="((?:\.\./lessons/)?[0-9][^"]*\.html)">([^<]*)</a>', relabel, text)
+
+            # 2. this page's own labels
+            own = steps_by_file.get(name)
+            if own:
+                text = re.sub(r'(<p class="eyebrow">)LESSON\s+[0-9]+[A-Z]?',
+                              lambda m: "%sSTEP %02d" % (m.group(1), own), text)
+                text = re.sub(r'(<title>)Lesson\s+[0-9]+[A-Z]?:',
+                              lambda m: "%sSTEP %02d:" % (m.group(1), own), text)
+                text = re.sub(r'(OpenUSD Academy · )Lesson\s+[0-9]+[A-Z]?',
+                              lambda m: "%sSTEP %02d" % (m.group(1), own), text)
+
+            # 3. remaining plain-text mentions (including not-yet-written lessons)
+            for label in labels:
+                if label in text:
+                    text = text.replace(label, "STEP %02d" % label_step[label])
+
+            if text != original:
+                open(path, "w", encoding="utf-8").write(text)
+                changed += 1
+    return changed
+
+
 if __name__ == "__main__":
+    relabelled = normalize_labels()
     total, changed = rewrite_navs()
     chapters = write_chapter_pages()
     steps = render_curriculum()
-    print("%d written lessons in order, %d navs rewritten, %d chapter pages, %d steps"
-          % (total, changed, chapters, steps))
+    print("%d lessons in order, %d navs, %d relabelled, %d chapter pages, %d steps"
+          % (total, changed, relabelled, chapters, steps))

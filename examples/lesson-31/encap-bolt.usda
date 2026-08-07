@@ -1,0 +1,15 @@
+#usda 1.0
+(
+    defaultPrim = "Bolt"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Bolt"
+{
+    def Cube "Head"
+    {
+        double size = 0.6
+        color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+    }
+}
