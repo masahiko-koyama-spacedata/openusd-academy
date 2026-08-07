@@ -35,10 +35,13 @@ def pages():
     for name in sorted(os.listdir(REPO)):
         if name.endswith(".html"):
             yield os.path.join(REPO, name)
-    lessons = os.path.join(REPO, "lessons")
-    for name in sorted(os.listdir(lessons)):
-        if name.endswith(".html"):
-            yield os.path.join(lessons, name)
+    for sub in ("chapters", "lessons"):
+        folder = os.path.join(REPO, sub)
+        if not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            if name.endswith(".html"):
+                yield os.path.join(folder, name)
 
 
 problems = 0

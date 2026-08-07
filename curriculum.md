@@ -2,9 +2,9 @@
 
 このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-06）。
 
-> **STEP番号が学習の順番です。** Lesson番号はファイルの識別子で、教材を追加してきた順に付いています。初学者がつまずきにくい順序を優先した結果、Lesson番号とSTEP番号は一致しません。各レッスンの前後リンクもSTEPの順に並んでいるので、上から順にたどれば迷いません。
+> **STEP番号が学習の順番です。** Lesson番号はファイルの識別子で、教材を追加してきた順に付いています。初学者がつまずきにくい順序を優先した結果、Lesson番号とSTEP番号は一致しません。各レッスンの前後リンクもSTEPの順に並んでいるので、上から順にたどれば迷いません。章の見出しをたどると、その章の全体像をまとめたページへ移動します。
 
-## 1. まずUSDAを読む
+## [1. まずUSDAを読む](chapters/01-read-usda.html)
 
 最初の目標は「書く」ではなく「読める」です。短いテキストを一行ずつ読み解きます。
 
@@ -14,7 +14,7 @@
 - **STEP 04 · Lesson 07:** [USDAの基本構文](lessons/07-usda-syntax.html) — 型・名前・波括弧・Propertyを読む
 - **STEP 05 · Lesson 06:** [USDA・USDC・USD・USDZ](lessons/06-usd-file-formats.html) — 中身と用途でファイル形式を選ぶ
 
-## 2. ファイル先頭の約束事
+## [2. ファイル先頭の約束事](chapters/02-stage-metadata.html)
 
 すべての例に出てくるファイル先頭のMetadataを、ここで先に理解しておきます。
 
@@ -23,7 +23,7 @@
 - **STEP 08 · Lesson 20B:** [upAxis](lessons/20b-up-axis.html) — どの軸が上かを宣言する
 - **STEP 09 · Lesson 20C:** [kilogramsPerUnit](lessons/20c-kilograms-per-unit.html) — 質量の「1」が何キログラムかを宣言する
 
-## 3. Propertyを読み書きする
+## [3. Propertyを読み書きする](chapters/03-properties.html)
 
 Primが持つ情報の中身に入ります。値の型と、対象の指し方を押さえます。
 
@@ -33,14 +33,14 @@ Primが持つ情報の中身に入ります。値の型と、対象の指し方�
 - **STEP 13 · Lesson 25:** [Relationship Target](lessons/25-relationship-target.html) — 一つと複数の対象を同じ仕組みで書く
 - **STEP 14 · Lesson 26:** [Custom Properties](lessons/26-custom-properties.html) — Schema外の情報を追加する
 
-## 4. Pythonから触る
+## [4. Pythonから触る](chapters/04-python.html)
 
 ここで初めてコードを書きます。USDAで読めるようになった構造を、そのままAPIで作ります。
 
 - **STEP 15 · Lesson 08:** [Pythonとpxrモジュール](lessons/08-python-pxr-modules.html) — Usd・Sdf・Gf・UsdGeomを使い分ける
 - **STEP 16 · Lesson 09:** [MetadataとSchema](lessons/09-metadata-schemas.html) — 補助情報とデータの設計図を分ける
 
-## 5. 形を置いて動かす
+## [5. 形を置いて動かす](chapters/05-transforms.html)
 
 階層と変換です。ここまでで、自分でシーンを組み立てられるようになります。
 
@@ -53,7 +53,7 @@ Primが持つ情報の中身に入ります。値の型と、対象の指し方�
 - **STEP 23 · Lesson 17D:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
 - **STEP 24 · Lesson 18:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
 
-## 6. 形の上へ値を配る
+## [6. 形の上へ値を配る](chapters/06-primvars.html)
 
 Primvarの回です。値の個数の数え方が中心で、5つのInterpolationを一つずつ確かめます。
 
@@ -66,13 +66,13 @@ Primvarの回です。値の個数の数え方が中心で、5つのInterpolatio
 - **STEP 31 · Lesson 24F:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
 - **STEP 32 · Lesson 24G:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
 
-## 7. 時間を記述する
+## [7. 時間を記述する](chapters/07-time.html)
 
 値が時間で変わる書き方です。Compositionへ進む前に済ませておきます。
 
 - **STEP 33 · Lesson 11:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
 
-## 8. Prim Specの3つの書き方
+## [8. Prim Specの3つの書き方](chapters/08-specifiers.html)
 
 Compositionの前に、def・over・classの違いをここで確実にします。これがないと合成の説明が読めません。
 
@@ -80,7 +80,7 @@ Compositionの前に、def・over・classの違いをここで確実にします
 - **STEP 35 · Lesson 27B:** [over](lessons/27b-over.html) — 既存PrimへOpinionだけを重ねる
 - **STEP 36 · Lesson 27C:** [class](lessons/27c-class.html) — Inherits用の抽象Prim Specを作る
 
-## 9. コンポジション
+## [9. コンポジション](chapters/09-composition.html)
 
 OpenUSDでいちばん難しい部分です。ここまでの土台があって初めて読み進められます。
 
@@ -95,9 +95,9 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 - **STEP 45 · Lesson 12H:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
 - **STEP 46 · Lesson 21:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
 
-## 10. Compositionを組み立てる
+## [10. Compositionを組み立てる](chapters/10-composition-practice.html)
 
-合成の仕組みが分かったところで、実際の組み立て方と調べ方へ進みます。
+合成の仕組みが分かったところで、実際の組み立て方と、原因を追う道具へ進みます。
 
 - **STEP 47 · Lesson 28（予定）:** Prim Composition — 複数のPrim Specが一つになる
 - **STEP 48 · Lesson 29:** [Internal ArcとExternal Arc](lessons/29-internal-external-arc.html) — 同じLayer内と別ファイル
@@ -108,7 +108,7 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 - **STEP 53 · Lesson 34A:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
 - **STEP 54 · Lesson 34B:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
 
-## 11. モデル階層とアセット設計
+## [11. モデル階層とアセット設計](chapters/11-model-hierarchy.html)
 
 Kindでシーンに役割を与え、再利用できるアセットの形にまとめます。
 
@@ -119,7 +119,7 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 59 · Lesson 19E:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
 - **STEP 60 · Lesson 13:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern
 
-## 12. Stageを調べて制御する
+## [12. Stageを調べて制御する](chapters/12-stage-control.html)
 
 大きなシーンを扱うための、読み込みと走査の制御です。
 
@@ -129,9 +129,9 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 64 · Lesson 44:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
 - **STEP 65 · Lesson 45（予定）:** Hydra — Scene Indexとレンダリングの入口
 
-## 13. パイプラインとData Exchange
+## [13. パイプラインとData Exchange](chapters/13-pipeline.html)
 
-他のツールとの間でデータを受け渡す実務です。
+他のツールとの間でデータを受け渡す実務です。ここからは設計の話が増えます。
 
 - **STEP 66 · Lesson 14:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
 - **STEP 67 · Lesson 47（予定）:** Asset Entry Point — 参照される入口を作る
@@ -147,9 +147,9 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 77 · Lesson 58（予定）:** Prim Hierarchy Transformation — 階層を目的形へ変える
 - **STEP 78 · Lesson 59（予定）:** Export Options — 変換条件を利用者へ公開する
 
-## 14. Instancingと大規模シーン
+## [14. Instancingと大規模シーン](chapters/14-instancing.html)
 
-同じものを大量に置くための仕組みです。
+同じものを大量に置くための仕組みです。数が増えたときに効いてきます。
 
 - **STEP 79 · Lesson 60（予定）:** Asset Modularity — 再利用単位を決める
 - **STEP 80 · Lesson 61（予定）:** Scenegraph Instancing — CompositionからPrototypeを作る
@@ -158,11 +158,11 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 83 · Lesson 64（予定）:** Point Instancing — 大量の単純要素を配置する
 - **STEP 84 · Lesson 65（予定）:** ScenegraphとPointの選択 — 用途と制約を比較する
 
-## 15. 調査・検証・総復習
+## [15. 調査・検証・総復習](chapters/15-debugging.html)
 
-最後に、壊れたシーンを直せるところまで進みます。
+最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 85 · Lesson 66（予定）:** usdviewとusdrecordでStageを読む — 構造と描画を確かめる
+- **STEP 85 · Lesson 66（予定）:** usdrecordとusdtreeでStageを読む — 構造と描画を確かめる
 - **STEP 86 · Lesson 67（予定）:** Layer Stackを調べる — どのLayerの意見が効いているか
 - **STEP 87 · Lesson 68（予定）:** 壊れたReferenceとPathを直す — よくある破損の直し方
 - **STEP 88 · Lesson 69（予定）:** Pythonで最小Validationを書く — 規則を自動で確かめる

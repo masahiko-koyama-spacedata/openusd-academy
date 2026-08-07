@@ -194,6 +194,9 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .references a { color: var(--accent); }
 .lesson-footer-nav { display: flex; justify-content: space-between; padding-top: 44px; border-top: 1px solid var(--line); }
 .lesson-footer-nav a { color: var(--accent); text-decoration: none; }
+.lesson-footer-nav .nav-chapter { color: var(--muted); }
+.lesson-footer-nav .nav-chapter:hover { color: var(--accent); }
+@media (max-width: 620px) { .lesson-footer-nav { flex-wrap: wrap; gap: 14px; justify-content: space-between; } .lesson-footer-nav .nav-chapter { order: 3; flex-basis: 100%; } }
 .lesson-index { margin: 34px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
 .lesson-index li { padding: 22px 0; border-bottom: 1px solid var(--line); }
 .lesson-index a { color: var(--text); font-weight: 700; text-decoration: none; }
@@ -205,6 +208,29 @@ html[data-theme="dark"] .python-code { color: var(--python); }
 .lesson-index .lesson-children li:last-child { border-bottom: 0; }
 .lesson-children strong { font-size: 18px; }
 .chapter-lead { margin: 10px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+.chapter-map { margin: 36px 0 0; padding: clamp(24px, 5vw, 46px); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 26px; }
+.map-row { display: flex; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 12px; }
+.map-row + .map-row { margin-top: 12px; }
+.map-node { flex: 1 1 168px; max-width: 260px; padding: 18px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; text-align: center; }
+.map-node b { display: block; font-size: 17px; line-height: 1.35; }
+.map-node span { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.map-node.is-goal { color: #fff; background: var(--accent); border-color: transparent; }
+.map-node.is-goal span { color: rgba(255, 255, 255, .84); }
+.map-node.is-base { color: var(--bg); background: var(--text); border-color: transparent; }
+.map-node.is-base span { color: rgba(255, 255, 255, .7); }
+html[data-theme="dark"] .map-node.is-base span { color: rgba(0, 0, 0, .62); }
+.map-note { display: grid; place-items: center; min-width: 26px; color: var(--accent); font-size: 22px; font-weight: 700; }
+.map-band { margin-top: 12px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); font-size: 15px; text-align: center; }
+.chapter-map figcaption { max-width: 700px; margin: 26px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; text-align: center; }
+.outcome-list { margin: 26px 0 0; padding: 0; list-style: none; counter-reset: outcome; }
+.outcome-list li { position: relative; padding: 20px 0 20px 46px; border-top: 1px solid var(--line); }
+.outcome-list li::before { counter-increment: outcome; content: counter(outcome); position: absolute; left: 0; top: 20px; display: grid; place-items: center; width: 28px; height: 28px; color: #fff; background: var(--accent); border-radius: 50%; font-size: 14px; font-weight: 700; }
+.chapter-card { display: block; margin: 26px 0 0; padding: 24px 26px; border: 1px solid var(--line); border-radius: 20px; text-decoration: none; }
+.chapter-card:hover { border-color: var(--accent); }
+.chapter-card .eyebrow { margin: 0; }
+.chapter-card strong { display: block; margin-top: 6px; font-size: 21px; }
+.chapter-card span { display: block; margin-top: 6px; color: var(--muted); font-size: 16px; }
+@media (max-width: 620px) { .map-node { flex-basis: 100%; max-width: none; } .map-note { min-height: 28px; } }
 .lesson-index .planned { display: block; color: var(--muted); font-weight: 700; }
 .lesson-index .planned > span { display: block; margin-top: 5px; font-size: 16px; line-height: 1.5; font-weight: 400; }
 
