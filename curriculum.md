@@ -103,8 +103,8 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 - **STEP 48:** [Internal ArcとExternal Arc](lessons/29-internal-external-arc.html) — 同じLayer内と別ファイル
 - **STEP 49:** [List Editing](lessons/30-list-editing.html) — prepend・append・delete・reorder
 - **STEP 50（予定）:** Encapsulation — Assetの境界を守る
-- **STEP 51（予定）:** Variant Edit Context — 選択肢の中へ書く
-- **STEP 52（予定）:** Direct ArcとAncestral Arc — 同じArc内の強度を追う
+- **STEP 51:** [Variant Edit Context](lessons/32-variant-edit-context.html) — 選択肢の中へ書く
+- **STEP 52:** [Direct ArcとAncestral Arc](lessons/33-direct-ancestral-arc.html) — 同じArc内の強度を追う
 - **STEP 53:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
 - **STEP 54:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
 
