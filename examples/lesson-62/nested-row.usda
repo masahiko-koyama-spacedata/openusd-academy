@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "Row"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Row"
+(
+    kind = "assembly"
+)
+{
+    def "Chair_1" (
+        references = @instance-chair.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (-1.2, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Chair_2" (
+        references = @instance-chair.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Chair_3" (
+        references = @instance-chair.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (1.2, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

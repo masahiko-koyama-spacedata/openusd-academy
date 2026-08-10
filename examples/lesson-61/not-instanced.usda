@@ -1,0 +1,50 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def "Chair_1" (
+        references = @instance-chair.usda@
+    )
+    {
+        double3 xformOp:translate = (-2.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Chair_2" (
+        references = @instance-chair.usda@
+    )
+    {
+        double3 xformOp:translate = (-0.8, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Chair_3" (
+        references = @instance-chair.usda@
+    )
+    {
+        double3 xformOp:translate = (0.8, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Chair_4" (
+        references = @instance-chair.usda@
+    )
+    {
+        double3 xformOp:translate = (2.4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 1000)
+        double3 xformOp:translate = (0, 0.4, 15)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

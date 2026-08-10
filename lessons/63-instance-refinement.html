@@ -1,0 +1,81 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 82: Instance Refinement — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 82 · INSTANCING</p><h1>Instance <span>Refinement</span></h1><p class="lesson-lead">共有したまま、個体差を付ける方法を選びます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Instanceの内側は読めるが書けない。差を付けるなら外側か、共有をやめる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Instance Proxyは読み取り専用</h2><p>Instanceの内側にあるPrimは、<strong>Instance Proxy</strong>として取得できます。Pathを指定して読むことはできますが、そこへ値を書き込むことはできません。中身はPrototypeとして共有されているため、片方だけ書き換えることが原理的にできないからです。個体差を付けたいときは、<strong>書ける場所</strong>を選び直す必要があります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この制限は不便に見えますが、Instancingの利点そのものです。「中身が1つしかない」から軽いのであって、個別に書けるなら共有していないのと同じです。設計のときは<strong>どこまでを共有し、どこから個別にするか</strong>を先に決めます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>読めるが書けない</h2><div class="code-card python-card"><div class="code-title"><span>check_proxy.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd
+
+stage = Usd.Stage.Open("instanced.usda")
+seat = stage.GetPrimAtPath("/World/Chair_1/Seat")
+
+print(bool(seat))                # True   … 取得はできる
+print(seat.IsInstanceProxy())    # True   … ただしProxy
+print(seat.GetAttribute("primvars:displayColor").Get())
+# [(0.15, 0.35, 0.85)]           … 読める
+
+seat.GetAttribute("primvars:displayColor").Set([Gf.Vec3f(1, 0, 0)])
+# Error: Usd.Stage._SetValue で失敗する（Instance Proxy へは書き込めない）</code></pre></div><p><code>IsInstanceProxy()</code>が<code>True</code>なら、そのPrimは共有された中身の「窓」です。読むだけなら問題ありませんが、書こうとするとエラーになります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>差を付ける3つの選択肢</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>1. Instanceの外側で差を付ける</b><span>変換・可視性・Instance自身のPropertyは個別に持てる</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>2. 別のPrototypeにする</b><span>Variantなどで合成結果を変え、種類ごとに共有する</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>3. 共有をやめる</b><span>SetInstanceable(False) で、そのPrimだけ個別に編集できる</span></div></div><div class="map-band">上から順に、軽さを保てる順です。3は最後の手段</div><figcaption>OpenUSD Academyによる、個体差の付け方の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>1. 外側で差を付ける</h2><div class="code-card usda-card"><div class="code-title"><span>外側に書けるもの</span><span>USDA</span></div><pre><code>def "Chair_1" (
+    references = @instance-chair.usda@
+    instanceable = true
+)
+{
+    double3 xformOp:translate = (-2.4, 0, 0)
+    double3 xformOp:rotateY = 15
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateY"]
+    token visibility = "inherited"
+}</code></pre></div><p>Instance自身に書いたPropertyは共有されません。位置・向き・大きさ・表示のオンオフは、これだけで個別に指定できます。多くの場合、必要な個体差はここで足ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2. 種類を分けて、種類ごとに共有する</h2><div class="code-card usda-card"><div class="code-title"><span>Variantで合成結果を変える</span><span>USDA</span></div><pre><code>def "Chair_A" (
+    references = @instance-chair.usda@
+    variants = {
+        string look = "warm"
+    }
+    instanceable = true
+)
+{
+}
+
+def "Chair_B" (
+    references = @instance-chair.usda@
+    variants = {
+        string look = "cool"
+    }
+    instanceable = true
+)
+{
+}</code></pre></div><p><a href="32-variant-edit-context.html">STEP 51 Variant</a>の選択が違えば合成結果が違うため、<code>Chair_A</code>と<code>Chair_B</code>は別のPrototypeになります。10種類あれば10個のPrototypeができますが、1000個並べてもPrototypeは10個のままです。「全部同じ」と「全部バラバラ」の中間を取る、実務でいちばんよく使う方法です。</p><figure class="render-result"><img src="../assets/images/lesson-63/variant-instances.png" alt="赤い箱に緑の球が乗ったものが左右に2つ、中央に青い箱が1つ描画された結果" width="800" height="583"><figcaption>左<code>A</code>と右<code>C</code>が<code>look = "warm"</code>、中央<code>B</code>が<code>look = "cool"</code>です。3つともInstanceのまま、見た目に差が付いています。<br><small>撮影: <code>examples/lesson-63/variant-instances.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p>この3つのInstanceが、いくつのPrototypeを共有しているかを確かめます。</p><div class="code-card python-card"><div class="code-title"><span>check_variant_prototypes.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("variant-instances.usda")
+
+print([str(p.GetPath()) for p in stage.GetPrototypes()])
+# ['/__Prototype_1', '/__Prototype_2']    … 2種類ぶん
+
+for name in ("A", "B", "C"):
+    prim = stage.GetPrimAtPath("/World/%s" % name)
+    print(name, prim.GetPrototype().GetPath())
+# A /__Prototype_2     … look = "warm"
+# B /__Prototype_1     … look = "cool"
+# C /__Prototype_2     … look = "warm"、Aと同じPrototype</code></pre></div><p>Instanceは3つですが、Prototypeは選択の種類数と同じ2つです。同じ選択の<code>A</code>と<code>C</code>はきちんと共有されています。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この出力の<code>__Prototype_1</code>と<code>__Prototype_2</code>という<strong>番号は当てにできません</strong>。手元で同じファイルを2回開いたところ、<code>A</code>が<code>__Prototype_1</code>になったり<code>__Prototype_2</code>になったりしました。大事なのは番号ではなく、<strong>どれとどれが同じPrototypeを指しているか</strong>です。比べるときは<code>a.GetPrototype() == c.GetPrototype()</code>のように、取得したものどうしを比較します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>3. 共有をやめて個別に編集する</h2><div class="code-card python-card"><div class="code-title"><span>de_instance.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd
+
+stage = Usd.Stage.Open("instanced.usda")
+chair = stage.GetPrimAtPath("/World/Chair_1")
+
+print(chair.IsInstance())        # True
+
+chair.SetInstanceable(False)     # このPrimだけ共有をやめる
+print(chair.IsInstance())        # False
+
+seat = stage.GetPrimAtPath("/World/Chair_1/Seat")
+print(seat.IsInstanceProxy())    # False   … もうProxyではない
+seat.GetAttribute("primvars:displayColor").Set([Gf.Vec3f(0.85, 0.2, 0.2)])
+# 書き込める
+
+stage.Save()</code></pre></div><p><code>SetInstanceable(False)</code>を呼ぶと、そのPrimの中身は展開され、通常のPrimと同じように編集できます。ただしその1つ分だけStageが重くなります。少数に限って使う手段です。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>目的ごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">Proxyかどうか調べる</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.IsInstanceProxy()</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">Instanceの内側も走査する</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.Traverse(Usd.TraverseInstanceProxies(Usd.PrimDefaultPredicate))</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">共有をやめる</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetInstanceable(False)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>既定の走査にInstanceの中は出てこない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>stage.Traverse()</code>はInstance Proxyを返しません。Instanceの内側まで見たいときは<code>Usd.TraverseInstanceProxies(...)</code>で条件を作ります。<a href="44-traversal-predicate.html">STEP 64 Traversal Predicate</a>で扱ったPredicateの一種です。走査したPrimが編集できるとは限らない、という点だけ覚えておいてください。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>書けない理由を探して迷う</h2><div class="mistake-list"><article><h3>エラーの原因をPathの誤りだと思う</h3><p>Pathは合っているのに書けない場合、<code>IsInstanceProxy()</code>を確認します。Proxyなら書けないのが仕様です。</p></article><article><h3>個体差のために全部の共有をやめる</h3><p>Instancingの利点が失われます。まず外側で足りないかを確認し、次にVariantで種類を分けます。</p></article><article><h3>Prototypeへ直接書こうとする</h3><p>Prototypeは自動生成されたもので、編集の対象ではありません。書くのは元になったアセット側です。</p></article><article><h3>Traverseに出てこないので存在しないと思う</h3><p>Instance Proxyは既定の走査から外れているだけです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Instance Proxy</dt><dd>Instanceの内側のPrimを読むための、書き込みできないPrim。</dd></div><div><dt>Instance Refinement</dt><dd>共有を保ったまま、Instanceごとに差を付けること。</dd></div><div><dt>De-instancing</dt><dd><code>instanceable</code>を外し、そのPrimの中身を個別に持たせること。</dd></div><div><dt>TraverseInstanceProxies</dt><dd>Instance Proxyも走査に含める条件を作るPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-10">2026年8月10日</time></p><ul><li><a href="https://openusd.org/release/api/_usd__page__scenegraph_instancing.html">OpenUSD — Scenegraph Instancing</a></li><li><a href="https://openusd.org/release/api/class_usd_prim.html">OpenUSD — UsdPrim API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="62-nested-instancing.html">← STEP 81</a><a class="nav-chapter" href="../chapters/14-instancing.html">14. Instancingと大規模シーン</a><a href="64-point-instancing.html">STEP 83 →</a></nav></main><footer><p>OpenUSD Academy · STEP 82</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

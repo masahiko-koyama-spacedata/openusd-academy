@@ -1,0 +1,75 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 83: Point Instancing — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 83 · INSTANCING</p><h1>Point <span>Instancing</span></h1><p class="lesson-lead">Primを増やさず、配列だけで大量に配置します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>位置の配列とindexの配列だけで、いくつでも配置できる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>1つのPrimが大量の配置を持つ</h2><p><code>UsdGeomPointInstancer</code>は、置きたい形（Prototype）の一覧と、それをどこへ何個置くかを<strong>配列</strong>で持つPrimです。<code>positions</code>に置く場所を並べ、<code>protoIndices</code>にどのPrototypeを使うかを並べます。配置が何個増えてもPrimの数は変わらないため、<a href="61-scenegraph-instancing.html">STEP 80 Scenegraph Instancing</a>よりさらに軽く扱えます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>考え方は<a href="24f-indexed-primvars.html">STEP 31 Indexed Primvar</a>とよく似ています。「値を一度だけ書いて、index で使い回す」という発想を、Primの配置へ持ち込んだものがPoint Instancingです。草・石・群衆のように、数が桁違いに多くて個別の編集が要らないものに向いています。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2種類の形を15か所へ置く</h2><div class="code-card usda-card"><div class="code-title"><span>point-instancer.usda（抜粋）</span><span>USDA</span></div><pre><code>def PointInstancer "Scatter"
+{
+    rel prototypes = [
+        &lt;/World/Scatter/Prototypes/Box&gt;,
+        &lt;/World/Scatter/Prototypes/Ball&gt;,
+    ]
+
+    point3f[] positions = [
+        (-2.2, -1.1, 0), (-1.1, -1.1, 0), (0, -1.1, 0), ...
+    ]
+
+    int[] protoIndices = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+
+    def Scope "Prototypes"
+    {
+        def Cube "Box"
+        {
+            double size = 0.5
+            color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+        }
+
+        def Sphere "Ball"
+        {
+            double radius = 0.3
+            color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
+        }
+    }
+}</code></pre></div><p>読む順番は3つです。<code>prototypes</code>が「置ける形の一覧」、<code>positions</code>が「どこへ置くか」、<code>protoIndices</code>が「各位置でどの形を使うか」です。<code>positions</code>と<code>protoIndices</code>は<strong>必ず同じ長さ</strong>で、その長さが配置の総数になります。</p><p class="example-link"><a href="../examples/lesson-64/point-instancer.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>15個の配置が、6つのPrimで表される</h2><figure class="render-result"><img src="../assets/images/lesson-64/point-instancer.png" alt="赤い立方体と青い球が交互に並んだ、3行5列の格子状の描画結果" width="800" height="583"><figcaption><code>protoIndices</code>が<code>0</code>の位置に赤い箱、<code>1</code>の位置に青い球が置かれ、市松模様になっています。<br><small>撮影: <code>examples/lesson-64/point-instancer.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>check_point_instancer.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.Open("point-instancer.usda")
+pi = UsdGeom.PointInstancer(stage.GetPrimAtPath("/World/Scatter"))
+
+print(len(pi.GetPositionsAttr().Get()))      # 15
+print(len(pi.GetProtoIndicesAttr().Get()))   # 15
+print(pi.GetPrototypesRel().GetTargets())
+# [Sdf.Path('/World/Scatter/Prototypes/Box'),
+#  Sdf.Path('/World/Scatter/Prototypes/Ball')]
+
+print(len(list(stage.Traverse())))           # 6</code></pre></div><p>15個を配置しているのに、Stage上のPrimは6個だけです。配置を1000個へ増やしても、増えるのは配列の長さだけで、Primの数は変わりません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>2つの配列で配置が決まる</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>prototypes</b><span>[0] Box / [1] Ball — 置ける形の一覧</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>positions</b><span>15個の座標</span></div><div class="map-node"><b>protoIndices</b><span>15個の番号（0か1）</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>15個の配置</b><span>i番目の位置に、protoIndices[i] 番の形を置く</span></div></div><div class="map-band">2つの配列の長さが揃っていることが条件です</div><figcaption>OpenUSD AcademyによるPoint Instancerの配置の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>配列を作って渡す</h2><div class="code-card python-card"><div class="code-title"><span>create_point_instancer.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom, Vt
+
+stage = Usd.Stage.CreateNew("point-instancer.usda")
+UsdGeom.Xform.Define(stage, "/World")
+
+pi = UsdGeom.PointInstancer.Define(stage, "/World/Scatter")
+UsdGeom.Scope.Define(stage, "/World/Scatter/Prototypes")
+UsdGeom.Cube.Define(stage, "/World/Scatter/Prototypes/Box").CreateSizeAttr(0.5)
+UsdGeom.Sphere.Define(stage, "/World/Scatter/Prototypes/Ball").CreateRadiusAttr(0.3)
+
+pi.CreatePrototypesRel().SetTargets(["/World/Scatter/Prototypes/Box",
+                                     "/World/Scatter/Prototypes/Ball"])
+
+positions, indices = [], []
+for row in range(3):
+    for col in range(5):
+        positions.append(Gf.Vec3f(col * 1.1 - 2.2, row * 1.1 - 1.1, 0))
+        indices.append((row + col) % 2)
+
+pi.CreatePositionsAttr(Vt.Vec3fArray(positions))
+pi.CreateProtoIndicesAttr(Vt.IntArray(indices))
+
+stage.Save()</code></pre></div><p><code>prototypes</code>はRelationshipなので<code>SetTargets</code>で設定します。<code>positions</code>と<code>protoIndices</code>はAttributeなので、<code>Vt.Vec3fArray</code>や<code>Vt.IntArray</code>に包んで渡します。向きや大きさを付けたいときは、<code>orientations</code>と<code>scales</code>という配列も同じ長さで用意します。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">rel prototypes = [ ... ]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">pi.CreatePrototypesRel().SetTargets([...])</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">point3f[] positions = [ ... ]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">pi.CreatePositionsAttr(Vt.Vec3fArray(positions))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">int[] protoIndices = [ ... ]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">pi.CreateProtoIndicesAttr(Vt.IntArray(indices))</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>個別の配置はPrimではない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Point Instancerで置かれた一つ一つは、Primではありません。Pathを持たないので、<code>GetPrimAtPath</code>で取り出したり、そこへ<code>over</code>を書いたりはできません。個別に選んで編集したい対象には向かないということです。「一つずつ触りたいか、とにかく数を置きたいか」で、<a href="61-scenegraph-instancing.html">STEP 80 Scenegraph Instancing</a>と使い分けます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>配列の長さと役割を取り違える</h2><div class="mistake-list"><article><h3>positionsとprotoIndicesの長さが違う</h3><p>この2つは同じ長さでなければなりません。長さが違うと、正しく配置されません。</p></article><article><h3>protoIndicesに範囲外の番号を書く</h3><p><code>prototypes</code>が2つなら、使える番号は<code>0</code>と<code>1</code>だけです。</p></article><article><h3>PrototypeをPointInstancerの外に置いたまま忘れる</h3><p>Prototypeとして指したPrimは、それ自体も描画されてしまうことがあります。<code>Prototypes</code>という<code>Scope</code>にまとめ、必要なら<code>visibility</code>や<a href="41-active-inactive.html">STEP 61 Inactive</a>で表示を抑えます。</p></article><article><h3>一つだけ色を変えようとする</h3><p>個別の配置はPrimではないため、<code>over</code>では変えられません。個体差を付けたいときは<code>primvars</code>を配列で持たせる方法を使います。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Point Instancing</dt><dd>配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組み。</dd></div><div><dt>PointInstancer</dt><dd>Point Instancingを担うPrim型。</dd></div><div><dt>positions</dt><dd>各配置の位置を並べた<code>point3f[]</code>の配列。</dd></div><div><dt>protoIndices</dt><dd>各配置がどのPrototypeを使うかを並べた<code>int[]</code>の配列。</dd></div><div><dt>Vt.Vec3fArray / Vt.IntArray</dt><dd>Pythonから配列をUSDへ渡すための型。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-10">2026年8月10日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_geom_point_instancer.html">OpenUSD — UsdGeomPointInstancer API</a></li><li><a href="https://openusd.org/release/glossary.html#usdglossary-pointinstancer">OpenUSD Glossary — PointInstancer</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="63-instance-refinement.html">← STEP 82</a><a class="nav-chapter" href="../chapters/14-instancing.html">14. Instancingと大規模シーン</a><a href="65-instancing-choice.html">STEP 84 →</a></nav></main><footer><p>OpenUSD Academy · STEP 83</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

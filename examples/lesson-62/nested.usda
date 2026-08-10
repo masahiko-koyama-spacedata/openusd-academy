@@ -1,0 +1,44 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def "Row_1" (
+        references = @nested-row.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (0, 2.4, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Row_2" (
+        references = @nested-row.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "Row_3" (
+        references = @nested-row.usda@
+        instanceable = true
+    )
+    {
+        double3 xformOp:translate = (0, -2.4, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (0, 0.4, 26)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

@@ -151,12 +151,12 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 
 同じものを大量に置くための仕組みです。数が増えたときに効いてきます。
 
-- **STEP 79（予定）:** Asset Modularity — 再利用単位を決める
-- **STEP 80（予定）:** Scenegraph Instancing — CompositionからPrototypeを作る
-- **STEP 81（予定）:** Nested Instancing — Instanceを階層化する
-- **STEP 82（予定）:** Instance Refinement — Instanceごとの差を付ける
-- **STEP 83（予定）:** Point Instancing — 大量の単純要素を配置する
-- **STEP 84（予定）:** ScenegraphとPointの選択 — 用途と制約を比較する
+- **STEP 79:** [Asset Modularity](lessons/60-asset-modularity.html) — 再利用単位を決める
+- **STEP 80:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
+- **STEP 81:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
+- **STEP 82:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
+- **STEP 83:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
+- **STEP 84:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
 
 ## [15. 調査・検証・総復習](chapters/15-debugging.html)
 
