@@ -134,8 +134,8 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 他のツールとの間でデータを受け渡す実務です。ここからは設計の話が増えます。
 
 - **STEP 66:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
-- **STEP 67（予定）:** Asset Entry Point — 参照される入口を作る
-- **STEP 68（予定）:** Asset Interface — 公開する情報を選ぶ
+- **STEP 67:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
+- **STEP 68:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
 - **STEP 69（予定）:** Workstream Layers — 作業をLayerで分ける
 - **STEP 70（予定）:** Asset Parameterization — 下流から変更できる値
 - **STEP 71（予定）:** Reference/Payload Pattern — InterfaceとContentsを分ける

@@ -1,0 +1,59 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 68: Asset Interface — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 68 · PIPELINE</p><h1>Asset <span>Interface</span></h1><p class="lesson-lead">外へ見せる情報だけを、入口に並べます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>入口に書いたものが約束。書かなかったものは内部実装</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>公開する面を意識して決める</h2><p>Assetの<a href="47-asset-entry-point.html">STEP 67 Entry Point</a>に置いた情報の集まりを、Asset Interfaceと呼びます。使う側が読んだり変えたりしてよいのはここだけ、という約束です。名前・バージョン・種別のような<strong>identity</strong>と、外から調整してよい<strong>parameter</strong>の2種類を置きます。中身のPathやPrim名はInterfaceに含めません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>プログラムの公開APIと同じ考え方です。「公開したものは簡単に変えられない、公開していないものは自由に変えられる」という性質があるので、<strong>迷ったら公開しない</strong>のが原則です。あとから足すのは簡単ですが、あとから消すのは使っている側を壊します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>identityとparameterを分けて置く</h2><div class="code-card usda-card"><div class="code-title"><span>lamp.usda — Interfaceの部分</span><span>USDA</span></div><pre><code>def Xform "Lamp" (
+    kind = "component"
+    payload = @lamp_contents.usda@&lt;/Lamp&gt;
+)
+{
+    custom string academy:assetName = "Lamp"
+    custom string academy:version = "1.0"
+
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+}</code></pre></div><p>ここに並んでいるものだけが、外から見える面です。<code>kind</code>は種別、<code>academy:assetName</code>と<code>academy:version</code>はidentity、<code>xformOp</code>は置き場所を決めるためのものです。中身の<code>Base</code>・<code>Stem</code>・<code>Shade</code>という名前は、どこにも出てきません。</p><p class="example-link"><a href="../examples/lesson-47/lamp.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>公開する面と、しない面</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-goal"><b>公開する（Interface）</b><span>kind / assetName / version / 置き場所 / 調整用の値</span></div></div><div class="map-note" aria-hidden="true">─</div><div class="map-row"><div class="map-node is-base"><b>公開しない（内部実装）</b><span>Prim名 / 階層の形 / どのファイルに分けたか / Materialの構造</span></div></div><div class="map-band">境界の上側は変えにくく、下側は自由に変えられます</div><figcaption>OpenUSD AcademyによるAsset Interfaceの境界の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>Interfaceだけを一覧にする</h2><div class="code-card python-card"><div class="code-title"><span>list_interface.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("scene.usda", Usd.Stage.LoadNone)
+lamp = stage.GetPrimAtPath("/World/Lamp_1")
+
+print("kind      :", lamp.GetMetadata("kind"))
+for name in lamp.GetAuthoredPropertyNames():
+    print("%-24s %s" % (name, lamp.GetAttribute(name).Get()))
+
+# kind      : component
+# academy:assetName        Lamp
+# academy:version          1.0
+# xformOp:translate        (-1.4, -1, 0)
+# xformOpOrder             [xformOp:translate]</code></pre></div><p>Payloadを開いていない状態で読めるものが、そのままInterfaceです。<code>GetAuthoredPropertyNames()</code>を使うと、Schemaが持つだけで書かれていないものを除いて、実際に公開しているものだけが並びます。この一覧が「使う側との約束」だと考えてください。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Interfaceを検査する仕組みにする</h2><div class="code-card python-card"><div class="code-title"><span>check_interface.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+REQUIRED = ("academy:assetName", "academy:version")
+
+
+def check_interface(path):
+    """入口だけを開いて、約束どおりの情報があるかを確かめる。"""
+    stage = Usd.Stage.Open(path, Usd.Stage.LoadNone)
+    prim = stage.GetDefaultPrim()
+    problems = []
+
+    if not prim:
+        return ["defaultPrim がない"]
+    if not prim.GetMetadata("kind"):
+        problems.append("kind がない")
+    for name in REQUIRED:
+        if not prim.GetAttribute(name).HasAuthoredValue():
+            problems.append("%s がない" % name)
+    return problems
+
+
+print(check_interface("lamp.usda"))    # []</code></pre></div><p>Interfaceを決めたら、その約束を守っているかを機械で確かめられるようにします。<code>Usd.Stage.LoadNone</code>で開いているので、中身がどれだけ重くても一瞬で終わります。この検査は<a href="57-asset-validation.html">STEP 76 Asset Validation</a>で扱う仕組みの、いちばん小さな形です。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>調べたいことごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">確かめたいこと</p><code class="usda-code">入口のPrim</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetDefaultPrim()</code></li><li><p class="mapping-label">確かめたいこと</p><code class="usda-code">公開しているProperty</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetAuthoredPropertyNames()</code></li><li><p class="mapping-label">確かめたいこと</p><code class="usda-code">値が実際に書かれているか</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">attr.HasAuthoredValue()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Namespaceを決めておく</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>独自に足す情報には、必ず自分たちのNamespaceを付けます（ここでは<code>academy:</code>）。<a href="26-custom-properties.html">STEP 14 Custom Properties</a>で扱ったとおり、短い名前は将来Schemaとぶつかります。プロジェクトの最初にNamespaceを1つ決めて、Interfaceに置くものはすべてその下に並べると、あとから「どれが自前の約束か」が一目で分かります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>公開する面が広がりすぎる</h2><div class="mistake-list"><article><h3>内部のPrim名を使わせてしまう</h3><p>一度使われると、中の名前を変えられなくなります。中を指す必要があるなら、Interfaceに専用のRelationshipを用意します。</p></article><article><h3>迷ったものをとりあえず公開する</h3><p>公開は取り消しにくい判断です。迷ったら公開しません。</p></article><article><h3>Namespaceを付けずに独自の値を足す</h3><p>将来のSchemaとぶつかります。</p></article><article><h3>identityをPayloadの中に置く</h3><p>中身を開かないと読めなくなり、入口を薄くした意味がなくなります。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Asset Interface</dt><dd>Assetが外へ公開する情報の集まり。使う側との約束。</dd></div><div><dt>identity</dt><dd>そのAssetが何であるかを示す情報。名前・バージョン・種別など。</dd></div><div><dt>parameter</dt><dd>使う側が調整してよい値。</dd></div><div><dt>内部実装</dt><dd>公開していない部分。Prim名や階層の形など、自由に変えてよいもの。</dd></div><div><dt>HasAuthoredValue</dt><dd>そのAttributeに値が実際に書かれているかを返すPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-10">2026年8月10日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-model">OpenUSD Glossary — Model</a></li><li><a href="https://openusd.org/release/api/class_usd_prim.html">OpenUSD — UsdPrim API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="47-asset-entry-point.html">← STEP 67</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="60-asset-modularity.html">STEP 79 →</a></nav></main><footer><p>OpenUSD Academy · STEP 68</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

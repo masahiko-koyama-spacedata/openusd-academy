@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Lamp" (
+    kind = "component"
+    payload = @lamp_contents.usda@</Lamp>
+)
+{
+    custom string academy:assetName = "Lamp"
+    custom string academy:version = "1.0"
+
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+}
