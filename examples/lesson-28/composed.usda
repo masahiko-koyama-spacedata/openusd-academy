@@ -1,0 +1,25 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    subLayers = [
+        @base.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "World"
+{
+    over "Widget"
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (0, 0, 6.9)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
