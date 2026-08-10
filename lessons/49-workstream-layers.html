@@ -1,0 +1,110 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 69: Workstream Layers — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 69 · PIPELINE</p><h1>Workstream <span>Layers</span></h1><p class="lesson-lead">作業の種類ごとにファイルを分け、同じ場所を奪い合わないようにします</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>1つの作業に1枚のLayer。積む順番が上書きの強さになる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>同じ形へ、別々のファイルから書く</h2><p>1つのAssetは、形を作る人・色を付ける人・動きを付ける人など、複数の作業が関わります。この作業の単位ごとに<a href="12-sublayers.html">STEP 38 Sublayer</a>を分けたものをWorkstream Layerと呼びます。各Layerは<strong>同じPath</strong>に対して、それぞれ自分の担当ぶんだけを書きます。誰も他人のファイルを開く必要がなく、同じファイルを同時に編集することもありません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>ここがOpenUSDの共同作業のいちばんの利点です。他の多くの形式では「1つのオブジェクト＝1か所」なので、色を変えるにはモデルのファイルを開いて書き換えることになります。OpenUSDでは、色の担当は<strong>自分のファイルに<code>over</code>を書くだけ</strong>で済みます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>形の担当が書くファイル</h2><div class="code-card usda-card"><div class="code-title"><span>lamp_geom.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Lamp"
+{
+    def Cylinder "Base"
+    {
+        double height = 0.12
+        double radius = 0.45
+        uniform token axis = "Y"
+    }
+
+    def Cylinder "Stem" { ... }
+
+    def Cone "Shade"
+    {
+        double height = 0.6
+        double radius = 0.5
+        uniform token axis = "Y"
+        double3 xformOp:translate = (0, 1.75, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}</code></pre></div><p>形の担当は<code>def</code>でPrimを定義し、形に関することだけを書きます。色は一切書きません。</p><p class="example-link"><a href="../examples/lesson-47/lamp_geom.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>色の担当が書くファイル</h2><div class="code-card usda-card"><div class="code-title"><span>lamp_look.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+over "Lamp"
+{
+    over "Base"
+    {
+        color3f[] primvars:displayColor = [(0.35, 0.35, 0.38)]
+    }
+
+    over "Stem"
+    {
+        color3f[] primvars:displayColor = [(0.35, 0.35, 0.38)]
+    }
+
+    over "Shade"
+    {
+        color3f[] primvars:displayColor = [(0.95, 0.8, 0.35)]
+    }
+}</code></pre></div><p>色の担当はすべて<code>over</code>です。Primを定義せず、色の意見だけを重ねます。形の担当のファイルには一切触れていません。Pathさえ合っていれば、これで届きます。</p><p class="example-link"><a href="../examples/lesson-47/lamp_look.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>まとめ役が積む</h2><div class="code-card usda-card"><div class="code-title"><span>lamp_contents.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    subLayers = [
+        @lamp_look.usda@,
+        @lamp_geom.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Xform "Lamp"
+{
+}</code></pre></div><p><code>subLayers</code>の並びが強さの順です。<strong>先に書いたほうが強い</strong>ので、<code>lamp_look.usda</code>が<code>lamp_geom.usda</code>より優先されます。色の担当が形の担当の値を上書きできるのは、この順序があるからです。</p><p class="example-link"><a href="../examples/lesson-47/lamp_contents.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>どの値がどのファイルから来たかを確かめる</h2><div class="code-card python-card"><div class="code-title"><span>check_workstreams.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("lamp_contents.usda")
+
+for layer in stage.GetLayerStack():
+    print(layer.GetDisplayName())
+# lamp_contents-session.usda
+# lamp_contents.usda
+# lamp_look.usda
+# lamp_geom.usda
+
+shade = stage.GetPrimAtPath("/Lamp/Shade")
+
+for spec in shade.GetPrimStack():
+    print(spec.layer.GetDisplayName(), spec.specifier)
+# lamp_look.usda  Sdf.SpecifierOver     … 色の担当（強い）
+# lamp_geom.usda  Sdf.SpecifierDef      … 形の担当（定義を与えている）
+
+print(shade.GetAttribute("height").Get())                  # 0.6
+print(shade.GetAttribute("primvars:displayColor").Get())   # [(0.95, 0.8, 0.35)]</code></pre></div><p>同じ<code>/Lamp/Shade</code>というPrimに、2つのファイルが寄与しています。大きさは形のファイルから、色は色のファイルから来ています。<a href="34a-prim-stack.html">STEP 53 Prim Stack</a>を見れば、誰の担当かが一目で分かります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>担当ごとに1枚</h2><figure class="chapter-map"><div class="map-row"><div class="map-node"><b>lamp_look.usda</b><span>色の担当 — over だけを書く（強い）</span></div></div><div class="map-note" aria-hidden="true">↑ 上書きする</div><div class="map-row"><div class="map-node is-base"><b>lamp_geom.usda</b><span>形の担当 — def で定義する（弱い）</span></div></div><div class="map-band">subLayers に先に並べたほうが強い。担当の追加は行を1つ足すだけ</div><figcaption>OpenUSD AcademyによるWorkstream Layerの重なりの図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Layerを1枚足す</h2><div class="code-card python-card"><div class="code-title"><span>add_workstream.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
+
+# 新しい担当（たとえば配置調整）のLayerを作る
+layout = Sdf.Layer.CreateNew("lamp_layout.usda")
+layout.defaultPrim = "Lamp"
+
+# まとめ役のいちばん上（＝いちばん強い位置）へ足す
+contents = Sdf.Layer.FindOrOpen("lamp_contents.usda")
+contents.subLayerPaths.insert(0, "lamp_layout.usda")
+contents.Save()
+
+print(list(contents.subLayerPaths))
+# ['lamp_layout.usda', 'lamp_look.usda', 'lamp_geom.usda']</code></pre></div><p>担当を増やすときは、Layerを1枚作って<code>subLayerPaths</code>へ挿入するだけです。既存のファイルは1文字も変わりません。強くしたければ先頭へ、弱くしたければ末尾へ入れます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">subLayers = [ @a.usda@, @b.usda@ ]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.subLayerPaths = ["a.usda", "b.usda"]</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（いちばん強い位置へ足す）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.subLayerPaths.insert(0, "new.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（積まれている順を見る）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetLayerStack()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>一覧の先頭に出るsession layer</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>GetLayerStack()</code>の先頭に<code>lamp_contents-session.usda</code>という、書いた覚えのないLayerが出てきます。これはSession Layerで、Stageを開いたときに自動で用意される、保存されない一時的な作業場所です。ビューアで一時的に何かを隠したときなどの変更が、ここへ入ります。ファイルとしては存在しないので、気にしなくて構いません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>担当の境界をまたいで書く</h2><div class="mistake-list"><article><h3>色の担当がdefでPrimを作る</h3><p>形の担当と定義が二重になります。色の担当は必ず<code>over</code>だけを書きます。</p></article><article><h3>Pathがずれて色が届かない</h3><p><code>over</code>は存在しないPathにも黙って書けます。効かないときは、まずPathの綴りを確認します。</p></article><article><h3>subLayersの順序を意識しない</h3><p>先に並べたほうが強くなります。形が色を上書きしてしまうときは、順序が逆です。</p></article><article><h3>1枚のLayerに複数の担当を混ぜる</h3><p>同時編集の衝突が戻ってきます。分ける意味がなくなるので、担当ごとに1枚にします。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Workstream Layer</dt><dd>作業の種類ごとに分けたLayer。同じPathへ、担当ぶんだけを書く。</dd></div><div><dt>Layer Stack</dt><dd>root layerとそのSublayerからなる、強さの順に並んだLayerの列。</dd></div><div><dt>Session Layer</dt><dd>Stageを開いたときに用意される、保存されない一時的なLayer。</dd></div><div><dt>subLayerPaths</dt><dd>Sublayerの一覧を保持するPython側のリスト。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-10">2026年8月10日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-layerstack">OpenUSD Glossary — LayerStack</a></li><li><a href="https://openusd.org/release/api/class_sdf_layer.html">OpenUSD — SdfLayer API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="48-asset-interface.html">← STEP 68</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="53-lofting.html">STEP 72 →</a></nav></main><footer><p>OpenUSD Academy · STEP 69</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

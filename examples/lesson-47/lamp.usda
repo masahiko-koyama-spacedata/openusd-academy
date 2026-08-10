@@ -12,7 +12,8 @@ def Xform "Lamp" (
 {
     custom string academy:assetName = "Lamp"
     custom string academy:version = "1.0"
-
+    float3[] extentsHint = [(-0.5, -0.06, -0.5), (0.5, 2.05, 0.5)]
     double3 xformOp:translate = (0, 0, 0)
     uniform token[] xformOpOrder = ["xformOp:translate"]
 }
+
