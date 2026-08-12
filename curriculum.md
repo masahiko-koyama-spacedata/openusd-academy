@@ -176,12 +176,13 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 
 最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 94:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
-- **STEP 95:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
-- **STEP 96:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
-- **STEP 97:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
-- **STEP 98:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
-- **STEP 99:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
-- **STEP 100:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
+- **STEP 94:** [usdviewで目で確かめる](lessons/73-usdview.html) — 階層・描画・Property・合成を一つの画面で見る
+- **STEP 95:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
+- **STEP 96:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
+- **STEP 97:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
+- **STEP 98:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
+- **STEP 99:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
+- **STEP 100:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
+- **STEP 101:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
 
 > **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。

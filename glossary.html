@@ -29,6 +29,7 @@
       <dt>applied API Schema</dt><dd><code>Apply()</code>して<code>apiSchemas</code>に記録が残るAPI Schema。</dd>
       <dt>ApplyMask / IgnoreMask</dt><dd><code>ComputeInstanceTransformsAtTime()</code>の引数です。<code>ApplyMask</code>（既定）は<code>inactiveIds</code>や<code>invisibleIds</code>で外れた体を配列から除き、<code>IgnoreMask</code>はすべての体を返します。</dd>
       <dt>Arc Strength（強度）</dt><dd>競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。</dd>
+      <dt>Arc Type</dt><dd>その内容がどのComposition Arcで入ってきたかの種類です。<code>reference</code>・<code>payload</code>・<code>sublayer</code>などがあります。</dd>
       <dt>array</dt><dd>同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。</dd>
       <dt>assembly</dt><dd>公開できるまとまりを示すKind。列や区画のような集合に使う。</dd>
       <dt>Asset Boundary（アセットの境界）</dt><dd>ここから中は内部実装、という取り決めの線。</dd>
@@ -51,6 +52,7 @@
       <dt>Collection-based binding</dt><dd>階層ではなく、<code>CollectionAPI</code>で作ったPrimの集まりに対してMaterialを結ぶ方法です。</dd>
       <dt>Color Temperature（色温度）</dt><dd>ケルビンで光の色味を指定する仕組みです。<code>enableColorTemperature</code>をtrueにしないと効きません。</dd>
       <dt>commutative（可換）</dt><dd>順序を入れ替えても結果が同じになる性質です。一般の変換操作は可換とは限りません。</dd>
+      <dt>Complexity</dt><dd>細分化などの描画精度の指定です。<code>low</code>から<code>veryhigh</code>まであります。</dd>
       <dt>Component</dt><dd>再利用可能なleaf modelです。KindのひとつでもあるためAssetの単位として扱われます。</dd>
       <dt>component（Kind）</dt><dd>完成し、独立して再利用できるAssetを表すleaf modelのKindです。</dd>
       <dt>Composed Prim</dt><dd>合成の結果としてStage上に現れるPrim。</dd>
@@ -112,6 +114,7 @@
       <dt>FindLoadable</dt><dd>Load可能なPrimの一覧を返すPython API。</dd>
       <dt>FindPrimvarWithInheritance</dt><dd>自分に無ければ親をさかのぼってPrimvarを探すPython APIです。</dd>
       <dt>Flatten</dt><dd>合成した結果を1枚のLayerにまとめること。Pythonでは<code>stage.Flatten()</code>。</dd>
+      <dt>Free Camera</dt><dd>シーンに書かれたCameraではなく、ビューアが持つ自由視点です。</dd>
       <dt>Geometry Extraction</dt><dd>USDから形の情報を取り出し、他の形式へ渡せる形にすること。</dd>
       <dt>GetAuthoredPrimvars</dt><dd>そのPrimに実際に記述されたPrimvarだけを返すPython APIです。</dd>
       <dt>GetAuthoredPropertyNames</dt><dd>実際に記述されたPropertyの名前だけを返すPython API。</dd>
@@ -126,9 +129,11 @@
       <dt>Gf.Vec3d</dt><dd>3つのdouble精度の数からなる、Gfモジュールのvector型です。</dd>
       <dt>Gprim</dt><dd>MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。</dd>
       <dt>group（Kind）</dt><dd>複数のModelを整理し、componentの祖先になれるmodel kindです。</dd>
+      <dt>Has Spec</dt><dd>そのLayerが、そのPathに実際の記述を持っているかどうかです。合成の経路に出てくるだけで持たないLayerもあります。</dd>
       <dt>HasAPI</dt><dd>そのPrimに指定のAPI Schemaが付いているかを返すPython API。</dd>
       <dt>HasAuthoredReferences</dt><dd>そのPrimにReferenceが記述されているかを返すPython API。</dd>
       <dt>HasAuthoredValue</dt><dd>そのAttributeに値が実際に書かれているかを返すPython API。</dd>
+      <dt>Hgi（Hydra Graphics Interface）</dt><dd>Hydraが実際の描画に使うグラフィックスAPIの抽象化層です。MetalやVulkanがここに入ります。</dd>
       <dt>Hierarchical Refinement</dt><dd>Instance Primの上へ<code>xformOp</code>・<code>visibility</code>・<code>primvars</code>などを書いて個体差を付ける方法です。Prototypeは増えません。</dd>
       <dt>Hierarchy（階層）</dt><dd>親子で構成される入れ子の構造です。</dd>
       <dt>Hydra</dt><dd>Stageの内容を受け取り、実際に描く仕組みへ渡す層です。</dd>
@@ -343,6 +348,7 @@
       <dt>UsdShade</dt><dd>マテリアルとシェーダを記述するためのSchemaの集まりです。</dd>
       <dt>usdtree</dt><dd>Stageの階層を、Specifierと型名付きのツリーで表示するコマンドです。</dd>
       <dt>UsdUVTexture</dt><dd>画像ファイルをUV座標でサンプリングする標準Shaderです。出力は<code>rgb</code>・<code>r</code>・<code>g</code>・<code>b</code>・<code>a</code>です。</dd>
+      <dt>usdview</dt><dd>OpenUSDに同梱されているStageの閲覧ツールです。階層・描画・Property・合成の内訳を1つの画面で見られます。<code>pip install usd-core</code>には含まれません。</dd>
       <dt>USDZ</dt><dd>複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージです。</dd>
       <dt>UTF-8</dt><dd>Unicode文字を表す文字エンコーディングです。USDAは人が読めるUTF-8テキスト形式です。</dd>
       <dt>UV</dt><dd>Surface上の位置をテクスチャ画像の座標へ対応させる値です。<code>faceVarying</code>で持たせることが多い値です。</dd>

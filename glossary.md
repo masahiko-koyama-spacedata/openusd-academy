@@ -76,6 +76,10 @@ appliedなAPI Schemaの一覧を保持するPrim Metadata。
 
 競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。
 
+### Arc Type
+
+その内容がどのComposition Arcで入ってきたかの種類です。`reference`・`payload`・`sublayer`などがあります。
+
 ### array
 
 同じ型の値が並ぶ値の形です。型名の末尾に `[]` が付きます。
@@ -163,6 +167,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 ### commutative（可換）
 
 順序を入れ替えても結果が同じになる性質です。一般の変換操作は可換とは限りません。
+
+### Complexity
+
+細分化などの描画精度の指定です。`low`から`veryhigh`まであります。
 
 ### Component
 
@@ -408,6 +416,10 @@ Load可能なPrimの一覧を返すPython API。
 
 合成した結果を1枚のLayerにまとめること。Pythonでは`stage.Flatten()`。
 
+### Free Camera
+
+シーンに書かれたCameraではなく、ビューアが持つ自由視点です。
+
 ### Geometry Extraction
 
 USDから形の情報を取り出し、他の形式へ渡せる形にすること。
@@ -464,6 +476,10 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 
 複数のModelを整理し、componentの祖先になれるmodel kindです。
 
+### Has Spec
+
+そのLayerが、そのPathに実際の記述を持っているかどうかです。合成の経路に出てくるだけで持たないLayerもあります。
+
 ### HasAPI
 
 そのPrimに指定のAPI Schemaが付いているかを返すPython API。
@@ -475,6 +491,10 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 ### HasAuthoredValue
 
 そのAttributeに値が実際に書かれているかを返すPython API。
+
+### Hgi（Hydra Graphics Interface）
+
+Hydraが実際の描画に使うグラフィックスAPIの抽象化層です。MetalやVulkanがここに入ります。
 
 ### Hierarchical Refinement
 
@@ -1331,6 +1351,10 @@ Stageの階層を、Specifierと型名付きのツリーで表示するコマン
 ### UsdUVTexture
 
 画像ファイルをUV座標でサンプリングする標準Shaderです。出力は`rgb`・`r`・`g`・`b`・`a`です。
+
+### usdview
+
+OpenUSDに同梱されているStageの閲覧ツールです。階層・描画・Property・合成の内訳を1つの画面で見られます。`pip install usd-core`には含まれません。
 
 ### USDZ
 

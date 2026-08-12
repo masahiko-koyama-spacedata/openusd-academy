@@ -365,15 +365,17 @@ PLAN = [
         lead="最後に、壊れたシーンを自分で直せるところまで進みます。",
         takeaway="推測せずに、道具で出どころを突き止める",
         map=row(node("症状", "見えない・色が違う・開けない", "is-base"), ARROW,
-                node("道具", "usdtree / usdcat / Stack / Validation"), ARROW,
+                node("道具", "usdview / usdtree / usdcat / Stack / Validation"), ARROW,
                 node("原因", "どのファイルのどの行か", "is-goal"))
             + DOWN
             + row(node("総合演習", "小さなAssetを作り、Sceneへ組み上げる"))
             + band("ここまでのレッスンで出てきた道具を、症状から逆引きできる形に整理します"),
-        outcomes=["症状から使うべき道具を選べる",
+        outcomes=["usdviewの各区画が何を見せているか説明できる",
+                  "症状から使うべき道具を選べる",
                   "壊れたReferenceやPathを自力で直せる",
                   "小さなAssetとSceneを最初から組み立てられる"],
         items=[
+            ("73-usdview.html", "Lesson 73", "usdviewで目で確かめる", "階層・描画・Property・合成を一つの画面で見る"),
             ("66-inspect-stage.html", "Lesson 66", "usdrecordとusdtreeでStageを読む", "構造と描画を確かめる"),
             ("67-inspect-layer-stack.html", "Lesson 67", "Layer Stackを調べる", "どのLayerの意見が効いているか"),
             ("68-fix-broken-references.html", "Lesson 68", "壊れたReferenceとPathを直す", "よくある破損の直し方"),

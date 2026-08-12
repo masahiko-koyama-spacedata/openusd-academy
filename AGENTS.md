@@ -61,3 +61,25 @@
 
 - 変更は目的ごとに小さくコミットする。
 - GitHubへの接続、remote追加、push、公開、デプロイは必ず事前に利用者の承認を得る。
+
+## ローカルのビルド環境（2026-08-12）
+
+`usdview` は `pip install usd-core` に含まれないため、OpenUSD v26.08 をソースからビルドして用意した。
+
+- ソース: `~/Developer/OpenUSD`（tag `v26.08`）
+- インストール先: `~/Developer/usd-install`（`bin/usdview`、`bin/usdrecord` ほか）
+- ビルド用venv: `~/Developer/usd-build-env`（cmake / PySide6 / PyOpenGL / Jinja2 / numpy）
+- 実行時: `PYTHONPATH=~/Developer/usd-install/lib/python3.9/site-packages`
+- 完全版Xcodeが無くCommand Line Toolsだけの環境なので、`build_scripts/apple_utils.py` の
+  `GetXcodeVersion()` に CLT 版を返すフォールバックを入れている（元は `apple_utils.py.orig`）
+
+**画像の出どころを撮影方法ごとに分ける。**
+
+- Apple USD Tools 0.25.2 の `/usr/bin/usdrecord` … 初期のレッスンの画像
+- ソースからビルドした v26.08 の `usdrecord --disableCameraLight` … STEP 34 以降のライトを扱う画像
+- `usdview` のウィンドウキャプチャ … STEP 93
+
+`usdrecord` は既定でカメラ位置にライトを足す。自分の書いた Light だけを見たいときは
+`--disableCameraLight` を付ける。付けないと intensity を 0 にしても絵が変わらない。
+
+レッスンのコード検証には `~/Developer/usd-practice/.venv`（usd-core 0.26.8）を使う。
