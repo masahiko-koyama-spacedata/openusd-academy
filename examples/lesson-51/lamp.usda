@@ -1,0 +1,43 @@
+#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Lamp" (
+    kind = "component"
+    payload = @lamp_contents.usda@</Lamp>
+    prepend variantSets = "shade"
+    variants = {
+        string shade = "warm"
+    }
+)
+{
+    custom string academy:assetName = "Lamp"
+    custom string academy:version = "1.0"
+
+    variantSet "shade" = {
+        "warm" {
+            over "Shade"
+            {
+                color3f[] primvars:displayColor = [(0.95, 0.8, 0.35)]
+            }
+        }
+        "cool" {
+            over "Shade"
+            {
+                color3f[] primvars:displayColor = [(0.55, 0.75, 0.95)]
+            }
+        }
+        "dark" {
+            over "Shade"
+            {
+                color3f[] primvars:displayColor = [(0.25, 0.25, 0.28)]
+            }
+        }
+    }
+
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+}

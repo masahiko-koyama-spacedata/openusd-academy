@@ -1,0 +1,24 @@
+#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+over "Lamp"
+{
+    over "Base"
+    {
+        color3f[] primvars:displayColor = [(0.35, 0.35, 0.38)]
+    }
+
+    over "Stem"
+    {
+        color3f[] primvars:displayColor = [(0.35, 0.35, 0.38)]
+    }
+
+    over "Shade"
+    {
+        color3f[] primvars:displayColor = [(0.95, 0.8, 0.35)]
+    }
+}

@@ -1,0 +1,14 @@
+#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    subLayers = [
+        @lamp_look.usda@,
+        @lamp_geom.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Xform "Lamp"
+{
+}

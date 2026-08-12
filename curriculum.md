@@ -137,8 +137,8 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 67:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
 - **STEP 68:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
 - **STEP 69:** [Workstream Layers](lessons/49-workstream-layers.html) — 作業をLayerで分ける
-- **STEP 70（予定）:** Asset Parameterization — 下流から変更できる値
-- **STEP 71（予定）:** Reference/Payload Pattern — InterfaceとContentsを分ける
+- **STEP 70:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
+- **STEP 71:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
 - **STEP 72:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
 - **STEP 73（予定）:** Converterの構造 — 入力・変換・出力を分ける
 - **STEP 74（予定）:** Geometry Extraction — 点・法線・UVを対応させる

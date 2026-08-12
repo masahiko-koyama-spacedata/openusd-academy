@@ -1,0 +1,34 @@
+#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Lamp"
+{
+    def Cylinder "Base"
+    {
+        double height = 0.12
+        double radius = 0.45
+        uniform token axis = "Y"
+    }
+
+    def Cylinder "Stem"
+    {
+        double height = 1.5
+        double radius = 0.06
+        uniform token axis = "Y"
+        double3 xformOp:translate = (0, 0.8, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cone "Shade"
+    {
+        double height = 0.6
+        double radius = 0.5
+        uniform token axis = "Y"
+        double3 xformOp:translate = (0, 1.75, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
