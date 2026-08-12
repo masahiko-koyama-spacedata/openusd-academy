@@ -3,10 +3,11 @@
   "tasks": [
     {
       "label": "USD: Validate and Preview Current File",
+      "detail": "usdchecker で検証し、通ったら usdrecord で描画してプレビューを開く",
       "type": "shell",
-      "command": "/usr/bin/usdchecker \"${file}\" && \"${env:HOME}/.local/bin/usdview\" \"${file}\"",
+      "command": "/usr/bin/usdchecker \"${file}\" && /usr/bin/usdrecord --camera ShotCam --imageWidth 1200 -c high \"${file}\" \"${env:TMPDIR}usd-preview-${fileBasenameNoExtension}.png\" && open \"${env:TMPDIR}usd-preview-${fileBasenameNoExtension}.png\"",
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${fileDirname}"
       },
       "problemMatcher": [],
       "presentation": {
@@ -23,10 +24,84 @@
     },
     {
       "label": "USD: Validate Current File",
+      "detail": "usdchecker だけを実行する",
       "type": "process",
       "command": "/usr/bin/usdchecker",
       "args": [
         "${file}"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "USD: Show Scenegraph (usdtree)",
+      "detail": "階層を Specifier と型名つきのツリーで表示する",
+      "type": "process",
+      "command": "/usr/bin/usdtree",
+      "args": [
+        "${file}"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "USD: Show Composed Result (usdcat --flatten)",
+      "detail": "合成後の中身を1枚のUSDAとして表示する",
+      "type": "process",
+      "command": "/usr/bin/usdcat",
+      "args": [
+        "--flatten",
+        "${file}"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Academy: Check Site",
+      "detail": "全ページのリンク・タグ・レッスン必須要素を検査する",
+      "type": "process",
+      "command": "python3",
+      "args": [
+        "${workspaceFolder}/tools/check_site.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Academy: Rebuild Curriculum",
+      "detail": "学習順序・章ページ・前後ナビ・STEP番号を tools/reorder.py から再生成する",
+      "type": "process",
+      "command": "python3",
+      "args": [
+        "${workspaceFolder}/tools/reorder.py"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

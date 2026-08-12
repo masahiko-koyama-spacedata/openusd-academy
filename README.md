@@ -8,7 +8,19 @@
 
 ### VS CodeでUSDをすぐ確認する
 
-VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します。現在のファイルを`usdchecker`で検証し、成功した場合だけusdviewで表示します。検証だけ行う場合は、コマンドパレットの「Tasks: Run Task」から「USD: Validate Current File」を選びます。
+VS Codeで`.usd`または`.usda`ファイルを開き、`⌘⇧B`を押します。現在のファイルを`usdchecker`で検証し、成功した場合だけ`usdrecord`で描画してプレビューを開きます。ファイルに`ShotCam`があればそれを使い、無ければ自動のカメラになります。
+
+その他のタスクは、コマンドパレットの「Tasks: Run Task」から選べます。
+
+| タスク | 内容 |
+| --- | --- |
+| USD: Validate Current File | `usdchecker`だけを実行する |
+| USD: Show Scenegraph (usdtree) | 階層をSpecifierと型名つきで表示する |
+| USD: Show Composed Result (usdcat --flatten) | 合成後の中身を1枚のUSDAとして表示する |
+| Academy: Check Site | 全ページのリンクと必須要素を検査する |
+| Academy: Rebuild Curriculum | 学習順序・章ページ・前後ナビ・STEP番号を再生成する |
+
+`usdview`はこのMacに入っていないため使いません。描画はすべて`usdrecord`で行います。
 
 ### 教材の画像を作り直す
 
