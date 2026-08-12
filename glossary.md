@@ -36,6 +36,14 @@ Internal ReferenceをPythonから追加するAPI。
 
 選択肢の組と、その中の選択肢を作るPython API。
 
+### aggregate
+
+複数の要素を意味のある一単位へまとめたものです。
+
+### ancestor
+
+Scenegraph上で対象Primより上にある、親や親の親のことです。
+
 ### Ancestral Arc
 
 祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。
@@ -68,14 +76,6 @@ appliedなAPI Schemaの一覧を保持するPrim Metadata。
 
 公開できるまとまりを示すKind。列や区画のような集合に使う。
 
-### asset
-
-他のファイルを指すパスのValue Typeです。USDAでは `@ball.usda@` のようにアットマークで囲みます。
-
-### Asset
-
-独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。
-
 ### Asset Boundary（アセットの境界）
 
 ここから中は内部実装、という取り決めの線。
@@ -91,6 +91,18 @@ Assetが外へ公開する情報の集まりです。使う側との約束にあ
 ### Asset Parameterization
 
 使う側が変えてよい部分を、作る側があらかじめ用意しておくこと。
+
+### Asset Path
+
+`@ @`で囲んで書く、外部ファイルの場所です。
+
+### asset（Value Type）
+
+他のファイルを指すパスのValue Typeです。USDAでは `@ball.usda@` のようにアットマークで囲みます。大文字で始まる「Asset」（まとまりとしてのアセット）とは別物です。
+
+### Asset（アセット）
+
+独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。小文字の「asset」（Value Type）とは別物です。
 
 ### Attribute（アトリビュート）
 
@@ -136,6 +148,22 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 
 階層ではなく、`CollectionAPI`で作ったPrimの集まりに対してMaterialを結ぶ方法です。
 
+### Color Temperature（色温度）
+
+ケルビンで光の色味を指定する仕組みです。`enableColorTemperature`をtrueにしないと効きません。
+
+### commutative（可換）
+
+順序を入れ替えても結果が同じになる性質です。一般の変換操作は可換とは限りません。
+
+### Component
+
+再利用可能なleaf modelです。KindのひとつでもあるためAssetの単位として扱われます。
+
+### component（Kind）
+
+完成し、独立して再利用できるAssetを表すleaf modelのKindです。
+
 ### Composed Prim
 
 合成の結果としてStage上に現れるPrim。
@@ -147,6 +175,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 ### Composition Error
 
 合成の過程で起きたエラー。Pythonの例外にはならないが、`stage.GetCompositionErrors()`や`usdchecker`で取り出せる。
+
+### Composition Index
+
+Primへ寄与するsourceとComposition構造を保持するindexです。
 
 ### Composition（コンポジション）
 
@@ -208,9 +240,17 @@ Schemaが定義していない、利用者が独自に足したProperty。
 
 `custom rel`で書く、Schema外のRelationship。
 
+### CylinderLight
+
+円柱状の光源です。`length`と`radius`で大きさを決めます。
+
 ### Dangling target
 
 存在しないPathを指したままのRelationshipのtargetです。`usdchecker`では報告されません。
+
+### Data Mapping
+
+入力と出力の間で、概念やFieldをどう対応させるかの決めごとです。
 
 ### De-instancing
 
@@ -222,11 +262,19 @@ Primを定義するSpecifierです。Stage上にdefinedなPrimとして現れま
 
 ### Default Predicate
 
-`Traverse()`が既定で使う条件。定義済み・Active・<strong>Load済み</strong>・非abstract・非instance proxy。
+`Traverse()`が既定で使う条件。定義済み・Active・**Load済み**・非abstract・非instance proxy。
 
 ### Default Prim（デフォルトプリム）
 
 Layer Metadataで指定する、そのLayerの主な入口となるtop-level Primです。
+
+### Default Time
+
+数値のTime Codeとは別に、時間に依存しない値を問い合わせるための時刻です。
+
+### Default Value
+
+時間に依存しないAttributeの値です。Stageの入口を示すDefault Primとは別の概念です。
 
 ### default（Spec）
 
@@ -240,6 +288,10 @@ Compositionの結果、そのPrimが存在すると判定された状態。`IsDe
 
 現在のLayerでPrimを具体的に定義するSpecifierです。
 
+### degree（度）
+
+一周を360とする角度の単位です。USDのrotate値はこの単位で書きます。
+
 ### delete
 
 一覧から項目を取り除くキーワード。
@@ -248,9 +300,21 @@ Compositionの結果、そのPrimが存在すると判定された状態。`IsDe
 
 そのPrim自身に書かれたComposition Arc。
 
+### DiskLight
+
+円盤の面光源です。`radius`で大きさを決めます。
+
 ### displayColor
 
 Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは`constant`です。
+
+### DistantLight
+
+無限遠から来る平行光です。向きだけが効き、位置は効きません。
+
+### DomeLight
+
+全方位からシーンを包む光です。`texture:file`に環境画像を指定して使います。
 
 ### doubleSided
 
@@ -271,6 +335,10 @@ Assetを外から使うときに最初に開かれるファイル、およびそ
 ### Export Options
 
 変換の条件を、外から指定できるようにしたものです。
+
+### exposure
+
+2のべき乗で明るさを足す設定です。1増えると明るさが倍になります。
 
 ### extent
 
@@ -303,6 +371,10 @@ Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。
 ### faceVertexIndices
 
 各Faceがどのpointを使うかを、`points`の位置番号で並べた配列です。
+
+### Fallback Value（既定値）
+
+Attributeが書かれていないときにSchemaが返す値です。「値が無い」ではなく「その値である」として扱われます。
 
 ### fallback（既定値）
 
@@ -360,9 +432,21 @@ InstanceからPrototypeを、PrototypeからInstanceの一覧を得るPython API
 
 そのPrimが持つVariant Setの名前を一覧するPython API。
 
+### Gf
+
+グラフィックス向けの数学型（ベクトル・行列・回転など）を提供するモジュールです。
+
+### Gf.Vec3d
+
+3つのdouble精度の数からなる、Gfモジュールのvector型です。
+
 ### Gprim
 
 MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。
+
+### group（Kind）
+
+複数のModelを整理し、componentの祖先になれるmodel kindです。
 
 ### HasAPI
 
@@ -375,6 +459,10 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 ### HasAuthoredValue
 
 そのAttributeに値が実際に書かれているかを返すPython API。
+
+### Hierarchy（階層）
+
+親子で構成される入れ子の構造です。
 
 ### Hydra
 
@@ -434,11 +522,15 @@ Instanceの内側のPrimを読むための、書き込みできないPrimです�
 
 ### Instance Refinement
 
-共有を保ったまま、Instanceごとに差を付けること。
+Instanceに対して個体差や変更を加えるための手法全体を指します。共有を保ったまま差を付けるやり方（Hierarchical Refinement、Broadcasted Refinement、Variant、ID操作）だけでなく、共有をやめるDe-instancingも含みます。
 
 ### instanceable
 
 そのPrimをInstanceにするかを決めるPrim Metadataです。
+
+### intensity
+
+光の明るさです。必要な値の桁はLight型によって大きく違い、DistantLightの既定は50000、SphereLightなどは1です。
 
 ### Internal Arc
 
@@ -448,6 +540,10 @@ Instanceの内側のPrimを読むための、書き込みできないPrimです�
 
 Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。
 
+### inverse operation（逆変換）
+
+元の変換を打ち消す変換です。pivotはこれを使って回転や拡縮の中心を移します。
+
 ### invisibleIds
 
 指定したidの配置を描画しないようにする配列。
@@ -455,6 +551,10 @@ Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataで
 ### IsA
 
 そのPrimが指定した型かどうかを判定するPython API。
+
+### IsA Schema
+
+Primが何であるかを定めるSchemaです。Typed Schemaと同じ意味で使われます。
 
 ### IsAncestral
 
@@ -472,6 +572,10 @@ Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataで
 
 PrimのModel Hierarchy上の役割を示すMetadataです。
 
+### Kind Registry
+
+利用可能なKind tokenと、その継承関係を管理する仕組みです。
+
 ### Kind.Tokens
 
 PythonからKindを指定するための定数群。`component`や`assembly`など。
@@ -487,6 +591,18 @@ root layerと再帰的なsublayerからなる順序付きのLayer集合です。
 ### Layer（レイヤー）
 
 シーン記述の一部分を保持するデータの単位です。
+
+### leaf model
+
+Model Hierarchyで、子のModelを持たない終端のModelです。
+
+### Light Linking
+
+どのPrimをその光で照らすかを、Collectionで指定する仕組みです。`CollectionAPI:lightLink`として自動的に適用されます。
+
+### LightAPI
+
+明るさや色といった、どのLight型にも共通の設定を与えるSingle-Apply API Schemaです。Light型を定義すると自動的に適用されます。
 
 ### LinearUnits
 
@@ -520,6 +636,10 @@ Stageを開くときの初期Load状態を指定する定数。
 
 Payloadを張った位置。ここから先を開くかどうかを選べる。
 
+### local space（ローカル空間）
+
+親Primを基準にした、そのPrim自身の座標空間です。
+
 ### Lofting
 
 中身から計算した要約を、入口側へ書き写しておくことです。
@@ -534,7 +654,7 @@ Pythonで質量の単位を指定するための定数群。`kilograms`、`grams
 
 ### Material
 
-見た目のひとまとまりを表すPrimです。値そのものは持たず、Shaderへの接続を持ちます。
+見た目のひとまとまりに名前を付け、外から参照できるようにするPrimです。計算はその中のShaderが行い、Materialは`outputs:surface`などの出力の口を持ちます。MaterialはNodeGraphでもあるため、Interface Inputとして自分で値を持つこともできます。
 
 ### Material Binding
 
@@ -552,6 +672,10 @@ Bindingを読み書きするAPI Schema。
 
 行と列に並んだ数のまとまりです。`matrix4d`は座標変換に使います。
 
+### Mesh
+
+多角形の面を集めて形を記述するGprimです。`UsdGeomMesh`に対応します。
+
 ### Metadata（メタデータ）
 
 Prim、Property、Layerに付ける時間変化しない補助情報です。
@@ -560,9 +684,21 @@ Prim、Property、Layerに付ける時間変化しない補助情報です。
 
 そのLayerの長さの「1」が実世界の何メートルかを示すLayer Metadata。
 
+### Model Hierarchy
+
+Kindを使って、Scenegraphのうち高水準なModelだけを示す階層です。
+
+### model（Kind）
+
+componentとgroupのabstractな基底Kindです。直接assignしません。
+
 ### Module（モジュール）
 
 関連するOpenUSD APIをまとめた単位です。例: Usd、Sdf、Gf。
+
+### multiplier（倍率）
+
+元の値へ掛ける値です。Scaleはこの倍率で大きさを決めます。
 
 ### Namespace（名前空間）
 
@@ -575,6 +711,10 @@ Instanceを含むPrimを、さらにInstanceにすること。
 ### non-applied API Schema
 
 記録を残さず、読み書きの窓口としてだけ働くAPI Schema。
+
+### non-uniform scale
+
+軸ごとに異なる倍率を使うScaleです。
 
 ### normals
 
@@ -748,13 +888,29 @@ Primが持つ情報。AttributeとRelationshipの2種類があります。
 
 外側のPrototypeが内側のInstanceを持ち、内側のPrototypeが実際の形を持つ構造。
 
+### pruning（枝刈り）
+
+探索対象外の枝をたどらず、処理を減らすことです。Traversal Predicateはフィルタではなくこれを行います。
+
 ### pseudo-root（疑似ルート）
 
 Stage階層の出発点です。Pathでは `/` で表します。
 
+### publish
+
+下流で利用できる安定したAssetとして提供することです。
+
 ### purpose
 
 そのPrimを何のために描くかを示すImageableのAttribute。描画対象かどうかに関わる。
+
+### radian（ラジアン）
+
+円弧長を基準にした角度の単位です。USDのrotate値には使いません。
+
+### RectLight
+
+長方形の面光源です。`width`と`height`で大きさを決め、`texture:file`も持てます。
 
 ### Reference/Payload Pattern
 
@@ -770,7 +926,7 @@ Stage階層の出発点です。Pathでは `/` で表します。
 
 ### Render Delegate
 
-実際に絵を作る実装です。Storm、Metal、RenderManなど。
+実際に絵を作る実装です。HdStorm（OpenUSD付属のリアルタイム描画）やHdPrman（RenderMan）などがあります。MetalはHdStormが内部で使うグラフィックスAPIの一つであって、Render Delegateではありません。
 
 ### Render Index
 
@@ -780,6 +936,10 @@ Stage階層の出発点です。Pathでは `/` で表します。
 
 既にある項目の順番だけを変えるキーワード。
 
+### reset xform stack
+
+親Primからの変換の継承を止める指定です。`xformOpOrder`に`!resetXformStack!`を書きます。
+
 ### role
 
 値が位置・向き・法線・色・テクスチャ座標のどれを表すかという、Value Typeの意味の部分です。
@@ -787,6 +947,10 @@ Stage階層の出発点です。Pathでは `/` で表します。
 ### Rotate
 
 軸の周りにPrimの向きを変える変換操作です。複数軸を使うときはRotation Orderも結果へ影響します。
+
+### Rotation Order
+
+複数軸の回転を適用する順序です。`rotateXYZ`のように型名へ現れます。
 
 ### scalar
 
@@ -816,6 +980,10 @@ Primの親子関係でできた名前の階層です。Pathで表されます。
 
 合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。
 
+### Scenegraph（シーングラフ）
+
+シーン内のPrimを親子の階層として表した構造です。
+
 ### SchemaRegistry
 
 Schemaの種別や性質を問い合わせるためのPython API。
@@ -827,6 +995,10 @@ PrimやPropertyの構造、意味、取得・作成APIを定める設計図で�
 ### Scope
 
 変換を持たず、Primを論理的に整理するconcrete IsA Schemaです。
+
+### Sdf
+
+LayerやPath、Value Typeなどの基盤を提供するモジュールです。合成前の記述を直接扱います。
 
 ### Sdf.AttributeSpec
 
@@ -851,6 +1023,10 @@ PythonからAttributeのValue Typeを指定するための名前の一覧です�
 ### Seam（継ぎ目）
 
 Faceの境目で値が不連続になる場所です。UVを展開したときの切れ目などを指します。
+
+### self-contained
+
+必要な内容が、Assetの入口以下へ適切に収まっている状態です。
 
 ### Session Layer
 
@@ -884,6 +1060,10 @@ Target Listを、渡した一覧の内容に置き換えるPython API。
 
 Prim Specの先頭に置き、そのPrimの扱い方を決める語です。`def`・`over`・`class`の3種類。
 
+### SphereLight
+
+球状の光源です。位置が効き、離れるほど暗くなります。`radius`で大きさを決めます。
+
 ### SplitName
 
 Namespaceで区切られたProperty名を要素に分解するPython API。
@@ -891,6 +1071,10 @@ Namespaceで区切られたProperty名を要素に分解するPython API。
 ### st
 
 UVを保持するPrimvarの、慣習的な名前。
+
+### Stack（PrimStack / PropertyStack）
+
+その対象へ寄与している記述を、強い順に並べたものです。値の出どころを追うための基本の道具です。
 
 ### StageHasAuthoredKilogramsPerUnit
 
@@ -904,6 +1088,10 @@ UVを保持するPrimvarの、慣習的な名前。
 
 祖先のbindingを子孫のbindingより強くする指定です。上からまとめて差し替えるときに使います。
 
+### subcomponent（Kind）
+
+component内部の重要なPrimを示すKindです。model kindではありません。
+
 ### Subdivision Surface（細分化サーフェス）
 
 粗い多角形Meshを規則にしたがって細かく分割し、なめらかな形を作る仕組みです。
@@ -916,6 +1104,10 @@ UVを保持するPrimvarの、慣習的な名前。
 
 Meshを細分化するかどうかを決めるAttributeです。`none`は細分化せず、書いた多角形のまま扱います。
 
+### subkind
+
+別のKindを継承し、より具体的な役割を表すKindです。
+
 ### subLayerPaths
 
 Sublayerの一覧を保持するPython側のリスト。
@@ -923,6 +1115,10 @@ Sublayerの一覧を保持するPython側のリスト。
 ### subLayers
 
 あるLayerが重ねる他のLayerの一覧を示すLayer Metadata。
+
+### suffix（xformOpの）
+
+同じ種類のxformOpを用途別に識別するための追加名です。`xformOp:translate:pivot`の`pivot`がこれにあたります。
 
 ### Target
 
@@ -944,9 +1140,17 @@ Relationshipが持つTarget Pathの一覧です。対象が一つのときも一
 
 特定のTime Codeに記述されたAttribute値です。
 
+### timeCodesPerSecond
+
+Time Codeを秒へ対応させるStage Metadataです。
+
 ### token
 
 決まった語を効率よく扱うための文字列型です。選択肢が決まっている場所で使われます。
+
+### top-level Prim
+
+擬似ルートの直下にあり、Pathが一要素だけのPrimです。
 
 ### Topology（トポロジー）
 
@@ -956,13 +1160,21 @@ PointとFaceのつながり方です。Primvarに必要な値の個数はこれ�
 
 Meshにおいて、どの点とどの点をつないで面を作るかというつながり方の情報です。座標そのものとは区別されます。
 
+### transform stack
+
+`xformOpOrder`に従って操作を積み重ねていく、変換の評価の考え方です。
+
+### transformability
+
+xformOpによって空間変換を記述できる性質です。Scopeはこれを持ちません。
+
 ### Translate
 
 PrimをX・Y・Z方向へ移動する変換操作です。通常は`xformOp:translate`として記述します。
 
 ### Traversal Predicate
 
-走査で降りるかどうかを決める条件。フラグを`&amp;`・`|`・`~`で組み合わせて作る。
+走査で降りるかどうかを決める条件。フラグを`&`・`|`・`~`で組み合わせて作る。
 
 ### Traversal（走査）
 
@@ -970,7 +1182,7 @@ Stage上のPrimを順に訪れること。
 
 ### Traverse / TraverseAll
 
-Stage上のPrimを順に回るPython API。前者は既定で定義済みのPrimだけ、後者は定義されていないPrimも含む。
+Stage上のPrimを順に回るPython APIです。`Traverse()`はDefault Predicateを使い、Active・Defined・Loadedであり、かつabstract（class）でないPrimだけを返します。`TraverseAll()`はこの条件を一切かけず、すべてのPrimを返します。
 
 ### TraverseInstanceProxies
 
@@ -983,6 +1195,10 @@ Primの型そのものになるSchema。`def Mesh`の`Mesh`にあたる。
 ### uniform
 
 Faceごとに一つの値を対応させるPrimvar Interpolationです。Attributeの宣言に付く`uniform`（時間変化しない）とは別の意味です。
+
+### uniform scale
+
+X・Y・Zへ同じ倍率を使うScaleです。
 
 ### Unresolved reference
 
@@ -1012,6 +1228,10 @@ KindやAsset情報を読み書きするAPI Schema。
 
 人が読めるUTF-8テキスト形式のOpenUSDファイル表現です。
 
+### UsdAttributeQuery
+
+同じAttributeを繰り返し問い合わせる処理を効率化するPython APIです。
+
 ### USDC
 
 ランダムアクセスに対応するバイナリのCrate形式です。
@@ -1031,6 +1251,10 @@ OpenUSD一般の規則を検査するコマンドです。終了コードで結�
 ### UsdGeomPrimvar
 
 Primvarを読み書きするためのPythonのクラス。
+
+### UsdLux
+
+光を記述するためのSchemaの集まりです。
 
 ### UsdPhysics
 
@@ -1080,6 +1304,10 @@ Surface上の位置をテクスチャ画像の座標へ対応させる値です�
 
 アセットが規則を守っているかを、実行できる形で確かめることです。
 
+### Value Resolution（値の解決）
+
+PropertyやMetadataについて、合成されたStage上での最終的な値を求める処理です。
+
 ### Value Type
 
 Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。
@@ -1120,9 +1348,17 @@ Pointごとに一つの値を対応させ、Surfaceの基底関数で補間す�
 
 Pythonのリストを、USDが扱える配列へ包む型。
 
+### Workstream
+
+担当や分野ごとに分けた作業の流れです。Layerを分ける単位になります。
+
 ### Workstream Layer
 
 作業の種類ごとに分けたLayerです。同じPathへ、担当ぶんだけを書きます。
+
+### world space（ワールド空間）
+
+祖先の階層変換をすべて合成した、Stage全体の座標空間です。
 
 ### XformCommonAPI
 

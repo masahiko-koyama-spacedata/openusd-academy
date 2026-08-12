@@ -242,8 +242,11 @@ html[data-theme="dark"] .map-node.is-base span { color: rgba(0, 0, 0, .62); }
   @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
 }
 @media (max-width: 760px) {
-  .site-header { gap: 14px; padding-inline: 18px; }
-  nav { display: none; }
+  /* nav をまとめて隠すと、レッスン下部の前後ナビ（.lesson-footer-nav）まで
+     消えてしまい、モバイルでは次のSTEPへ進む手段が無くなる。
+     ヘッダーのナビだけを対象にし、そちらも隠さず折り返して残す。 */
+  .site-header { gap: 14px; padding-inline: 18px; flex-wrap: wrap; row-gap: 8px; padding-block: 10px; }
+  .site-header nav { order: 3; flex-basis: 100%; justify-content: space-between; gap: 14px; font-size: 15px; }
   .theme-label { display: none; }
   .hero { padding-top: 92px; }
   .hero h1, .lesson-hero h1 { font-size: clamp(40px, 12vw, 52px); line-height: 1.04; }

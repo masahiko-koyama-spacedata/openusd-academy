@@ -1,0 +1,52 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    # 照らされる側。床と球
+    def Mesh "Floor"
+    {
+        uniform token subdivisionScheme = "none"
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 3, 2, 1]
+        point3f[] points = [(-6, 0, -6), (6, 0, -6), (6, 0, 6), (-6, 0, 6)]
+        color3f[] primvars:displayColor = [(0.75, 0.75, 0.78)] (
+            interpolation = "constant"
+        )
+    }
+
+    def Sphere "Ball"
+    {
+        double radius = 1
+        color3f[] primvars:displayColor = [(0.85, 0.3, 0.25)] (
+            interpolation = "constant"
+        )
+        double3 xformOp:translate = (0, 1, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    # 平行光。位置ではなく「向き」だけが効く
+    # 点光源。DistantLight と違い「位置」が効き、離れるほど暗くなる
+    def SphereLight "KeyLight"
+    {
+        float inputs:intensity = 50
+        float inputs:radius = 0.4
+        color3f inputs:color = (1, 0.95, 0.85)
+        bool inputs:normalize = true
+        double3 xformOp:translate = (-2.2, 3, 2.2)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 35
+        float2 clippingRange = (0.1, 200)
+        double3 xformOp:translate = (0, 3.2, 8)
+        float3 xformOp:rotateXYZ = (-14, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+    }
+}

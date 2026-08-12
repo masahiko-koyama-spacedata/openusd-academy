@@ -8,8 +8,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # (term, definition) -- definitions end with です/ます in the HTML edition.
 TERMS = [
     ("array", "同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。"),
-    ("asset", "他のファイルを指すパスのValue Typeです。USDAでは <code>@ball.usda@</code> のようにアットマークで囲みます。"),
-    ("Asset", "独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。"),
+    ("asset（Value Type）", "他のファイルを指すパスのValue Typeです。USDAでは <code>@ball.usda@</code> のようにアットマークで囲みます。大文字で始まる「Asset」（まとまりとしてのアセット）とは別物です。"),
+    ("Asset（アセット）", "独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。小文字の「asset」（Value Type）とは別物です。"),
     ("Asset Interface", "Assetが外へ公開する情報の集まりです。使う側との約束にあたります。"),
     ("Converter", "他のツールの形式からUSDを作る処理です。読む・対応づける・書くの3段に分けます。"),
     ("Dangling target", "存在しないPathを指したままのRelationshipのtargetです。<code>usdchecker</code>では報告されません。"),
@@ -20,14 +20,14 @@ TERMS = [
     ("Instance Proxy", "Instanceの内側のPrimを読むための、書き込みできないPrimです。"),
     ("List Editing", "一覧を持つ項目に対して、部分的な追加・削除・並べ替えを記述する仕組みです。"),
     ("Lofting", "中身から計算した要約を、入口側へ書き写しておくことです。"),
-    ("Material", "見た目のひとまとまりを表すPrimです。値そのものは持たず、Shaderへの接続を持ちます。"),
+    ("Material", "見た目のひとまとまりに名前を付け、外から参照できるようにするPrimです。計算はその中のShaderが行い、Materialは<code>outputs:surface</code>などの出力の口を持ちます。MaterialはNodeGraphでもあるため、Interface Inputとして自分で値を持つこともできます。"),
     ("Material Binding", "GprimからMaterialへの結び付きです。<code>material:binding</code>というRelationshipで書かれます。"),
     ("Point Instancing", "配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組みです。"),
     ("Prim Composition", "同じPathへ寄与する複数のPrim Specを、規則にしたがって一つのPrimへまとめることです。"),
     ("Prim Stack", "あるPrimへ寄与するPrim Specを、強い順に並べたリストです。"),
     ("Property Stack", "あるPropertyへ値を主張しているSpecを、強い順に並べたリストです。"),
     ("Reference/Payload Pattern", "外からはReference、入口から中身へはPayloadでつなぐ、Asset構成の基本形です。"),
-    ("Render Delegate", "実際に絵を作る実装です。Storm、Metal、RenderManなど。"),
+    ("Render Delegate", "実際に絵を作る実装です。HdStorm（OpenUSD付属のリアルタイム描画）やHdPrman（RenderMan）などがあります。MetalはHdStormが内部で使うグラフィックスAPIの一つであって、Render Delegateではありません。"),
     ("Scenegraph Instancing", "合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。"),
     ("Shader", "見た目の計算を担うPrimです。<code>inputs:</code>で始まる入力に実際の値を持ちます。"),
     ("Specifier", "Prim Specの先頭に置き、そのPrimの扱い方を決める語です。<code>def</code>・<code>over</code>・<code>class</code>の3種類。"),
@@ -72,6 +72,65 @@ TERMS = [
     ("ComputeBoundMaterial", "継承と強さの規則をすべて解いた結果として、実際に割り当てられているMaterialを返すPython APIです。"),
     ("Material Purpose", "用途ごとにMaterialを使い分ける仕組みです。<code>material:binding:preview</code>と<code>material:binding:full</code>、および用途を限定しない指定があります。"),
     ("Collection-based binding", "階層ではなく、<code>CollectionAPI</code>で作ったPrimの集まりに対してMaterialを結ぶ方法です。"),
+    ("aggregate", "複数の要素を意味のある一単位へまとめたものです。"),
+    ("ancestor", "Scenegraph上で対象Primより上にある、親や親の親のことです。"),
+    ("Asset Path", "<code>@ @</code>で囲んで書く、外部ファイルの場所です。"),
+    ("commutative（可換）", "順序を入れ替えても結果が同じになる性質です。一般の変換操作は可換とは限りません。"),
+    ("Component", "再利用可能なleaf modelです。KindのひとつでもあるためAssetの単位として扱われます。"),
+    ("component（Kind）", "完成し、独立して再利用できるAssetを表すleaf modelのKindです。"),
+    ("Composition Index", "Primへ寄与するsourceとComposition構造を保持するindexです。"),
+    ("Data Mapping", "入力と出力の間で、概念やFieldをどう対応させるかの決めごとです。"),
+    ("Default Time", "数値のTime Codeとは別に、時間に依存しない値を問い合わせるための時刻です。"),
+    ("Default Value", "時間に依存しないAttributeの値です。Stageの入口を示すDefault Primとは別の概念です。"),
+    ("degree（度）", "一周を360とする角度の単位です。USDのrotate値はこの単位で書きます。"),
+    ("Gf", "グラフィックス向けの数学型（ベクトル・行列・回転など）を提供するモジュールです。"),
+    ("Gf.Vec3d", "3つのdouble精度の数からなる、Gfモジュールのvector型です。"),
+    ("group（Kind）", "複数のModelを整理し、componentの祖先になれるmodel kindです。"),
+    ("Hierarchy（階層）", "親子で構成される入れ子の構造です。"),
+    ("inverse operation（逆変換）", "元の変換を打ち消す変換です。pivotはこれを使って回転や拡縮の中心を移します。"),
+    ("IsA Schema", "Primが何であるかを定めるSchemaです。Typed Schemaと同じ意味で使われます。"),
+    ("Kind Registry", "利用可能なKind tokenと、その継承関係を管理する仕組みです。"),
+    ("leaf model", "Model Hierarchyで、子のModelを持たない終端のModelです。"),
+    ("local space（ローカル空間）", "親Primを基準にした、そのPrim自身の座標空間です。"),
+    ("Mesh", "多角形の面を集めて形を記述するGprimです。<code>UsdGeomMesh</code>に対応します。"),
+    ("model（Kind）", "componentとgroupのabstractな基底Kindです。直接assignしません。"),
+    ("Model Hierarchy", "Kindを使って、Scenegraphのうち高水準なModelだけを示す階層です。"),
+    ("multiplier（倍率）", "元の値へ掛ける値です。Scaleはこの倍率で大きさを決めます。"),
+    ("non-uniform scale", "軸ごとに異なる倍率を使うScaleです。"),
+    ("pruning（枝刈り）", "探索対象外の枝をたどらず、処理を減らすことです。Traversal Predicateはフィルタではなくこれを行います。"),
+    ("publish", "下流で利用できる安定したAssetとして提供することです。"),
+    ("radian（ラジアン）", "円弧長を基準にした角度の単位です。USDのrotate値には使いません。"),
+    ("reset xform stack", "親Primからの変換の継承を止める指定です。<code>xformOpOrder</code>に<code>!resetXformStack!</code>を書きます。"),
+    ("Rotation Order", "複数軸の回転を適用する順序です。<code>rotateXYZ</code>のように型名へ現れます。"),
+    ("Scenegraph（シーングラフ）", "シーン内のPrimを親子の階層として表した構造です。"),
+    ("Sdf", "LayerやPath、Value Typeなどの基盤を提供するモジュールです。合成前の記述を直接扱います。"),
+    ("self-contained", "必要な内容が、Assetの入口以下へ適切に収まっている状態です。"),
+    ("Stack（PrimStack / PropertyStack）", "その対象へ寄与している記述を、強い順に並べたものです。値の出どころを追うための基本の道具です。"),
+    ("subcomponent（Kind）", "component内部の重要なPrimを示すKindです。model kindではありません。"),
+    ("subkind", "別のKindを継承し、より具体的な役割を表すKindです。"),
+    ("suffix（xformOpの）", "同じ種類のxformOpを用途別に識別するための追加名です。<code>xformOp:translate:pivot</code>の<code>pivot</code>がこれにあたります。"),
+    ("timeCodesPerSecond", "Time Codeを秒へ対応させるStage Metadataです。"),
+    ("top-level Prim", "擬似ルートの直下にあり、Pathが一要素だけのPrimです。"),
+    ("transform stack", "<code>xformOpOrder</code>に従って操作を積み重ねていく、変換の評価の考え方です。"),
+    ("transformability", "xformOpによって空間変換を記述できる性質です。Scopeはこれを持ちません。"),
+    ("uniform scale", "X・Y・Zへ同じ倍率を使うScaleです。"),
+    ("UsdAttributeQuery", "同じAttributeを繰り返し問い合わせる処理を効率化するPython APIです。"),
+    ("Value Resolution（値の解決）", "PropertyやMetadataについて、合成されたStage上での最終的な値を求める処理です。"),
+    ("Workstream", "担当や分野ごとに分けた作業の流れです。Layerを分ける単位になります。"),
+    ("world space（ワールド空間）", "祖先の階層変換をすべて合成した、Stage全体の座標空間です。"),
+    ("Fallback Value（既定値）", "Attributeが書かれていないときにSchemaが返す値です。「値が無い」ではなく「その値である」として扱われます。"),
+    ("UsdLux", "光を記述するためのSchemaの集まりです。"),
+    ("LightAPI", "明るさや色といった、どのLight型にも共通の設定を与えるSingle-Apply API Schemaです。Light型を定義すると自動的に適用されます。"),
+    ("DistantLight", "無限遠から来る平行光です。向きだけが効き、位置は効きません。"),
+    ("SphereLight", "球状の光源です。位置が効き、離れるほど暗くなります。<code>radius</code>で大きさを決めます。"),
+    ("RectLight", "長方形の面光源です。<code>width</code>と<code>height</code>で大きさを決め、<code>texture:file</code>も持てます。"),
+    ("DiskLight", "円盤の面光源です。<code>radius</code>で大きさを決めます。"),
+    ("CylinderLight", "円柱状の光源です。<code>length</code>と<code>radius</code>で大きさを決めます。"),
+    ("DomeLight", "全方位からシーンを包む光です。<code>texture:file</code>に環境画像を指定して使います。"),
+    ("intensity", "光の明るさです。必要な値の桁はLight型によって大きく違い、DistantLightの既定は50000、SphereLightなどは1です。"),
+    ("exposure", "2のべき乗で明るさを足す設定です。1増えると明るさが倍になります。"),
+    ("Color Temperature（色温度）", "ケルビンで光の色味を指定する仕組みです。<code>enableColorTemperature</code>をtrueにしないと効きません。"),
+    ("Light Linking", "どのPrimをその光で照らすかを、Collectionで指定する仕組みです。<code>CollectionAPI:lightLink</code>として自動的に適用されます。"),
     ("Face", "Meshを構成する面です。<code>faceVertexCounts</code>の要素数がFaceの枚数になります。"),
     ("Face Vertex", "あるFaceが頂点を使った一回分です。同じPointが複数のFaceから使われると、その回数だけ増えます。"),
     ("faceVarying", "Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。Faceの境目で値を不連続にできます。"),
@@ -179,7 +238,7 @@ TERMS = [
     ("HasAuthoredValue", "そのAttributeに値が実際に書かれているかを返すPython API。"),
     ("Inactive", "<code>active = false</code>により、子孫ごと構成から外された状態。"),
     ("Inherits", "別のPrimの意見を受け取るComposition Arc。<code>class</code>と組み合わせて使うことが多い。"),
-    ("Instance Refinement", "共有を保ったまま、Instanceごとに差を付けること。"),
+    ("Instance Refinement", "Instanceに対して個体差や変更を加えるための手法全体を指します。共有を保ったまま差を付けるやり方（Hierarchical Refinement、Broadcasted Refinement、Variant、ID操作）だけでなく、共有をやめるDe-instancingも含みます。"),
     ("Internal Arc", "同じLayerの中の別のPrimを指すComposition Arc。"),
     ("IsA", "そのPrimが指定した型かどうかを判定するPython API。"),
     ("IsAncestral", "そのArcがAncestralかどうかを返すPython API。"),
@@ -230,7 +289,7 @@ TERMS = [
     ("Target", "Relationshipが指すPrimまたはPropertyのPath。"),
     ("Traversal Predicate", "走査で降りるかどうかを決める条件。フラグを<code>&amp;</code>・<code>|</code>・<code>~</code>で組み合わせて作る。"),
     ("Traversal（走査）", "Stage上のPrimを順に訪れること。"),
-    ("Traverse / TraverseAll", "Stage上のPrimを順に回るPython API。前者は既定で定義済みのPrimだけ、後者は定義されていないPrimも含む。"),
+    ("Traverse / TraverseAll", "Stage上のPrimを順に回るPython APIです。<code>Traverse()</code>はDefault Predicateを使い、Active・Defined・Loadedであり、かつabstract（class）でないPrimだけを返します。<code>TraverseAll()</code>はこの条件を一切かけず、すべてのPrimを返します。"),
     ("TraverseInstanceProxies", "Instance Proxyも走査に含める条件を作るPython API。"),
     ("Unresolved reference", "参照先を解決できなかった状態。Primは残るが中身が空になる。"),
     ("Usd.ModelAPI", "KindやAsset情報を読み書きするAPI Schema。"),
@@ -356,7 +415,20 @@ HTML = '''<!doctype html>
 </body></html>
 ''' % rows
 
-md_rows = "\n\n".join("### %s\n\n%s" % (t, re.sub(r"</?code>", "`", d)) for t, d in ordered)
+def to_md(s):
+    """HTMLの断片をMarkdownへ落とす。<code>だけ変換していたため、<strong>や
+    実体参照がそのまま glossary.md に残っていた。"""
+    s = re.sub(r"</?code>", "`", s)
+    s = re.sub(r"</?strong>|</?b>", "**", s)
+    s = re.sub(r"</?em>|</?i>", "*", s)
+    s = re.sub(r"<br\s*/?>", " ", s)
+    s = re.sub(r"<[^>]+>", "", s)
+    for a, b in (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&#39;", "'")):
+        s = s.replace(a, b)
+    return s
+
+
+md_rows = "\n\n".join("### %s\n\n%s" % (to_md(t), to_md(d)) for t, d in ordered)
 MD = '''# OpenUSD Academy 用語集
 
 このファイルはサイト全体の索引です。個々のレッスンにも、その回で使う用語集を必ず付けます。定義はレッスン執筆時に [NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) の公式用語集と該当ページを確認します。正本は `glossary.html` です。
