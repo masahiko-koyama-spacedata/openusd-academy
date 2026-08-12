@@ -156,6 +156,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 
 そのPrimのReferenceの記述をすべて取り除くPython API。
 
+### Clip Manifest
+
+どの属性がClipから供給されるかを、名前と型だけで宣言したLayerです。全ファイルを開かずに済ませるために使います。
+
 ### Collection-based binding
 
 階層ではなく、`CollectionAPI`で作ったPrimの集まりに対してMaterialを結ぶ方法です。
@@ -628,6 +632,14 @@ PythonからKindを指定するための定数群。`component`や`assembly`な�
 
 ファイル先頭の丸括弧の中に書く、Layer全体に関わるMetadata。
 
+### Layer Muting
+
+指定したLayerを合成から一時的に外す機能です。ファイルは変更されません。
+
+### Layer Offset
+
+ReferenceやPayload、Sublayerに付ける時刻の変換です。`offset`で平行移動、`scale`で伸縮します。こちらの時刻 = 参照先の時刻 × scale + offset。
+
 ### Layer Stack
 
 root layerと再帰的なsublayerからなる順序付きのLayer集合です。
@@ -752,6 +764,10 @@ Property名をコロンで区切って階層的にまとめる仕組みです。
 
 Instanceを含むPrimを、さらにInstanceにすること。
 
+### Nested Variant Set（入れ子のVariant Set）
+
+Variantの選択肢の中に、さらに別のVariant Setを置いた構造です。外側の選択ごとに内側の選択肢を変えられます。
+
 ### non-applied API Schema
 
 記録を残さず、読み書きの窓口としてだけ働くAPI Schema。
@@ -816,6 +832,10 @@ Compositionの計算を担当するモジュール。Arcの種類は`Pcp.ArcType
 
 Composition QueryでPayloadのArcを判別するための値。
 
+### Pcp（Prim Cache Population）
+
+Prim Indexを組み立てる部分の名前です。エラーメッセージやAPI名に現れたら、合成の内部の話だと読みます。
+
 ### Pivot
 
 回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。
@@ -855,6 +875,10 @@ Point Instancingを担うPrim型。
 ### Prim Hierarchy Transformation
 
 受け取った階層を、こちらの規則の階層へ組み替えること。
+
+### Prim Index
+
+OpenUSDがPrimを合成するために内部で組み立てる木です。根は自分のLayer Stackで、Composition Arcで枝が伸びます。Prim StackもComposition Arcも、この木を別の角度から取り出したものです。
 
 ### Prim Metadata
 
@@ -1084,6 +1108,10 @@ Layer上の記述を、別のPathへそのまま写すPython API。
 
 PythonからAttributeのValue Typeを指定するための名前の一覧です。
 
+### SdfLayerOffset
+
+Layer OffsetをPythonで表すクラスです。`Sdf.LayerOffset(offset, scale)`と書きます。
+
 ### Seam（継ぎ目）
 
 Faceの境目で値が不連続になる場所です。UVを展開したときの切れ目などを指します。
@@ -1280,6 +1308,10 @@ X・Y・Zへ同じ倍率を使うScaleです。
 
 UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル拡張子です。
 
+### Usd.EditContext
+
+その間だけ書き込み先のLayerを切り替える仕組みです。Session LayerやVariantへの書き込みに使います。
+
 ### Usd.ModelAPI
 
 KindやAsset情報を読み書きするAPI Schema。
@@ -1376,6 +1408,10 @@ Surface上の位置をテクスチャ画像の座標へ対応させる値です�
 
 アセットが規則を守っているかを、実行できる形で確かめることです。
 
+### Value Clips
+
+時間で変わる値を複数のファイルに分け、時刻に応じて切り替えて読む仕組みです。Composition Arcではありません。
+
 ### Value Resolution（値の解決）
 
 PropertyやMetadataについて、合成されたStage上での最終的な値を求める処理です。
@@ -1399,6 +1435,10 @@ Variant Setの中の一つの選択肢。
 ### Variant Set
 
 名前の付いた選択肢の組を、一つのPrimにまとめる仕組み。
+
+### variants（Metadata）
+
+いまどの選択肢を選んでいるかを表すPrim Metadataです。Opinionなので、より強いLayerが上書きできます。
 
 ### varying
 

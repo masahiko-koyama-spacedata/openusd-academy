@@ -1,0 +1,12 @@
+#usda 1.0
+(
+    defaultPrim = "Ball"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+# どの属性がClipから来るかを宣言するだけのLayer。値は持たない
+over "Ball"
+{
+    double radius
+}

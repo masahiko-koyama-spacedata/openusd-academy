@@ -1,0 +1,14 @@
+#usda 1.0
+(
+    defaultPrim = "Base"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Base"
+{
+    def Sphere "Seat"
+    {
+        double radius = 0.5
+    }
+}

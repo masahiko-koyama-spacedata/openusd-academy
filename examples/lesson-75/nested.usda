@@ -1,0 +1,82 @@
+#usda 1.0
+(
+    defaultPrim = "Chair"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Chair" (
+    variants = {
+        string size = "small"
+    }
+    prepend variantSets = "size"
+)
+{
+    variantSet "size" = {
+        "large" (
+            variants = {
+                string color = "red"
+            }
+            prepend variantSets = "color"
+        ) {
+            def Sphere "Seat"
+            {
+                double radius = 0.8
+            }
+            variantSet "color" = {
+                "blue" {
+                    over "Seat"
+                    {
+                        color3f[] primvars:displayColor = [(0.2, 0.4, 0.9)] (
+                            interpolation = "constant"
+                        )
+                    }
+
+                }
+                "red" {
+                    over "Seat"
+                    {
+                        color3f[] primvars:displayColor = [(0.9, 0.2, 0.2)] (
+                            interpolation = "constant"
+                        )
+                    }
+
+                }
+            }
+
+        }
+        "small" (
+            variants = {
+                string color = "red"
+            }
+            prepend variantSets = "color"
+        ) {
+            def Sphere "Seat"
+            {
+                double radius = 0.4
+            }
+            variantSet "color" = {
+                "blue" {
+                    over "Seat"
+                    {
+                        color3f[] primvars:displayColor = [(0.2, 0.4, 0.9)] (
+                            interpolation = "constant"
+                        )
+                    }
+
+                }
+                "red" {
+                    over "Seat"
+                    {
+                        color3f[] primvars:displayColor = [(0.9, 0.2, 0.2)] (
+                            interpolation = "constant"
+                        )
+                    }
+
+                }
+            }
+
+        }
+    }
+}
+

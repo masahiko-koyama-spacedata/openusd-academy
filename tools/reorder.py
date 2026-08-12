@@ -252,10 +252,16 @@ PLAN = [
             + DOWN
             + row(node("prepend", "先頭へ足す"), node("append", "末尾へ足す"),
                   node("delete", "取り除く"), node("reorder", "並べ替える"))
+            + DOWN
+            + row(node("Prim Index", "合成の木そのもの"), node("Layer Offset", "時刻をずらす・伸ばす"),
+                  node("Value Clips", "時間の値を別ファイルから"), node("Mute / Session", "保存せずに切り替える"))
             + band("キーワードを付けずに書くと一覧を丸ごと置き換えます。共同作業では避けます"),
         outcomes=["一覧を壊さずに項目を足したり消したりできる",
                   "Internal ArcとExternal Arcを書き分けられる",
-                  "値の出どころをProperty Stackの1行目で特定できる"],
+                  "値の出どころをProperty Stackの1行目で特定できる",
+                  "Prim Indexという1本の木を、Arc・Stack・値の3つの切り口で読める",
+                  "Layer OffsetとValue Clipsで時間の扱いを設計できる",
+                  "MutingとSession Layerで、保存せずに合成を切り替えられる"],
         items=[
             ("28-prim-composition.html", "Lesson 28", "Prim Composition", "複数のPrim Specが一つになる"),
             ("29-internal-external-arc.html", "Lesson 29", "Internal ArcとExternal Arc", "同じLayer内と別ファイル"),
@@ -265,6 +271,11 @@ PLAN = [
             ("33-direct-ancestral-arc.html", "Lesson 33", "Direct ArcとAncestral Arc", "同じArc内の強度を追う"),
             ("34a-prim-stack.html", "Lesson 34A", "Prim Stack", "Primへ寄与するPrim Specを調べる"),
             ("34b-property-stack.html", "Lesson 34B", "Property Stack", "Propertyへ寄与するSpecを調べる"),
+            ("74-prim-index.html", "Lesson 74", "Prim Index", "合成の結果ではなく、結果を作る木を見る"),
+            ("75-nested-variants.html", "Lesson 75", "入れ子のVariant Set", "選択肢の中に、さらに選択肢を置く"),
+            ("76-layer-offset.html", "Lesson 76", "Layer Offset", "同じAssetを違う時間で再生する"),
+            ("77-value-clips.html", "Lesson 77", "Value Clips", "時間で変わる値を別ファイルの並びから読む"),
+            ("78-layer-muting-session.html", "Lesson 78", "Layer MutingとSession Layer", "ファイルを書き換えずに合成を変える"),
         ]),
     dict(
         title="12. モデル階層とアセット設計", slug="12-model-hierarchy",

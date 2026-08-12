@@ -1,0 +1,10 @@
+#usda 1.0
+(
+    defaultPrim = "Ball"
+    metersPerUnit = 1
+    subLayers = [
+        @./look.usda@,
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)

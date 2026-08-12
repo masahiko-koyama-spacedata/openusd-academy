@@ -1,0 +1,25 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+    startTimeCode = 0
+    endTimeCode = 30
+)
+
+def Xform "World"
+{
+    # そのまま参照する。0〜10 で動く
+    def Xform "A" (
+        prepend references = @./anim.usda@
+    )
+    {
+    }
+
+    # offset = 5 で5だけ遅らせ、scale = 2 で倍の時間をかける
+    def Xform "B" (
+        prepend references = @./anim.usda@ (offset = 5; scale = 2)
+    )
+    {
+    }
+}

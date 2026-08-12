@@ -118,71 +118,76 @@ OpenUSDでいちばん難しい部分です。ここまでの土台があって�
 - **STEP 58:** [Direct ArcとAncestral Arc](lessons/33-direct-ancestral-arc.html) — 同じArc内の強度を追う
 - **STEP 59:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
 - **STEP 60:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
+- **STEP 61:** [Prim Index](lessons/74-prim-index.html) — 合成の結果ではなく、結果を作る木を見る
+- **STEP 62:** [入れ子のVariant Set](lessons/75-nested-variants.html) — 選択肢の中に、さらに選択肢を置く
+- **STEP 63:** [Layer Offset](lessons/76-layer-offset.html) — 同じAssetを違う時間で再生する
+- **STEP 64:** [Value Clips](lessons/77-value-clips.html) — 時間で変わる値を別ファイルの並びから読む
+- **STEP 65:** [Layer MutingとSession Layer](lessons/78-layer-muting-session.html) — ファイルを書き換えずに合成を変える
 
 ## [12. モデル階層とアセット設計](chapters/12-model-hierarchy.html)
 
 Kindでシーンに役割を与え、再利用できるアセットの形にまとめます。
 
-- **STEP 61:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
-- **STEP 62:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
-- **STEP 63:** [group](lessons/19c-group.html) — Modelを正しい祖先階層へまとめる
-- **STEP 64:** [assembly](lessons/19d-assembly.html) — 公開可能なaggregate Assetを作る
-- **STEP 65:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
-- **STEP 66:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern
+- **STEP 66:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
+- **STEP 67:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
+- **STEP 68:** [group](lessons/19c-group.html) — Modelを正しい祖先階層へまとめる
+- **STEP 69:** [assembly](lessons/19d-assembly.html) — 公開可能なaggregate Assetを作る
+- **STEP 70:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
+- **STEP 71:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern
 
 ## [13. Stageを調べて制御する](chapters/13-stage-control.html)
 
 大きなシーンを扱うための、読み込みと走査の制御です。
 
-- **STEP 67:** [ActiveとInactive](lessons/41-active-inactive.html) — Compositionから除外する
-- **STEP 68:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
-- **STEP 69:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
-- **STEP 70:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
-- **STEP 71:** [Hydra](lessons/45-hydra.html) — Scene Indexとレンダリングの入口
+- **STEP 72:** [ActiveとInactive](lessons/41-active-inactive.html) — Compositionから除外する
+- **STEP 73:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
+- **STEP 74:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
+- **STEP 75:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
+- **STEP 76:** [Hydra](lessons/45-hydra.html) — Scene Indexとレンダリングの入口
 
 ## [14. パイプラインとData Exchange](chapters/14-pipeline.html)
 
 他のツールとの間でデータを受け渡す実務です。ここからは設計の話が増えます。
 
-- **STEP 72:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
-- **STEP 73:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
-- **STEP 74:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
-- **STEP 75:** [Workstream Layers](lessons/49-workstream-layers.html) — 作業をLayerで分ける
-- **STEP 76:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
-- **STEP 77:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
-- **STEP 78:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
-- **STEP 79:** [Converterの構造](lessons/54-converter-structure.html) — 入力・変換・出力を分ける
-- **STEP 80:** [Geometry Extraction](lessons/55-geometry-extraction.html) — 点・法線・UVを対応させる
-- **STEP 81:** [Material Extraction](lessons/56-material-extraction.html) — MaterialとBindingを対応させる
-- **STEP 82:** [Asset Validation](lessons/57-asset-validation.html) — 規則をコードにする
-- **STEP 83:** [Prim Hierarchy Transformation](lessons/58-prim-hierarchy-transformation.html) — 階層を目的形へ変える
-- **STEP 84:** [Export Options](lessons/59-export-options.html) — 変換条件を利用者へ公開する
+- **STEP 77:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
+- **STEP 78:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
+- **STEP 79:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
+- **STEP 80:** [Workstream Layers](lessons/49-workstream-layers.html) — 作業をLayerで分ける
+- **STEP 81:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
+- **STEP 82:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
+- **STEP 83:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
+- **STEP 84:** [Converterの構造](lessons/54-converter-structure.html) — 入力・変換・出力を分ける
+- **STEP 85:** [Geometry Extraction](lessons/55-geometry-extraction.html) — 点・法線・UVを対応させる
+- **STEP 86:** [Material Extraction](lessons/56-material-extraction.html) — MaterialとBindingを対応させる
+- **STEP 87:** [Asset Validation](lessons/57-asset-validation.html) — 規則をコードにする
+- **STEP 88:** [Prim Hierarchy Transformation](lessons/58-prim-hierarchy-transformation.html) — 階層を目的形へ変える
+- **STEP 89:** [Export Options](lessons/59-export-options.html) — 変換条件を利用者へ公開する
 
 ## [15. Instancingと大規模シーン](chapters/15-instancing.html)
 
 同じものを大量に置くための仕組みです。数が増えたときに効いてきます。
 
-- **STEP 85:** [Asset Modularity](lessons/60-asset-modularity.html) — 再利用単位を決める
-- **STEP 86:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
-- **STEP 87:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
-- **STEP 88:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
-- **STEP 89:** [Hierarchical RefinementとAd Hoc Arc](lessons/38-hierarchical-refinement.html) — Prototypeを増やす書き方と増やさない書き方
-- **STEP 90:** [Broadcasted Refinement](lessons/39-broadcasted-refinement.html) — 下流の1か所で対象の全Instanceを変える
-- **STEP 91:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
-- **STEP 92:** [Point Instanceに差を付ける](lessons/40-point-instance-refinement.html) — Primvar・Prototype追加・Promotion
-- **STEP 93:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
+- **STEP 90:** [Asset Modularity](lessons/60-asset-modularity.html) — 再利用単位を決める
+- **STEP 91:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
+- **STEP 92:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
+- **STEP 93:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
+- **STEP 94:** [Hierarchical RefinementとAd Hoc Arc](lessons/38-hierarchical-refinement.html) — Prototypeを増やす書き方と増やさない書き方
+- **STEP 95:** [Broadcasted Refinement](lessons/39-broadcasted-refinement.html) — 下流の1か所で対象の全Instanceを変える
+- **STEP 96:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
+- **STEP 97:** [Point Instanceに差を付ける](lessons/40-point-instance-refinement.html) — Primvar・Prototype追加・Promotion
+- **STEP 98:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
 
 ## [16. 調査・検証・総復習](chapters/16-debugging.html)
 
 最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 94:** [usdviewで目で確かめる](lessons/73-usdview.html) — 階層・描画・Property・合成を一つの画面で見る
-- **STEP 95:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
-- **STEP 96:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
-- **STEP 97:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
-- **STEP 98:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
-- **STEP 99:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
-- **STEP 100:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
-- **STEP 101:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
+- **STEP 99:** [usdviewで目で確かめる](lessons/73-usdview.html) — 階層・描画・Property・合成を一つの画面で見る
+- **STEP 100:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
+- **STEP 101:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
+- **STEP 102:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
+- **STEP 103:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
+- **STEP 104:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
+- **STEP 105:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
+- **STEP 106:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
 
 > **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。

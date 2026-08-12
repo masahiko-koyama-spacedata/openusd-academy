@@ -49,6 +49,7 @@
       <dt>catmullClark</dt><dd>OpenUSDのMeshで既定となっている細分化の方式です。</dd>
       <dt>class</dt><dd>他のPrimが受け取るための意見をまとめて置く、abstractなPrimを作るSpecifierです。</dd>
       <dt>ClearReferences</dt><dd>そのPrimのReferenceの記述をすべて取り除くPython API。</dd>
+      <dt>Clip Manifest</dt><dd>どの属性がClipから供給されるかを、名前と型だけで宣言したLayerです。全ファイルを開かずに済ませるために使います。</dd>
       <dt>Collection-based binding</dt><dd>階層ではなく、<code>CollectionAPI</code>で作ったPrimの集まりに対してMaterialを結ぶ方法です。</dd>
       <dt>Color Temperature（色温度）</dt><dd>ケルビンで光の色味を指定する仕組みです。<code>enableColorTemperature</code>をtrueにしないと効きません。</dd>
       <dt>commutative（可換）</dt><dd>順序を入れ替えても結果が同じになる性質です。一般の変換操作は可換とは限りません。</dd>
@@ -167,6 +168,8 @@
       <dt>Kind Registry</dt><dd>利用可能なKind tokenと、その継承関係を管理する仕組みです。</dd>
       <dt>Kind.Tokens</dt><dd>PythonからKindを指定するための定数群。<code>component</code>や<code>assembly</code>など。</dd>
       <dt>Layer Metadata</dt><dd>ファイル先頭の丸括弧の中に書く、Layer全体に関わるMetadata。</dd>
+      <dt>Layer Muting</dt><dd>指定したLayerを合成から一時的に外す機能です。ファイルは変更されません。</dd>
+      <dt>Layer Offset</dt><dd>ReferenceやPayload、Sublayerに付ける時刻の変換です。<code>offset</code>で平行移動、<code>scale</code>で伸縮します。こちらの時刻 = 参照先の時刻 × scale + offset。</dd>
       <dt>Layer Stack</dt><dd>root layerと再帰的なsublayerからなる順序付きのLayer集合です。</dd>
       <dt>Layer（レイヤー）</dt><dd>シーン記述の一部分を保持するデータの単位です。</dd>
       <dt>leaf model</dt><dd>Model Hierarchyで、子のModelを持たない終端のModelです。</dd>
@@ -198,6 +201,7 @@
       <dt>multiplier（倍率）</dt><dd>元の値へ掛ける値です。Scaleはこの倍率で大きさを決めます。</dd>
       <dt>Namespace（名前空間）</dt><dd>Property名をコロンで区切って階層的にまとめる仕組みです。</dd>
       <dt>Nested Instancing</dt><dd>Instanceを含むPrimを、さらにInstanceにすること。</dd>
+      <dt>Nested Variant Set（入れ子のVariant Set）</dt><dd>Variantの選択肢の中に、さらに別のVariant Setを置いた構造です。外側の選択ごとに内側の選択肢を変えられます。</dd>
       <dt>non-applied API Schema</dt><dd>記録を残さず、読み書きの窓口としてだけ働くAPI Schema。</dd>
       <dt>non-uniform scale</dt><dd>軸ごとに異なる倍率を使うScaleです。</dd>
       <dt>normals</dt><dd>面の向きを表す法線のAttributeです。型は<code>normal3f[]</code>で、Primvarではありません。</dd>
@@ -214,6 +218,7 @@
       <dt>Payload</dt><dd>読み込みを後回しにできるComposition Arc。</dd>
       <dt>Pcp</dt><dd>Compositionの計算を担当するモジュール。Arcの種類は<code>Pcp.ArcType…</code>で表される。</dd>
       <dt>Pcp.ArcTypePayload</dt><dd>Composition QueryでPayloadのArcを判別するための値。</dd>
+      <dt>Pcp（Prim Cache Population）</dt><dd>Prim Indexを組み立てる部分の名前です。エラーメッセージやAPI名に現れたら、合成の内部の話だと読みます。</dd>
       <dt>Pivot</dt><dd>回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。</dd>
       <dt>Point</dt><dd>Meshの頂点の位置です。<code>points</code>に並ぶ座標を指します。</dd>
       <dt>Point Instance</dt><dd>PointInstancerが配列から置く1体です。Primではないので、Pathを持ちません。</dd>
@@ -224,6 +229,7 @@
       <dt>prepend</dt><dd>一覧の先頭へ項目を足すキーワード。</dd>
       <dt>Prim Composition</dt><dd>同じPathへ寄与する複数のPrim Specを、規則にしたがって一つのPrimへまとめることです。</dd>
       <dt>Prim Hierarchy Transformation</dt><dd>受け取った階層を、こちらの規則の階層へ組み替えること。</dd>
+      <dt>Prim Index</dt><dd>OpenUSDがPrimを合成するために内部で組み立てる木です。根は自分のLayer Stackで、Composition Arcで枝が伸びます。Prim StackもComposition Arcも、この木を別の角度から取り出したものです。</dd>
       <dt>Prim Metadata</dt><dd>Prim名の後ろの丸括弧の中に書く、そのPrimに関するMetadata。</dd>
       <dt>Prim name（Prim名）</dt><dd>階層内のPrimを識別し、Pathの一部分になる名前です。例: <code>World</code>。</dd>
       <dt>Prim Path</dt><dd>Stage内のPrimを識別するPathです。Prim名を <code>/</code> で区切ります。</dd>
@@ -281,6 +287,7 @@
       <dt>Sdf.Layer</dt><dd>合成前のファイル一枚を表すオブジェクト。<code>defaultPrim</code>などを読める。</dd>
       <dt>Sdf.PrimSpec</dt><dd>一つのLayerに書かれた、合成前のPrimの記述を表すオブジェクト。</dd>
       <dt>Sdf.ValueTypeNames</dt><dd>PythonからAttributeのValue Typeを指定するための名前の一覧です。</dd>
+      <dt>SdfLayerOffset</dt><dd>Layer OffsetをPythonで表すクラスです。<code>Sdf.LayerOffset(offset, scale)</code>と書きます。</dd>
       <dt>Seam（継ぎ目）</dt><dd>Faceの境目で値が不連続になる場所です。UVを展開したときの切れ目などを指します。</dd>
       <dt>self-contained</dt><dd>必要な内容が、Assetの入口以下へ適切に収まっている状態です。</dd>
       <dt>Session Layer</dt><dd>Stageを開いたときに用意される、保存されない一時的なLayer。</dd>
@@ -330,6 +337,7 @@
       <dt>Unresolved reference</dt><dd>参照先を解決できなかった状態。Primは残るが中身が空になる。</dd>
       <dt>upAxis</dt><dd>そのLayerで上とみなす軸を示すLayer Metadata。<code>'Y'</code>または<code>'Z'</code>。</dd>
       <dt>USD</dt><dd>UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル拡張子です。</dd>
+      <dt>Usd.EditContext</dt><dd>その間だけ書き込み先のLayerを切り替える仕組みです。Session LayerやVariantへの書き込みに使います。</dd>
       <dt>Usd.ModelAPI</dt><dd>KindやAsset情報を読み書きするAPI Schema。</dd>
       <dt>Usd.PrimRange</dt><dd>任意のPrimを起点に、その配下を走査するPythonのオブジェクト。</dd>
       <dt>Usd.TimeCode.Default()</dt><dd>時間に依存しない値を指すTime Code。</dd>
@@ -354,12 +362,14 @@
       <dt>UV</dt><dd>Surface上の位置をテクスチャ画像の座標へ対応させる値です。<code>faceVarying</code>で持たせることが多い値です。</dd>
       <dt>UV座標</dt><dd>テクスチャ画像のどこを形のどこへ対応させるかを表す2次元の座標です。USDでは<code>primvars:st</code>という名前で書くのが慣習です。</dd>
       <dt>Validation（検証）</dt><dd>アセットが規則を守っているかを、実行できる形で確かめることです。</dd>
+      <dt>Value Clips</dt><dd>時間で変わる値を複数のファイルに分け、時刻に応じて切り替えて読む仕組みです。Composition Arcではありません。</dd>
       <dt>Value Resolution（値の解決）</dt><dd>PropertyやMetadataについて、合成されたStage上での最終的な値を求める処理です。</dd>
       <dt>Value Type</dt><dd>Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。</dd>
       <dt>Variant</dt><dd>Variant Setの中の一つの選択肢。</dd>
       <dt>Variant Edit Context</dt><dd>書き込み先を、選択中のVariantの内側へ切り替えるPythonのコンテキストです。</dd>
       <dt>Variant Selection</dt><dd>どの選択肢を使うかを示すPrim Metadata。</dd>
       <dt>Variant Set</dt><dd>名前の付いた選択肢の組を、一つのPrimにまとめる仕組み。</dd>
+      <dt>variants（Metadata）</dt><dd>いまどの選択肢を選んでいるかを表すPrim Metadataです。Opinionなので、より強いLayerが上書きできます。</dd>
       <dt>varying</dt><dd>Pointごとに一つの値を対応させ、Surface上を線形に補間するPrimvar Interpolationです。</dd>
       <dt>vector</dt><dd>複数の数をひとまとまりにした値の形です。USDAでは丸括弧で囲みます。</dd>
       <dt>vertex</dt><dd>Pointごとに一つの値を対応させ、Surfaceの基底関数で補間するPrimvar Interpolationです。</dd>

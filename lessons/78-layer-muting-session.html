@@ -1,0 +1,59 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 65: Layer MutingとSession Layer — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 65 · MUTING AND SESSION</p><h1>Layer Mutingと<span>Session Layer</span></h1><p class="lesson-lead">ファイルを書き換えずに、合成を変えます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>MuteはLayerを一時的に無かったことにし Session Layerはファイルを汚さずに一番強い意見を置ける</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>ファイルを書き換えずに、合成を変える2つの方法</h2><p>ここまで、合成を変えるにはどこかのLayerに書く必要がありました。しかし「今だけ試したい」「保存はしたくない」ことがあります。そのための仕組みが2つあります。</p><p><strong>Layer Muting</strong>は、指定したLayerを<strong>その場だけ無かったことにする</strong>機能です。<code>stage.MuteLayer(path)</code>を呼ぶと、そのLayerの意見が合成から外れます。ファイルは1文字も変わりません。<code>UnmuteLayer()</code>で戻ります。重いLayerを一時的に外して確認する、ある工程の作業を切って原因を切り分ける、といった使い方をします。</p><p><strong>Session Layer</strong>は、Stageを開くと自動で用意される<strong>保存されない一番強いLayer</strong>です。<a href="12-composition.html">STEP 39</a>のLayer Stackで言えば、Root Layerのさらに上に積まれます。ここへ書いた意見はすべてに勝ち、しかもファイルには残りません。ビューアの表示切り替えや、一時的な選択状態を置く場所です。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>2つは向きが逆です。<strong>Mutingは引き算</strong>で、あるLayerの意見を丸ごと消します。<strong>Session Layerは足し算</strong>で、一番強い意見を上に足します。「この色はどのLayerから来ているのか」を切り分けたいならMuting、「とりあえずこう見せたい」ならSession Layerです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>2枚を重ねただけの小さなStage</h2><div class="code-card usda-card"><div class="code-title"><span>root.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Ball"
+    metersPerUnit = 1
+    subLayers = [
+        @./look.usda@,
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)</code></pre></div><div class="code-card usda-card"><div class="code-title"><span>look.usda — 見た目だけを持つLayer</span><span>USDA</span></div><pre><code># 見た目だけを持つLayer。muteするとこの色が消える
+over "Ball"
+{
+    color3f[] primvars:displayColor = [(0.9, 0.2, 0.2)] (
+        interpolation = "constant"
+    )
+}</code></pre></div><p><code>subLayers</code>の角括弧は<strong>上ほど強い</strong>順でした（<a href="12-sublayers.html">STEP 40</a>）。<code>look.usda</code>が<code>base.usda</code>より強いので、色はlook側の赤が使われます。</p><p class="example-link"><a href="../examples/lesson-78/root.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>muteして、戻す</h2><div class="code-card python-card"><div class="code-title"><span>mute.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+stage = Usd.Stage.Open("root.usda")
+path = "/Ball"
+
+def color():
+    return stage.GetPrimAtPath(path).GetAttribute("primvars:displayColor").Get()
+
+print("muteする前:", color())
+stage.MuteLayer("./look.usda")
+print("muteした後:", color())
+print("muted一覧 :", stage.GetMutedLayers())
+stage.UnmuteLayer("./look.usda")
+print("戻した後  :", color())</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>muteする前: [(0.9, 0.2, 0.2)]
+muteした後: None
+muted一覧 : ['/private/tmp/ms/look.usda']
+戻した後  : [(0.9, 0.2, 0.2)]</code></pre></div><p>muteした瞬間に色が<code>None</code>になりました。<code>look.usda</code>の意見が合成から外れ、誰も<code>displayColor</code>を書いていない状態になったためです。<strong>この間、ファイルは一度も書き換えていません</strong>。<code>GetMutedLayers()</code>が返すのは解決後の絶対パスです。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>Session Layerへ書く</h2><div class="code-card python-card"><div class="code-title"><span>session.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+session = stage.GetSessionLayer()
+
+# EditContext の間だけ、書き込み先が Session Layer になる
+with Usd.EditContext(stage, session):
+    UsdGeom.Imageable(stage.GetPrimAtPath("/Ball")).CreateVisibilityAttr("invisible")
+
+print("visibility        :",
+      UsdGeom.Imageable(stage.GetPrimAtPath("/Ball")).ComputeVisibility())
+print("root.usdaに書かれた:", "visibility" in open("root.usda").read())
+print("session側にはある  :", "visibility" in session.ExportToString())</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>visibility        : invisible
+root.usdaに書かれた: False
+session側にはある  : True</code></pre></div><p>合成の結果は<code>invisible</code>になっているのに、<code>root.usda</code>には何も書かれていません。<code>Usd.EditContext</code>は<a href="32-variant-edit-context.html">STEP 57</a>のVariant Edit Contextと同じ仕組みで、<strong>その間だけ書き込み先を切り替えます</strong>。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>足す側と、引く側</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-goal"><b>Session Layer</b><span>保存されない、一番強いLayer。上に<strong>足す</strong></span></div></div><div class="map-note" aria-hidden="true">↓ ここから下が Layer Stack</div><div class="map-row"><div class="map-node is-base"><b>root.usda</b><span>Root Layer</span></div></div><div class="map-row"><div class="map-node"><b>look.usda</b><span>強い sublayer ← Muteで<strong>引ける</strong></span></div><div class="map-node"><b>base.usda</b><span>弱い sublayer</span></div></div><div class="map-band">どちらもファイルを書き換えません。Muteは引き算、Session Layerは足し算です</div><figcaption>OpenUSD Academyによる、Layer MutingとSession Layerの位置関係の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">subLayers = [@./look.usda@, @./base.usda@]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.subLayerPaths = ["./look.usda", "./base.usda"]</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（このLayerを一時的に外したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.MuteLayer("./look.usda") / stage.UnmuteLayer(...)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（いま外れているLayerは）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetMutedLayers()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（保存せずに一番強い意見を置きたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">with Usd.EditContext(stage, stage.GetSessionLayer()):</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>usdviewで見えていた一時的なLayer</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><a href="67-inspect-layer-stack.html">STEP 101</a>でLayer Stackを表示したとき、先頭に<code>…-session.usda</code>という見覚えのないLayerが出ていました。あれがSession Layerです。ファイルとして存在せず、Stageを開くたびに新しく作られます。</p><p>だから、Session Layerに書いた内容は<strong>Stageを閉じると消えます</strong>。残したいなら、<code>stage.GetRootLayer()</code>など保存されるLayerへ書きます。「変更したのに保存されない」と思ったら、書き込み先がSession Layerになっていないかを疑います。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>消えた・残らない</h2><div class="mistake-list"><article><h3>Session Layerに書いて保存したつもりになる</h3><p>Session Layerは保存されません。Stageを閉じれば消えます。永続させたいならRoot Layerなど、ファイルを持つLayerへ書きます。</p></article><article><h3>MuteしたままSaveする</h3><p>Muteは合成から外すだけで、ファイルの内容は変わりません。ただし、その状態で他の編集をして保存すると、外れているLayerの意見を前提にした値を書いてしまうことがあります。切り分けが終わったらUnmuteします。</p></article><article><h3>相対パスと絶対パスを取り違える</h3><p><code>MuteLayer()</code>には識別子を渡します。<code>GetMutedLayers()</code>が返すのは解決後の絶対パスなので、渡した文字列と一致するとは限りません。</p></article><article><h3>Muteで消えた値を「壊れた」と読む</h3><p>意見を出していたLayerを外したのだから、値が<code>None</code>になるのは正しい結果です。誰がその値を書いていたかを特定する手段として使います。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Layer Muting</dt><dd>指定したLayerを合成から一時的に外す機能。ファイルは変更されない。</dd></div><div><dt>MuteLayer / UnmuteLayer</dt><dd>Layerを外す・戻すPython API。<code>GetMutedLayers()</code>で現在外れているものを確認できる。</dd></div><div><dt>Session Layer</dt><dd>Stageを開くと自動で用意される、保存されない一番強いLayer。一時的な変更を置く。</dd></div><div><dt>Root Layer</dt><dd>Stageの起点となるLayer。<code>stage.GetRootLayer()</code>で得られ、保存される。</dd></div><div><dt>Usd.EditContext</dt><dd>その間だけ書き込み先のLayerを切り替える仕組み。Session LayerやVariantへの書き込みに使う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-sessionlayer">OpenUSD Glossary — Session Layer</a></li><li><a href="https://openusd.org/release/api/class_usd_stage.html">OpenUSD — UsdStage API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="77-value-clips.html">← STEP 64</a><a class="nav-chapter" href="../chapters/11-composition-practice.html">11. Compositionを組み立てる</a><a href="19a-kind.html">STEP 66 →</a></nav></main><footer><p>OpenUSD Academy · STEP 65</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
