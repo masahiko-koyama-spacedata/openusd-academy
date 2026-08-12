@@ -1,0 +1,101 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 89: 小さなAssetを最初から組み立てる — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 89 · 総合演習1</p><h1>小さなAssetを<span>最初から組み立てる</span></h1><p class="lesson-lead">ここまでの内容を使って、配れるベンチを1つ作ります</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>形・色・まとめ役・入口の4枚に分け、最後に要約を載せる</h2></section>
+<section class="lesson-section"><p class="section-kicker">この演習について</p><h2>使う知識の一覧</h2><p>新しいことは出てきません。ここまでのSTEPで扱った内容を、順番に組み合わせるだけです。作るのはベンチ1台で、<strong>そのまま他のシーンから参照して使える形</strong>に仕上げます。</p><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>1. 形</b><span>bench_geom.usda — Xform・Cube・変換</span></div><div class="map-node is-base"><b>2. 色</b><span>bench_look.usda — over と displayColor</span></div></div><div class="map-note" aria-hidden="true">↓ subLayers</div><div class="map-row"><div class="map-node"><b>3. まとめ役</b><span>bench_contents.usda</span></div></div><div class="map-note" aria-hidden="true">↑ payload</div><div class="map-row"><div class="map-node is-goal"><b>4. 入口</b><span>bench.usda — kind・名乗り・extentsHint</span></div></div><div class="map-band">この4枚の形は、これまでのランプの例とまったく同じです</div><figcaption>OpenUSD Academyによる、演習で作るファイル構成の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">手順1</p><h2>形を作る</h2><div class="code-card python-card"><div class="code-title"><span>1_geom.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom
+
+geom = Usd.Stage.CreateNew("bench_geom.usda")
+UsdGeom.SetStageMetersPerUnit(geom, 1)
+UsdGeom.SetStageUpAxis(geom, UsdGeom.Tokens.y)
+
+bench = UsdGeom.Xform.Define(geom, "/Bench")
+geom.SetDefaultPrim(bench.GetPrim())
+
+
+def box(path, translate, scale):
+    cube = UsdGeom.Cube.Define(geom, path)
+    cube.CreateSizeAttr(1)
+    x = UsdGeom.Xformable(cube)
+    x.AddTranslateOp().Set(Gf.Vec3d(*translate))   # translate → scale の順
+    x.AddScaleOp().Set(Gf.Vec3f(*scale))
+    return cube
+
+
+box("/Bench/Seat",  (0, 0.45, 0), (1.8, 0.12, 0.5))
+box("/Bench/Leg_1", (-0.7, 0.2, 0), (0.12, 0.4, 0.4))
+box("/Bench/Leg_2", (0.7, 0.2, 0), (0.12, 0.4, 0.4))
+
+geom.Save()</code></pre></div><p><code>xformOpOrder</code>は<code>["xformOp:translate", "xformOp:scale"]</code>になります。<a href="18-xform-op-order.html">STEP 20 XformOpOrder</a>のとおり、<strong>後ろに書いたものが先に効く</strong>ので、これで「拡縮してから移動」になります。逆に書くと、移動量まで拡縮されて位置がずれます。</p></section>
+<section class="lesson-section"><p class="section-kicker">手順2</p><h2>色を、別のファイルから重ねる</h2><div class="code-card python-card"><div class="code-title"><span>2_look.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+
+look = Sdf.Layer.CreateNew("bench_look.usda")
+look.defaultPrim = "Bench"
+
+stage = Usd.Stage.Open(look)
+UsdGeom.SetStageMetersPerUnit(stage, 1)
+UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.y)
+
+stage.OverridePrim("/Bench")
+for path, color in (("/Bench/Seat",  Gf.Vec3f(0.72, 0.52, 0.3)),
+                    ("/Bench/Leg_1", Gf.Vec3f(0.3, 0.32, 0.35)),
+                    ("/Bench/Leg_2", Gf.Vec3f(0.3, 0.32, 0.35))):
+    prim = stage.OverridePrim(path)
+    UsdGeom.PrimvarsAPI(prim).CreatePrimvar(
+        "displayColor", Sdf.ValueTypeNames.Color3fArray,
+        UsdGeom.Tokens.constant).Set([color])
+
+stage.Save()</code></pre></div><p>すべて<code>OverridePrim</code>、つまり<a href="27b-over.html">STEP 31 over</a>です。形のファイルには一切触れていません。<a href="49-workstream-layers.html">STEP 69 Workstream Layers</a>で扱った分担が、そのままこの2ファイルの関係です。</p></section>
+<section class="lesson-section"><p class="section-kicker">手順3</p><h2>2枚を積んで、中身にする</h2><div class="code-card python-card"><div class="code-title"><span>3_contents.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+contents = Usd.Stage.CreateNew("bench_contents.usda")
+contents.GetRootLayer().subLayerPaths = ["bench_look.usda", "bench_geom.usda"]
+
+UsdGeom.SetStageMetersPerUnit(contents, 1)
+UsdGeom.SetStageUpAxis(contents, UsdGeom.Tokens.y)
+
+bench = UsdGeom.Xform.Define(contents, "/Bench")
+contents.SetDefaultPrim(bench.GetPrim())
+contents.Save()</code></pre></div><p><code>subLayerPaths</code>の並びが強さの順です。色のファイルを先に置いているので、色が形を上書きできます。</p></section>
+<section class="lesson-section"><p class="section-kicker">手順4</p><h2>入口を作る</h2><div class="code-card python-card"><div class="code-title"><span>4_entry.py</span><span>Python</span></div><pre><code>from pxr import Kind, Sdf, Usd, UsdGeom
+
+entry = Usd.Stage.CreateNew("bench.usda")
+UsdGeom.SetStageMetersPerUnit(entry, 1)
+UsdGeom.SetStageUpAxis(entry, UsdGeom.Tokens.y)
+
+bench = UsdGeom.Xform.Define(entry, "/Bench")
+entry.SetDefaultPrim(bench.GetPrim())
+
+prim = bench.GetPrim()
+Usd.ModelAPI(prim).SetKind(Kind.Tokens.component)
+prim.GetPayloads().AddPayload("bench_contents.usda", "/Bench")
+prim.CreateAttribute("academy:assetName", Sdf.ValueTypeNames.String,
+                     custom=True).Set("Bench")
+prim.CreateAttribute("academy:version", Sdf.ValueTypeNames.String,
+                     custom=True).Set("1.0")
+
+entry.Save()</code></pre></div><p><a href="47-asset-entry-point.html">STEP 67 Asset Entry Point</a>でまとめた4つの手順そのままです。形は一つも書いていません。</p></section>
+<section class="lesson-section"><p class="section-kicker">手順5</p><h2>要約を載せて、検査する</h2><div class="code-card python-card"><div class="code-title"><span>5_finish.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+full = Usd.Stage.Open("bench.usda")
+cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+api = UsdGeom.ModelAPI(full.GetDefaultPrim())
+api.SetExtentsHint(api.ComputeExtentsHint(cache))
+full.Save()
+
+print(api.GetExtentsHint())
+# [(-0.9, -2.98e-09, -0.25), (0.9, 0.51, 0.25)]
+
+print([str(p.GetPath()) for p in full.Traverse()])
+# ['/Bench', '/Bench/Seat', '/Bench/Leg_1', '/Bench/Leg_2', '/Bench/AssetCam']</code></pre></div><div class="code-card usda-card"><div class="code-title"><span>ターミナル</span><span>コマンド</span></div><pre><code>$ usdchecker bench_geom.usda && usdchecker bench_look.usda \
+  && usdchecker bench_contents.usda && usdchecker bench.usda
+Success!
+Success!
+Success!
+Success!</code></pre></div><p>4枚すべてが検査を通ります。<a href="53-lofting.html">STEP 72 Lofting</a>で扱ったとおり、要約は形が出来上がったあと、いちばん最後に計算します。</p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>できあがり</h2><figure class="render-result"><img src="../assets/images/lesson-70/bench.png" alt="木目色の座面と灰色の脚を持つベンチが1台描画された結果" width="800" height="583"><figcaption>形は<code>bench_geom.usda</code>、色は<code>bench_look.usda</code>から来ています。使う側は<code>bench.usda</code>の1行を書くだけです。<br><small>撮影: <code>examples/lesson-70/bench.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><p class="example-link"><a href="../examples/lesson-70/bench.usda">できあがったAssetを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>調査用カメラの名前に気を付ける</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この演習のベンチには、確認用のCameraを<code>AssetCam</code>という名前で入れてあります。教材の他の例で使っている<code>ShotCam</code>とわざと変えています。理由は次のSTEPで分かりますが、先に書いておくと、<strong>同じ名前のCameraが複数あると<code>usdrecord --camera ShotCam</code>がどれを使うか決まらない</strong>ためです。実際にこの教材を作る過程で、真っ白な画像が出て詰まりました。配るAssetにCameraを入れるなら、名前は衝突しにくいものにします。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>演習でつまずきやすいところ</h2><div class="mistake-list"><article><h3>xformOpの順番を逆にする</h3><p><code>scale</code>を先に書くと、移動量まで拡縮されて位置がずれます。<code>translate</code>→<code>scale</code>の順です。</p></article><article><h3>色のファイルでdefを使う</h3><p>定義が二重になります。色の担当は<code>over</code>だけです。</p></article><article><h3>まとめ役でdefaultPrimを設定し忘れる</h3><p>入口のPayloadが<code>&lt;/Bench&gt;</code>を指せなくなります。</p></article><article><h3>要約を先に計算する</h3><p>形が完成する前に計算すると、古い値が残ります。最後に計算します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>総合演習</dt><dd>これまでに学んだ内容を組み合わせて、一つの成果物を作ること。</dd></div><div><dt>配れる形</dt><dd>入口・名乗り・検査を備え、他のシーンから参照して使える状態。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_geom_xformable.html">OpenUSD — UsdGeomXformable</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_model_a_p_i.html">OpenUSD — UsdGeomModelAPI</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="69-minimal-validation.html">← STEP 88</a><a class="nav-chapter" href="../chapters/15-debugging.html">15. 調査・検証・総復習</a><a href="71-build-a-scene.html">STEP 90 →</a></nav></main><footer><p>OpenUSD Academy · STEP 89</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

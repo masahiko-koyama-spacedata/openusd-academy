@@ -1,0 +1,11 @@
+#usda 1.0
+(
+    defaultPrim = "Bench"
+    metersPerUnit = 1
+    subLayers = [
+        @bench_look.usda@,
+        @bench_geom.usda@
+    ]
+    upAxis = "Y"
+)
+

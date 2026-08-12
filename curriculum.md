@@ -127,7 +127,7 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 62:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
 - **STEP 63:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
 - **STEP 64:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
-- **STEP 65（予定）:** Hydra — Scene Indexとレンダリングの入口
+- **STEP 65:** [Hydra](lessons/45-hydra.html) — Scene Indexとレンダリングの入口
 
 ## [13. パイプラインとData Exchange](chapters/13-pipeline.html)
 
@@ -162,12 +162,12 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 
 最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 85（予定）:** usdrecordとusdtreeでStageを読む — 構造と描画を確かめる
-- **STEP 86（予定）:** Layer Stackを調べる — どのLayerの意見が効いているか
-- **STEP 87（予定）:** 壊れたReferenceとPathを直す — よくある破損の直し方
-- **STEP 88（予定）:** Pythonで最小Validationを書く — 規則を自動で確かめる
-- **STEP 89（予定）:** 小さなAssetを最初から組み立てる — 総合演習1
-- **STEP 90（予定）:** 複数Assetから小さなSceneを作る — 総合演習2
-- **STEP 91（予定）:** OpenUSD教材の総復習 — 全体を振り返る
+- **STEP 85:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
+- **STEP 86:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
+- **STEP 87:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
+- **STEP 88:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
+- **STEP 89:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
+- **STEP 90:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
+- **STEP 91:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
 
 > **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。

@@ -12,6 +12,14 @@
 
 他のファイルを指すパスのValue Typeです。USDAでは `@ball.usda@` のようにアットマークで囲みます。
 
+### Asset
+
+独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。
+
+### Asset Interface
+
+Assetが外へ公開する情報の集まりです。使う側との約束にあたります。
+
 ### Attribute（アトリビュート）
 
 Primが持つ値のあるProperty。色、サイズ、位置などを表します。
@@ -19,6 +27,10 @@ Primが持つ値のあるProperty。色、サイズ、位置などを表しま�
 ### catmullClark
 
 OpenUSDのMeshで既定となっている細分化の方式です。
+
+### class
+
+他のPrimが受け取るための意見をまとめて置く、abstractなPrimを作るSpecifierです。
 
 ### Composition Arc
 
@@ -36,6 +48,18 @@ Indexed Primvarのindexを解いた後の値の並びを返すPython APIです�
 
 Gprim全体へ値を一つだけ対応させるPrimvar Interpolationです。値の個数は形によらず常に1です。
 
+### Converter
+
+他のツールの形式からUSDを作る処理です。読む・対応づける・書くの3段に分けます。
+
+### Dangling target
+
+存在しないPathを指したままのRelationshipのtargetです。`usdchecker`では報告されません。
+
+### def
+
+Primを定義するSpecifierです。Stage上にdefinedなPrimとして現れます。
+
 ### Default Prim（デフォルトプリム）
 
 Layer Metadataで指定する、そのLayerの主な入口となるtop-level Primです。
@@ -47,6 +71,18 @@ Layer Metadataで指定する、そのLayerの主な入口となるtop-level Pri
 ### displayColor
 
 Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは`constant`です。
+
+### Encapsulation（カプセル化）
+
+持ち込まれた側のComposition Arcが、そのファイルの中で完結していることです。
+
+### Entry Point（入口）
+
+Assetを外から使うときに最初に開かれるファイル、およびそのPrimです。
+
+### Export Options
+
+変換の条件を、外から指定できるようにしたものです。
 
 ### Face
 
@@ -80,6 +116,10 @@ Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。
 
 MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。
 
+### Hydra
+
+Stageの内容を受け取り、実際に描く仕組みへ渡す層です。
+
 ### Imageable
 
 画像化される可能性のあるPrimに共通する性質をまとめたSchemaの基盤です。
@@ -95,6 +135,14 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 ### Instance
 
 共有するPrototypeをシーン内で繰り返し利用するものです。
+
+### Instance Proxy
+
+Instanceの内側のPrimを読むための、書き込みできないPrimです。
+
+### instanceable
+
+そのPrimをInstanceにするかを決めるPrim Metadataです。
 
 ### Interpolation（補間）
 
@@ -112,9 +160,25 @@ root layerと再帰的なsublayerからなる順序付きのLayer集合です。
 
 シーン記述の一部分を保持するデータの単位です。
 
+### List Editing
+
+一覧を持つ項目に対して、部分的な追加・削除・並べ替えを記述する仕組みです。
+
 ### LIVERPS
 
 Local、Inherits、Variant Sets、rElocates、References、Payloads、Specializesを強い順に並べた略語です。SublayerのOpinionはLayer Stack内のLocalに含まれます。
+
+### Lofting
+
+中身から計算した要約を、入口側へ書き写しておくことです。
+
+### Material
+
+見た目のひとまとまりを表すPrimです。値そのものは持たず、Shaderへの接続を持ちます。
+
+### Material Binding
+
+GprimからMaterialへの結び付きです。`material:binding`というRelationshipで書かれます。
 
 ### matrix
 
@@ -132,6 +196,10 @@ Prim、Property、Layerに付ける時間変化しない補助情報です。
 
 Property名をコロンで区切って階層的にまとめる仕組みです。
 
+### over
+
+Primを定義せず、意見だけを重ねるSpecifierです。
+
 ### Path（パス）
 
 Stage内のPrimやPropertyを指す住所のような識別子です。例: `/World/Room`。
@@ -144,6 +212,14 @@ Stage内のPrimやPropertyを指す住所のような識別子です。例: `/Wo
 
 Meshの頂点の位置です。`points`に並ぶ座標を指します。
 
+### Point Instancing
+
+配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組みです。
+
+### Prim Composition
+
+同じPathへ寄与する複数のPrim Specを、規則にしたがって一つのPrimへまとめることです。
+
 ### Prim name（Prim名）
 
 階層内のPrimを識別し、Pathの一部分になる名前です。例: `World`。
@@ -151,6 +227,10 @@ Meshの頂点の位置です。`points`に並ぶ座標を指します。
 ### Prim Path
 
 Stage内のPrimを識別するPathです。Prim名を `/` で区切ります。
+
+### Prim Stack
+
+あるPrimへ寄与するPrim Specを、強い順に並べたリストです。
 
 ### Primvar
 
@@ -172,6 +252,10 @@ Stageを構成する基本要素。シーングラフ上のノードです。
 
 Prim Pathの後ろに `.` とProperty名を続けたPathです。
 
+### Property Stack
+
+あるPropertyへ値を主張しているSpecを、強い順に並べたリストです。
+
 ### Property（プロパティ）
 
 Primが持つ情報。AttributeとRelationshipの2種類があります。
@@ -184,9 +268,17 @@ Primが持つ情報。AttributeとRelationshipの2種類があります。
 
 Stage階層の出発点です。Pathでは `/` で表します。
 
+### Reference/Payload Pattern
+
+外からはReference、入口から中身へはPayloadでつなぐ、Asset構成の基本形です。
+
 ### Relationship（リレーションシップ）
 
 0個以上のPrim PathまたはProperty Pathを対象として持てる、型のないPropertyです。
+
+### Render Delegate
+
+実際に絵を作る実装です。Storm、Metal、RenderManなど。
 
 ### role
 
@@ -208,6 +300,10 @@ Primの各軸方向の大きさへ倍率を掛ける変換操作です。変更�
 
 Primの親子関係でできた名前の階層です。Pathで表されます。
 
+### Scenegraph Instancing
+
+合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。
+
 ### Schema（スキーマ）
 
 PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。
@@ -224,9 +320,17 @@ PythonからAttributeのValue Typeを指定するための名前の一覧です�
 
 Faceの境目で値が不連続になる場所です。UVを展開したときの切れ目などを指します。
 
+### Shader
+
+見た目の計算を担うPrimです。`inputs:`で始まる入力に実際の値を持ちます。
+
 ### Sparse Authoring（疎な記述）
 
 同じ情報を必要な最小限の場所にだけ書く考え方です。
+
+### Specifier
+
+Prim Specの先頭に置き、そのPrimの扱い方を決める語です。`def`・`over`・`class`の3種類。
 
 ### Stage（ステージ）
 
@@ -280,6 +384,18 @@ UTF-8テキストまたはCrateバイナリを格納できるOpenUSDファイル
 
 ランダムアクセスに対応するバイナリのCrate形式です。
 
+### usdchecker
+
+OpenUSD一般の規則を検査するコマンドです。終了コードで結果が分かります。
+
+### usdrecord
+
+Stageを画像として描き出すコマンドです。
+
+### usdtree
+
+Stageの階層を、Specifierと型名付きのツリーで表示するコマンドです。
+
 ### USDZ
 
 複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージです。
@@ -292,9 +408,17 @@ Unicode文字を表す文字エンコーディングです。USDAは人が読め
 
 Surface上の位置をテクスチャ画像の座標へ対応させる値です。`faceVarying`で持たせることが多い値です。
 
+### Validation（検証）
+
+アセットが規則を守っているかを、実行できる形で確かめることです。
+
 ### Value Type
 
 Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。
+
+### Variant Edit Context
+
+書き込み先を、選択中のVariantの内側へ切り替えるPythonのコンテキストです。
 
 ### varying
 
@@ -307,6 +431,10 @@ Pointごとに一つの値を対応させ、Surface上を線形に補間するPr
 ### vertex
 
 Pointごとに一つの値を対応させ、Surfaceの基底関数で補間するPrimvar Interpolationです。
+
+### Workstream Layer
+
+作業の種類ごとに分けたLayerです。同じPathへ、担当ぶんだけを書きます。
 
 ### XformCommonAPI
 

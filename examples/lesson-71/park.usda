@@ -1,0 +1,59 @@
+#usda 1.0
+(
+    defaultPrim = "Park"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Park" (
+    kind = "assembly"
+)
+{
+    def Scope "Benches"
+    {
+        def "Bench_1" (
+            references = @bench.usda@
+            instanceable = true
+        )
+        {
+            double3 xformOp:translate = (-2.4, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def "Bench_2" (
+            references = @bench.usda@
+            instanceable = true
+        )
+        {
+            double3 xformOp:translate = (0, 0, -1.4)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def "Bench_3" (
+            references = @bench.usda@
+            instanceable = true
+        )
+        {
+            double3 xformOp:translate = (2.4, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Mesh "Ground"
+    {
+        uniform token subdivisionScheme = "none"
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        point3f[] points = [(-5, 0, 4), (5, 0, 4), (5, 0, -4), (-5, 0, -4)]
+        color3f[] primvars:displayColor = [(0.55, 0.62, 0.5)]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 32
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (0, 2.8, 8.5)
+        float xformOp:rotateX = -14
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+    }
+}

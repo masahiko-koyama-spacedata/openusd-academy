@@ -30,6 +30,7 @@ usdrecord --camera ShotCam --imageWidth 800 -c high \
 - 学習順序は `tools/reorder.py` の `PLAN` を正本とし、カリキュラムと前後ナビを生成する
 - 用語集は `tools/gen_glossary.py` の `TERMS` を正本とし、HTMLとMarkdownを生成する
 - 変更後は `python3 tools/check_site.py` でリンクと必須要素を検査する
+- 学習順序の先取りは `python3 tools/check_order.py` で確認する
 
 複数のPCで編集するときは、[複数PCでのGit運用](CONTRIBUTING.md)に従ってブランチを分け、GitHub経由で変更を引き継ぎます。
 
@@ -53,6 +54,6 @@ usdrecord --camera ShotCam --imageWidth 800 -c high \
 
 ## 現在の状態
 
-全15章・91STEPの計画のうち、61STEPを収録しています。残りは `curriculum.html` に「（予定）」として並べています。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。章ごとに、全体像をまとめた大単元ページを `chapters/` に置いています。
+全15章・91STEPをすべて収録しています。各レッスンのHTMLを正本とし、共通スタイルとテーマ切り替えだけを `assets/` から読み込みます。章ごとに、全体像をまとめた大単元ページを `chapters/` に置いています。
 
 **読者に見せる番号はSTEPだけです。** ファイル名の数字（`24a-constant.html` など）は教材を追加してきた順に付いた識別子で、学習順とは一致しません。ページ本文・見出し・前後リンクのSTEP番号は `tools/reorder.py` が一括で振り直すので、手で書きません。

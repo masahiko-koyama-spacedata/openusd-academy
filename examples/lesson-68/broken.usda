@@ -1,0 +1,49 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def "Good" (
+        references = @part.usda@
+    )
+    {
+        double3 xformOp:translate = (-1.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "MissingFile" (
+        references = @missing-part.usda@
+    )
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def "WrongPath" (
+        references = @part.usda@</Prt>
+    )
+    {
+        double3 xformOp:translate = (1.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Scope "Selection"
+    {
+        custom rel members = [
+            </World/Good>,
+            </World/Nowhere>,
+        ]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (0, 0, 11)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

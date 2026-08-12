@@ -1,0 +1,31 @@
+#usda 1.0
+(
+    defaultPrim = "Bench"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+over "Bench"
+{
+    over "Seat"
+    {
+        color3f[] primvars:displayColor = [(0.72, 0.52, 0.3)] (
+            interpolation = "constant"
+        )
+    }
+
+    over "Leg_1"
+    {
+        color3f[] primvars:displayColor = [(0.3, 0.32, 0.35)] (
+            interpolation = "constant"
+        )
+    }
+
+    over "Leg_2"
+    {
+        color3f[] primvars:displayColor = [(0.3, 0.32, 0.35)] (
+            interpolation = "constant"
+        )
+    }
+}
+

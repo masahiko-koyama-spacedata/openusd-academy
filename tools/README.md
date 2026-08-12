@@ -32,3 +32,16 @@ python3 tools/check_site.py
 ```bash
 python3 tools/gen_glossary.py
 ```
+
+## check_order.py
+
+学習順序の検査です。「まだ習っていないことに依存していないか」を2つの観点で検出します。
+
+- 前方参照リンク: STEP N のページから STEP M（M > N）へのリンク
+- 用語の先取り: STEP N の本文が、STEP M（M > N）の用語集で初出とされる語を使用
+
+どちらも一律に禁止ではありません（次の回への案内は妥当）。一覧で出すので、人が見て判断します。
+
+```bash
+python3 tools/check_order.py
+```
