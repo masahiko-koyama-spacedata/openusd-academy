@@ -422,7 +422,10 @@ def rewrite_navs():
         else:
             parts.append('<a href="../curriculum.html">全カリキュラムへ →</a>')
         nav = '<nav class="lesson-footer-nav">%s</nav>' % "".join(parts)
-        new = re.sub(r'<nav class="lesson-footer-nav">.*?</nav>', nav, text, flags=re.S)
+        # 古いテンプレートは <nav class="lesson-footer-nav" aria-label="..."> と
+        # 属性が付いている。属性を許さない正規表現だと20ページが書き換え対象から
+        # 漏れ、前後リンクが古い順序のまま公開されていた。
+        new = re.sub(r'<nav class="lesson-footer-nav"[^>]*>.*?</nav>', nav, text, flags=re.S)
         if new != text:
             open(path, "w", encoding="utf-8").write(new)
             changed += 1
@@ -581,6 +584,14 @@ def normalize_labels():
             path = os.path.join(folder, name)
             text = original = open(path, encoding="utf-8").read()
 
+            # フッターナビは rewrite_navs() が丸ごと書き直す。ここで触ると
+            # "← STEP 14" の矢印を残したまま前置してしまい、
+            # "STEP 72 ← STEP 66" のような表示になる。除外して往復を断つ。
+            nav_m = re.search(r'<nav class="lesson-footer-nav"[^>]*>.*?</nav>', text, flags=re.S)
+            nav_src = nav_m.group(0) if nav_m else None
+            if nav_src:
+                text = text.replace(nav_src, "\x00NAV\x00")
+
             # 1. links to other lessons -> STEP derived from the href
             def relabel(m):
                 href, inner = m.group(1), m.group(2)
@@ -616,6 +627,8 @@ def normalize_labels():
                 if label in text:
                     text = text.replace(label, "STEP %02d" % label_step[label])
 
+            if nav_src:
+                text = text.replace("\x00NAV\x00", nav_src)
             if text != original:
                 open(path, "w", encoding="utf-8").write(text)
                 changed += 1
