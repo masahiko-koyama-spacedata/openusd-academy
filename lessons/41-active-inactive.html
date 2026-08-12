@@ -55,7 +55,7 @@ print(hidden.IsDefined())   # True   … 定義はされている
 print(bool(hidden))         # True   … Primオブジェクトとしては有効
 
 hidden.SetActive(True)      # 元に戻せる
-print(hidden.IsActive())    # True</code></pre></div><p><code>IsDefined()</code>は<code>True</code>のままです。Inactiveは「定義されていない」のではなく「構成から外されている」状態だからです。<a href="27b-over.html">STEP 35</a>で見た<code>over</code>による未定義とは、外れる理由が違います。</p></section>
+print(hidden.IsActive())    # True</code></pre></div><p><code>IsDefined()</code>は<code>True</code>のままです。Inactiveは「定義されていない」のではなく「構成から外されている」状態だからです。<a href="27b-over.html">STEP 31</a>で見た<code>over</code>による未定義とは、外れる理由が違います。</p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>3つの「見えない」を区別する</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">削除</span><strong>記述そのものが無い — 戻せない</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">visibility = invisible</span><strong>Stageには居るが描画されない — Primは走査に現れる</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">active = false</span><strong>子孫ごと構成から外れる — 既定の走査に現れない</strong></div><figcaption>OpenUSD Academyによる、見えなくする3つの方法の図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>SetActiveで切り替える</h2><div class="code-card python-card"><div class="code-title"><span>toggle_active.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
 

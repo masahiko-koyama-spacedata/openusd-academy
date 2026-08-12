@@ -14,86 +14,86 @@
 - **STEP 04:** [USDAの基本構文](lessons/07-usda-syntax.html) — 型・名前・波括弧・Propertyを読む
 - **STEP 05:** [USDA・USDC・USD・USDZ](lessons/06-usd-file-formats.html) — 中身と用途でファイル形式を選ぶ
 
-## [2. ファイル先頭の約束事](chapters/02-stage-metadata.html)
-
-すべての例に出てくるファイル先頭のMetadataを、ここで先に理解しておきます。
-
-- **STEP 06:** [Default Prim](lessons/09a-default-prim.html) — Layerを外から利用するときの入口を決める
-- **STEP 07:** [metersPerUnit](lessons/20a-meters-per-unit.html) — 長さの「1」が何メートルかを宣言する
-- **STEP 08:** [upAxis](lessons/20b-up-axis.html) — どの軸が上かを宣言する
-- **STEP 09:** [kilogramsPerUnit](lessons/20c-kilograms-per-unit.html) — 質量の「1」が何キログラムかを宣言する
-
-## [3. Propertyを読み書きする](chapters/03-properties.html)
+## [2. Propertyを読み書きする](chapters/02-properties.html)
 
 Primが持つ情報の中身に入ります。値の型と、対象の指し方を押さえます。
 
-- **STEP 10:** [AttributeとRelationship](lessons/04-attributes-relationships.html) — 値とつながりを読み分ける
-- **STEP 11:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、arrayとrole
-- **STEP 12:** [Prim PathとProperty Path](lessons/05-prim-property-paths.html) — Stage内の対象を正確に指す
-- **STEP 13:** [Relationship Target](lessons/25-relationship-target.html) — 一つと複数の対象を同じ仕組みで書く
-- **STEP 14:** [Custom Properties](lessons/26-custom-properties.html) — Schema外の情報を追加する
+- **STEP 06:** [AttributeとRelationship](lessons/04-attributes-relationships.html) — 値とつながりを読み分ける
+- **STEP 07:** [AttributeのValue Type](lessons/22-value-types.html) — scalar、vector、matrix、arrayとrole
+- **STEP 08:** [Prim PathとProperty Path](lessons/05-prim-property-paths.html) — Stage内の対象を正確に指す
+- **STEP 09:** [Relationship Target](lessons/25-relationship-target.html) — 一つと複数の対象を同じ仕組みで書く
+- **STEP 10:** [Custom Properties](lessons/26-custom-properties.html) — Schema外の情報を追加する
 
-## [4. Pythonから触る](chapters/04-python.html)
+## [3. Pythonから触る](chapters/03-python.html)
 
 ここで初めてコードを書きます。USDAで読めるようになった構造を、そのままAPIで作ります。
 
-- **STEP 15:** [Pythonとpxrモジュール](lessons/08-python-pxr-modules.html) — Usd・Sdf・Gf・UsdGeomを使い分ける
-- **STEP 16:** [MetadataとSchema](lessons/09-metadata-schemas.html) — 補助情報とデータの設計図を分ける
+- **STEP 11:** [Pythonとpxrモジュール](lessons/08-python-pxr-modules.html) — Usd・Sdf・Gf・UsdGeomを使い分ける
+- **STEP 12:** [MetadataとSchema](lessons/09-metadata-schemas.html) — 補助情報とデータの設計図を分ける
 
-## [5. 形を置いて動かす](chapters/05-transforms.html)
+## [4. 形を置いて動かす](chapters/04-transforms.html)
 
 階層と変換です。ここまでで、自分でシーンを組み立てられるようになります。
 
-- **STEP 17:** [Scope](lessons/15-scope.html) — 変換を持たず、Primを用途ごとに整理する
-- **STEP 18:** [Xformと階層](lessons/10-xform-hierarchy.html) — 親の変換が子へ届く仕組みを知る
-- **STEP 19:** [XformCommonAPI](lessons/16-xform-common-api.html) — 一般的な変換を交換しやすい構成で扱う
-- **STEP 20:** [Translate](lessons/17a-translate.html) — 位置を三つの軸で記述する
-- **STEP 21:** [Rotate](lessons/17b-rotate.html) — 回転角とRotation Orderを読む
-- **STEP 22:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
-- **STEP 23:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
-- **STEP 24:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
+- **STEP 13:** [Scope](lessons/15-scope.html) — 変換を持たず、Primを用途ごとに整理する
+- **STEP 14:** [Xformと階層](lessons/10-xform-hierarchy.html) — 親の変換が子へ届く仕組みを知る
+- **STEP 15:** [XformCommonAPI](lessons/16-xform-common-api.html) — 一般的な変換を交換しやすい構成で扱う
+- **STEP 16:** [Translate](lessons/17a-translate.html) — 位置を三つの軸で記述する
+- **STEP 17:** [Rotate](lessons/17b-rotate.html) — 回転角とRotation Orderを読む
+- **STEP 18:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
+- **STEP 19:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
+- **STEP 20:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
 
-## [6. 形の上へ値を配る](chapters/06-primvars.html)
+## [5. 形の上へ値を配る](chapters/05-primvars.html)
 
 Primvarの回です。値の個数の数え方が中心で、5つのInterpolationを一つずつ確かめます。
 
-- **STEP 25:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
-- **STEP 26:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
-- **STEP 27:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
-- **STEP 28:** [vertex interpolation](lessons/24c-vertex.html) — Pointごとに一つの値
-- **STEP 29:** [varying interpolation](lessons/24d-varying.html) — Pointごとの値を線形補間する
-- **STEP 30:** [faceVarying interpolation](lessons/24e-face-varying.html) — Face Vertexごとに一つの値
-- **STEP 31:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
-- **STEP 32:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
+- **STEP 21:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
+- **STEP 22:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
+- **STEP 23:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
+- **STEP 24:** [vertex interpolation](lessons/24c-vertex.html) — Pointごとに一つの値
+- **STEP 25:** [varying interpolation](lessons/24d-varying.html) — Pointごとの値を線形補間する
+- **STEP 26:** [faceVarying interpolation](lessons/24e-face-varying.html) — Face Vertexごとに一つの値
+- **STEP 27:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
+- **STEP 28:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
 
-## [7. 時間を記述する](chapters/07-time.html)
+## [6. 時間を記述する](chapters/06-time.html)
 
 値が時間で変わる書き方です。Compositionへ進む前に済ませておきます。
 
-- **STEP 33:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
+- **STEP 29:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
 
-## [8. Prim Specの3つの書き方](chapters/08-specifiers.html)
+## [7. Prim Specの3つの書き方](chapters/07-specifiers.html)
 
 Compositionの前に、def・over・classの違いをここで確実にします。これがないと合成の説明が読めません。
 
-- **STEP 34:** [def](lessons/27a-def.html) — Primを定義する
-- **STEP 35:** [over](lessons/27b-over.html) — 既存PrimへOpinionだけを重ねる
-- **STEP 36:** [class](lessons/27c-class.html) — Inherits用の抽象Prim Specを作る
+- **STEP 30:** [def](lessons/27a-def.html) — Primを定義する
+- **STEP 31:** [over](lessons/27b-over.html) — 既存PrimへOpinionだけを重ねる
+- **STEP 32:** [class](lessons/27c-class.html) — Inherits用の抽象Prim Specを作る
 
-## [9. コンポジション](chapters/09-composition.html)
+## [8. コンポジション](chapters/08-composition.html)
 
 OpenUSDでいちばん難しい部分です。ここまでの土台があって初めて読み進められます。
 
-- **STEP 37:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、Opinionの上書き
-- **STEP 38:** [SublayerとLayer Stack](lessons/12-sublayers.html) — 同じnamespaceを積み、Local内の強弱を追う
-- **STEP 39:** [L · Local Opinion](lessons/12-local.html) — 利用側の直接Opinionで上書きする
-- **STEP 40:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
-- **STEP 41:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
-- **STEP 42:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
-- **STEP 43:** [R · References](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
-- **STEP 44:** [P · Payloads](lessons/12-payloads.html) — Load可能な内容を合成する
-- **STEP 45:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
-- **STEP 46:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
+- **STEP 33:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、Opinionの上書き
+- **STEP 34:** [SublayerとLayer Stack](lessons/12-sublayers.html) — 同じnamespaceを積み、Local内の強弱を追う
+- **STEP 35:** [L · Local Opinion](lessons/12-local.html) — 利用側の直接Opinionで上書きする
+- **STEP 36:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
+- **STEP 37:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
+- **STEP 38:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
+- **STEP 39:** [R · References](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
+- **STEP 40:** [P · Payloads](lessons/12-payloads.html) — Load可能な内容を合成する
+- **STEP 41:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
+- **STEP 42:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
+
+## [9. ファイル先頭の宣言と入口](chapters/09-stage-metadata.html)
+
+第1章から毎回出てきた「ファイル先頭の丸括弧」を、ここで回収します。単位を直すにはscale、上方向を直すにはrotate、入口を語るにはReferenceが要るので、この位置に置いています。
+
+- **STEP 43:** [Default Prim](lessons/09a-default-prim.html) — Layerを外から利用するときの入口を決める
+- **STEP 44:** [metersPerUnit](lessons/20a-meters-per-unit.html) — 長さの「1」が何メートルかを宣言する
+- **STEP 45:** [upAxis](lessons/20b-up-axis.html) — どの軸が上かを宣言する
+- **STEP 46:** [kilogramsPerUnit](lessons/20c-kilograms-per-unit.html) — 質量の「1」が何キログラムかを宣言する
 
 ## [10. Compositionを組み立てる](chapters/10-composition-practice.html)
 

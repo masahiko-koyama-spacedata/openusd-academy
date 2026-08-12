@@ -50,25 +50,7 @@ PLAN = [
             ("06-usd-file-formats.html", "Lesson 06", "USDA・USDC・USD・USDZ", "中身と用途でファイル形式を選ぶ"),
         ]),
     dict(
-        title="2. ファイル先頭の約束事", slug="02-stage-metadata",
-        lead="すべての例に出てくるファイル先頭のMetadataを、ここで先に理解しておきます。",
-        takeaway="先頭の丸括弧は宣言であって、自動変換はしない",
-        map=row(node("defaultPrim", "外から入る入口"), node("metersPerUnit", "長さの「1」"),
-                node("upAxis", "どの軸が上か"), node("kilogramsPerUnit", "質量の「1」"))
-            + DOWN
-            + row(node("読む側が解釈する", "書いてあることが前提。欠けると usdchecker がエラーにする", "is-goal"))
-            + band("どれも「そう決めた」と書くだけ。実際に合わせるのは読み込む側の仕事です"),
-        outcomes=["ファイル先頭の丸括弧がLayer Metadataの場所だと分かる",
-                  "単位や上方向が食い違うアセットを、scaleやrotateで補正できる",
-                  "usdcheckerがこの3つの欠落を報告する理由を説明できる"],
-        items=[
-            ("09a-default-prim.html", "Lesson 09A", "Default Prim", "Layerを外から利用するときの入口を決める"),
-            ("20a-meters-per-unit.html", "Lesson 20A", "metersPerUnit", "長さの「1」が何メートルかを宣言する"),
-            ("20b-up-axis.html", "Lesson 20B", "upAxis", "どの軸が上かを宣言する"),
-            ("20c-kilograms-per-unit.html", "Lesson 20C", "kilogramsPerUnit", "質量の「1」が何キログラムかを宣言する"),
-        ]),
-    dict(
-        title="3. Propertyを読み書きする", slug="03-properties",
+        title="2. Propertyを読み書きする", slug="02-properties",
         lead="Primが持つ情報の中身に入ります。値の型と、対象の指し方を押さえます。",
         takeaway="Propertyは値を持つAttributeと、対象を指すRelationshipの2種類",
         map=row(node("Property", "Primが持つ情報", "is-base"))
@@ -89,7 +71,7 @@ PLAN = [
             ("26-custom-properties.html", "Lesson 26", "Custom Properties", "Schema外の情報を追加する"),
         ]),
     dict(
-        title="4. Pythonから触る", slug="04-python",
+        title="3. Pythonから触る", slug="03-python",
         lead="ここで初めてコードを書きます。USDAで読めるようになった構造を、そのままAPIで作ります。",
         takeaway="USDAで読めるものは、そのままAPIで書ける",
         map=row(node("Usd", "Stage・Prim・Property"), node("Sdf", "Path・型・Layer"),
@@ -104,7 +86,7 @@ PLAN = [
             ("09-metadata-schemas.html", "Lesson 09", "MetadataとSchema", "補助情報とデータの設計図を分ける"),
         ]),
     dict(
-        title="5. 形を置いて動かす", slug="05-transforms",
+        title="4. 形を置いて動かす", slug="04-transforms",
         lead="階層と変換です。ここまでで、自分でシーンを組み立てられるようになります。",
         takeaway="親の変換は子へ積み重なり、書いた順番で結果が変わる",
         map=row(node("Scope", "変換を持たない整理用"), node("Xform", "変換を持ち、子へ伝える", "is-base"))
@@ -128,7 +110,7 @@ PLAN = [
             ("18-xform-op-order.html", "Lesson 18", "XformOpOrder", "変換順序で結果が変わる理由"),
         ]),
     dict(
-        title="6. 形の上へ値を配る", slug="06-primvars",
+        title="5. 形の上へ値を配る", slug="05-primvars",
         lead="Primvarの回です。値の個数の数え方が中心で、5つのInterpolationを一つずつ確かめます。",
         takeaway="interpolationを決めれば、必要な値の個数が決まる",
         map=row(node("constant", "1個 — Prim全体"), node("uniform", "Face数"),
@@ -150,7 +132,7 @@ PLAN = [
             ("24g-primvar-inheritance.html", "Lesson 24G", "Primvar Inheritance", "constant Primvarを階層へ適用する"),
         ]),
     dict(
-        title="7. 時間を記述する", slug="07-time",
+        title="6. 時間を記述する", slug="06-time",
         lead="値が時間で変わる書き方です。Compositionへ進む前に済ませておきます。",
         takeaway="defaultは時間に依存しない値、Time Sampleは時点ごとの値",
         map=row(node("default", "時間に依存しない一つの値", "is-base"), ARROW,
@@ -163,7 +145,7 @@ PLAN = [
             ("11-time-codes-samples.html", "Lesson 11", "Time CodeとTime Sample", "時点と値で時間変化を記述する"),
         ]),
     dict(
-        title="8. Prim Specの3つの書き方", slug="08-specifiers",
+        title="7. Prim Specの3つの書き方", slug="07-specifiers",
         lead="Compositionの前に、def・over・classの違いをここで確実にします。これがないと合成の説明が読めません。",
         takeaway="描画されない理由は3つあり、それぞれ別の仕組み",
         map=row(node("def", "定義する。Stageに現れる", "is-goal"),
@@ -182,7 +164,7 @@ PLAN = [
             ("27c-class.html", "Lesson 27C", "class", "Inherits用の抽象Prim Specを作る"),
         ]),
     dict(
-        title="9. コンポジション", slug="09-composition",
+        title="8. コンポジション", slug="08-composition",
         lead="OpenUSDでいちばん難しい部分です。ここまでの土台があって初めて読み進められます。",
         takeaway="複数のLayerの意見を、決まった強さの順で一つに畳む",
         map=row(node("L", "Local"), node("I", "Inherits"), node("V", "Variant Sets"),
@@ -206,6 +188,24 @@ PLAN = [
             ("12-payloads.html", "Lesson 12G", "P · Payloads", "Load可能な内容を合成する"),
             ("12-specializes.html", "Lesson 12H", "S · Specializes", "最も弱いfallbackを共有する"),
             ("21-value-resolution.html", "Lesson 21", "Value Resolution", "Composition後のPropertyから最終値を選ぶ"),
+        ]),
+    dict(
+        title="9. ファイル先頭の宣言と入口", slug="09-stage-metadata",
+        lead="第1章から毎回出てきた「ファイル先頭の丸括弧」を、ここで回収します。単位を直すにはscale、上方向を直すにはrotate、入口を語るにはReferenceが要るので、この位置に置いています。",
+        takeaway="先頭の丸括弧は宣言であって、自動変換はしない",
+        map=row(node("defaultPrim", "外から入る入口"), node("metersPerUnit", "長さの「1」"),
+                node("upAxis", "どの軸が上か"), node("kilogramsPerUnit", "質量の「1」"))
+            + DOWN
+            + row(node("読む側が解釈する", "書いてあることが前提。欠けると usdchecker がエラーにする", "is-goal"))
+            + band("どれも「そう決めた」と書くだけ。実際に合わせるのは読み込む側の仕事です"),
+        outcomes=["ファイル先頭の丸括弧がLayer Metadataの場所だと分かる",
+                  "単位や上方向が食い違うアセットを、scaleやrotateで補正できる",
+                  "usdcheckerがこの3つの欠落を報告する理由を説明できる"],
+        items=[
+            ("09a-default-prim.html", "Lesson 09A", "Default Prim", "Layerを外から利用するときの入口を決める"),
+            ("20a-meters-per-unit.html", "Lesson 20A", "metersPerUnit", "長さの「1」が何メートルかを宣言する"),
+            ("20b-up-axis.html", "Lesson 20B", "upAxis", "どの軸が上かを宣言する"),
+            ("20c-kilograms-per-unit.html", "Lesson 20C", "kilogramsPerUnit", "質量の「1」が何キログラムかを宣言する"),
         ]),
     dict(
         title="10. Compositionを組み立てる", slug="10-composition-practice",
