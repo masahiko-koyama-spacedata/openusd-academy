@@ -20,6 +20,10 @@ Stageの既定の走査と描画から外れる状態。`IsAbstract()`が`True`�
 
 PrimをStageの構成に含めるかどうかを決めるPrim Metadata。既定値は`true`。
 
+### Ad Hoc Composition Arc Refinement
+
+Instance PrimへComposition Arcをその場で足して差を付ける方法です。合成結果の種類の数だけPrototypeが増えます。
+
 ### AddInherit
 
 受け取る側にInheritsの対象Pathを追加するPython API。
@@ -460,6 +464,10 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 
 そのAttributeに値が実際に書かれているかを返すPython API。
 
+### Hierarchical Refinement
+
+Instance Primの上へ`xformOp`・`visibility`・`primvars`などを書いて個体差を付ける方法です。Prototypeは増えません。
+
 ### Hierarchy（階層）
 
 親子で構成される入れ子の構造です。
@@ -515,6 +523,10 @@ Shaderなどへ入る値を表すPropertyです。名前が`inputs:`で始まり
 ### Instance
 
 共有するPrototypeをシーン内で繰り返し利用するものです。
+
+### Instance Prim
+
+`instanceable = true`が付いているPrim自身です。Prototypeの外側にあるため、ここへは書き込めます。
 
 ### Instance Proxy
 
@@ -780,6 +792,10 @@ Composition QueryでPayloadのArcを判別するための値。
 
 Meshの頂点の位置です。`points`に並ぶ座標を指します。
 
+### Point Instance
+
+PointInstancerが配列から置く1体です。Primではないので、Pathを持ちません。
+
 ### Point Instancing
 
 配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組みです。
@@ -863,6 +879,10 @@ Prim上のPrimvarを作成・取得するためのAPI Schemaです。
 ### Prim（プリム）
 
 Stageを構成する基本要素。シーングラフ上のノードです。
+
+### Promotion
+
+Point Instanceの1体を隠し、同じ位置に通常のPrimを置き直して個別に編集できるようにすることです。
 
 ### Property Path
 
@@ -1415,6 +1435,10 @@ Pythonで、値を1つずつ返す関数を書くための仕組み。
 ### 受け入れ検査
 
 受け取った側で、渡されたものが約束どおりかを確かめること。
+
+### 受け口のclass
+
+Asset側にあらかじめ置いておく空の`class`です。下流はここへ書くことで、Assetを変更せずに中身へ届かせられます。
 
 ### 型名（typeName）
 

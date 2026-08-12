@@ -354,7 +354,10 @@ PLAN = [
             ("61-scenegraph-instancing.html", "Lesson 61", "Scenegraph Instancing", "CompositionからPrototypeを作る"),
             ("62-nested-instancing.html", "Lesson 62", "Nested Instancing", "Instanceを階層化する"),
             ("63-instance-refinement.html", "Lesson 63", "Instance Refinement", "Instanceごとの差を付ける"),
+            ("38-hierarchical-refinement.html", "Lesson 38", "Hierarchical RefinementとAd Hoc Arc", "Prototypeを増やす書き方と増やさない書き方"),
+            ("39-broadcasted-refinement.html", "Lesson 39", "Broadcasted Refinement", "下流の1か所で対象の全Instanceを変える"),
             ("64-point-instancing.html", "Lesson 64", "Point Instancing", "大量の単純要素を配置する"),
+            ("40-point-instance-refinement.html", "Lesson 40", "Point Instanceに差を付ける", "Primvar・Prototype追加・Promotion"),
             ("65-instancing-choice.html", "Lesson 65", "ScenegraphとPointの選択", "用途と制約を比較する"),
         ]),
     dict(

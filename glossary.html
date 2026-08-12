@@ -15,6 +15,7 @@
       <dt>abstract Schema</dt><dd>型としては書けず、共通の性質をまとめるためのTyped Schema。ImageableやXformableなど。</dd>
       <dt>abstract（抽象）</dt><dd>Stageの既定の走査と描画から外れる状態。<code>IsAbstract()</code>が<code>True</code>を返す。</dd>
       <dt>active</dt><dd>PrimをStageの構成に含めるかどうかを決めるPrim Metadata。既定値は<code>true</code>。</dd>
+      <dt>Ad Hoc Composition Arc Refinement</dt><dd>Instance PrimへComposition Arcをその場で足して差を付ける方法です。合成結果の種類の数だけPrototypeが増えます。</dd>
       <dt>AddInherit</dt><dd>受け取る側にInheritsの対象Pathを追加するPython API。</dd>
       <dt>AddInternalReference</dt><dd>Internal ReferenceをPythonから追加するAPI。</dd>
       <dt>AddTarget</dt><dd>既存のTarget Listへ、Target Pathを一つ追加するPython API。</dd>
@@ -125,6 +126,7 @@
       <dt>HasAPI</dt><dd>そのPrimに指定のAPI Schemaが付いているかを返すPython API。</dd>
       <dt>HasAuthoredReferences</dt><dd>そのPrimにReferenceが記述されているかを返すPython API。</dd>
       <dt>HasAuthoredValue</dt><dd>そのAttributeに値が実際に書かれているかを返すPython API。</dd>
+      <dt>Hierarchical Refinement</dt><dd>Instance Primの上へ<code>xformOp</code>・<code>visibility</code>・<code>primvars</code>などを書いて個体差を付ける方法です。Prototypeは増えません。</dd>
       <dt>Hierarchy（階層）</dt><dd>親子で構成される入れ子の構造です。</dd>
       <dt>Hydra</dt><dd>Stageの内容を受け取り、実際に描く仕組みへ渡す層です。</dd>
       <dt>identifier（Layer）</dt><dd>そのLayerを一意に示す文字列。多くはファイルのPath。</dd>
@@ -139,6 +141,7 @@
       <dt>Inherits</dt><dd>別のPrimの意見を受け取るComposition Arc。<code>class</code>と組み合わせて使うことが多い。</dd>
       <dt>Input（inputs:）</dt><dd>Shaderなどへ入る値を表すPropertyです。名前が<code>inputs:</code>で始まります。</dd>
       <dt>Instance</dt><dd>共有するPrototypeをシーン内で繰り返し利用するものです。</dd>
+      <dt>Instance Prim</dt><dd><code>instanceable = true</code>が付いているPrim自身です。Prototypeの外側にあるため、ここへは書き込めます。</dd>
       <dt>Instance Proxy</dt><dd>Instanceの内側のPrimを読むための、書き込みできないPrimです。</dd>
       <dt>Instance Refinement</dt><dd>Instanceに対して個体差や変更を加えるための手法全体を指します。共有を保ったまま差を付けるやり方（Hierarchical Refinement、Broadcasted Refinement、Variant、ID操作）だけでなく、共有をやめるDe-instancingも含みます。</dd>
       <dt>instanceable</dt><dd>そのPrimをInstanceにするかを決めるPrim Metadataです。</dd>
@@ -205,6 +208,7 @@
       <dt>Pcp.ArcTypePayload</dt><dd>Composition QueryでPayloadのArcを判別するための値。</dd>
       <dt>Pivot</dt><dd>回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。</dd>
       <dt>Point</dt><dd>Meshの頂点の位置です。<code>points</code>に並ぶ座標を指します。</dd>
+      <dt>Point Instance</dt><dd>PointInstancerが配列から置く1体です。Primではないので、Pathを持ちません。</dd>
       <dt>Point Instancing</dt><dd>配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組みです。</dd>
       <dt>PointInstancer</dt><dd>Point Instancingを担うPrim型。</dd>
       <dt>points</dt><dd>頂点の座標を並べたAttributeです。型は<code>point3f[]</code>で、並べた順がPoint番号になります。</dd>
@@ -226,6 +230,7 @@
       <dt>Primvar Inheritance</dt><dd><code>constant</code>のPrimvarがScene Namespaceを下って子のImageable Primへ適用される仕組みです。</dd>
       <dt>PrimvarsAPI</dt><dd>Prim上のPrimvarを作成・取得するためのAPI Schemaです。</dd>
       <dt>Prim（プリム）</dt><dd>Stageを構成する基本要素。シーングラフ上のノードです。</dd>
+      <dt>Promotion</dt><dd>Point Instanceの1体を隠し、同じ位置に通常のPrimを置き直して個別に編集できるようにすることです。</dd>
       <dt>Property Path</dt><dd>Prim Pathの後ろに <code>.</code> とProperty名を続けたPathです。</dd>
       <dt>Property Stack</dt><dd>あるPropertyへ値を主張しているSpecを、強い順に並べたリストです。</dd>
       <dt>Property（プロパティ）</dt><dd>Primが持つ情報。AttributeとRelationshipの2種類があります。</dd>
@@ -364,6 +369,7 @@
       <dt>再利用の単位</dt><dd>差し替え・共有・Loadの制御が効く最小のまとまり。</dd>
       <dt>単位の変換</dt><dd>入力の数値を、出力の<code>metersPerUnit</code>に合う値へ直すこと。</dd>
       <dt>受け入れ検査</dt><dd>受け取った側で、渡されたものが約束どおりかを確かめること。</dd>
+      <dt>受け口のclass</dt><dd>Asset側にあらかじめ置いておく空の<code>class</code>です。下流はここへ書くことで、Assetを変更せずに中身へ届かせられます。</dd>
       <dt>型名（typeName）</dt><dd>Specifierの後ろに書く、そのPrimのSchemaを示す名前。省略できる。</dd>
       <dt>基底関数（basis function）</dt><dd>Surface上の位置から値を求めるための重み付けの規則です。</dd>
       <dt>寄与する（contribute）</dt><dd>あるLayerの記述が、合成結果に関わっていること。</dd>

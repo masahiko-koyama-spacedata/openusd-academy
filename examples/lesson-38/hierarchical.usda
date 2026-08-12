@@ -1,0 +1,62 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    # 3体とも中身は同じ chair.usda。違うのは instance prim の「外側」に書いた値だけ
+    def Xform "A" (
+        instanceable = true
+        prepend references = @./chair.usda@
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2)] (
+            interpolation = "constant"
+        )
+        double3 xformOp:translate = (-1.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Xform "B" (
+        instanceable = true
+        prepend references = @./chair.usda@
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.6, 0.3)] (
+            interpolation = "constant"
+        )
+        double3 xformOp:translate = (0, 0, 0)
+        double3 xformOp:scale = (1.35, 1.35, 1.35)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Xform "C" (
+        instanceable = true
+        prepend references = @./chair.usda@
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.4, 0.9)] (
+            interpolation = "constant"
+        )
+        double3 xformOp:translate = (1.6, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def DistantLight "Key"
+    {
+        float inputs:intensity = 18000
+        float3 xformOp:rotateXYZ = (-35, 20, 0)
+        uniform token[] xformOpOrder = ["xformOp:rotateXYZ"]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 35
+        float2 clippingRange = (0.1, 200)
+        double3 xformOp:translate = (0, -0.4, 9)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

@@ -1,0 +1,50 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 92: Point Instanceに差を付ける — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 92 · POINT INSTANCE REFINEMENT</p><h1>Point Instanceに<span>差を付ける</span></h1><p class="lesson-lead">Primが無くても、配列とidで個体を扱えます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Point Instanceの個体差は配列で配る Prototypeを増やすか 1体だけPrimへ引き上げるかを目的で選ぶ</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Pathが無いので、over では触れない</h2><p><a href="64-point-instancing.html">STEP 91</a>で見たとおり、PointInstancerが置いた1体1体はPrimではありません。Pathを持たないので、<code>over</code>で名指しできず、<a href="38-hierarchical-refinement.html">STEP 89</a>のHierarchical Refinementも使えません。</p><p>代わりに、PointInstancer自身が持つ<strong>配列</strong>が個体差の受け皿になります。<code>positions</code>が1体ごとの位置であるのと同じ考え方で、色や大きさも配列で1体ずつ与えます。手段は3つあります。</p><p>1つ目は<strong>Primvarを配る</strong>方法です。2つ目は<strong>Prototypeを増やして<code>protoIndices</code>で振り分ける</strong>方法。3つ目が<strong>Promotion</strong>で、特定の1体だけを通常のPrimへ引き上げます。</p></section>
+<section class="lesson-section"><p class="section-kicker">1. Primvarを配る</p><h2>interpolationはvaryingで、値は1体につき1個</h2><p>PointInstancerへPrimvarを書くとき、1体ごとに値を変えたいなら<code>interpolation</code>に<strong><code>varying</code></strong>（または<code>vertex</code>）を指定します。<a href="24d-varying.html">STEP 28</a>で見たMeshのvaryingが「Pointごとに1個」だったのと同じで、PointInstancerでは<strong>インスタンス1体につき1個</strong>になります。値の個数は<code>positions</code>の要素数と一致させます。</p><div class="code-card usda-card"><div class="code-title"><span>point-refine.usda（抜粋）</span><span>USDA</span></div><pre><code>def PointInstancer "Scatter"
+{
+    rel prototypes = [
+        &lt;/World/Scatter/Prototypes/Ball&gt;,
+        &lt;/World/Scatter/Prototypes/Box&gt;,
+    ]
+    int[] protoIndices = [0, 1, 0, 1, 0, 1]
+    int64[] ids = [0, 1, 2, 3, 4, 5]
+    point3f[] positions = [
+        (-2.5, 0, 0), (-1.5, 0, 0), (-0.5, 0, 0),
+        (0.5, 0, 0), (1.5, 0, 0), (2.5, 0, 0),
+    ]
+
+    # 1体につき1個。Point Instance へ値を配るときは varying を使う
+    color3f[] primvars:displayColor = [
+        (0.85, 0.25, 0.2), (0.75, 0.45, 0.15), (0.55, 0.6, 0.2),
+        (0.25, 0.6, 0.4), (0.2, 0.5, 0.75), (0.35, 0.3, 0.8),
+    ] (
+        interpolation = "varying"
+    )
+}</code></pre></div><p class="example-link"><a href="../examples/lesson-40/point-refine.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">2. Prototypeを増やす</p><h2>protoIndicesが、どの体がどのPrototypeを使うかを決める</h2><p><code>prototypes</code>はRelationshipで、対象を複数持てます。2つ目・3つ目のPrototypeを足し、<code>protoIndices</code>でどの体がどれを使うかを番号で指定します。上の例では<code>[0, 1, 0, 1, 0, 1]</code>なので、球と立方体が交互に並びます。</p><p>Scenegraph Instancingと違い、<strong>Prototypeを増やしても構造は重くなりません</strong>。増えるのは配列の中の番号だけだからです。種類の作り分けは、Point Instancingでは素直な手段になります。</p><figure class="render-result"><img src="../assets/images/lesson-40/point-refine.png" alt="球と立方体が交互に6個並び、左から右へ赤・橙・黄緑・緑・青・紫と1体ずつ色が変わっている描画結果" width="800" height="583"><figcaption>形は<code>protoIndices</code>で交互に、色は<code>varying</code>のPrimvarで1体ずつ変えています。Primは<code>Scatter</code>と2つのPrototypeだけです。<br><small>撮影: <code>examples/lesson-40/point-refine.usda</code> / ソースからビルドしたOpenUSD v26.08の<code>usdrecord --disableCameraLight</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">3. Promotion</p><h2>1体だけを通常のPrimへ引き上げる</h2><p>「この1本の木だけ枝を折りたい」のように、配列では表せない編集をしたいことがあります。そのときは<strong>Promotion</strong>を使います。対象の1体をPointInstancerから隠し、同じ位置に通常のPrimを置き直します。</p><p>隠すには<code>invisibleIds</code>を使います。<a href="63-instance-refinement.html">STEP 88</a>で見たとおり、<code>ids</code>で振った番号を指定すると、その体だけが描かれなくなります。配列から要素を削除するのではない点が大事で、<strong>削除しないので他の体の番号がずれません</strong>。</p><div class="code-card python-card"><div class="code-title"><span>promote.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom, Vt
+
+instancer = UsdGeom.PointInstancer.Get(stage, "/World/Scatter")
+positions = instancer.GetPositionsAttr().Get()
+
+# id 2 の体を隠す
+instancer.CreateInvisibleIdsAttr(Vt.Int64Array([2]))
+print("invisibleIds:", list(instancer.GetInvisibleIdsAttr().Get()))
+print("ComputeMask :", list(instancer.ComputeMaskAtTime(Usd.TimeCode.Default())))
+
+# 同じ位置に、通常のPrimとして置き直す
+promoted = UsdGeom.Xform.Define(stage, "/World/Promoted")
+promoted.GetPrim().GetReferences().AddInternalReference(
+    "/World/Scatter/Prototypes/Ball")
+promoted.AddTranslateOp().Set(Gf.Vec3d(*positions[2]))
+print("引き上げ先  :", promoted.GetPrim().GetPath())</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>invisibleIds: [2]
+ComputeMask : [True, True, False, True, True, True]
+引き上げ先  : /World/Promoted</code></pre></div><p><code>ComputeMaskAtTime</code>の3番目だけが<code>False</code>になりました。これが「id 2 は描かない」という意味です。そして<code>/World/Promoted</code>は普通のPrimなので、<code>over</code>でも変換でもMaterial Bindingでも、何でも書けます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Promotionは軽さと引き換えの手段です。引き上げた体は共有の外に出るため、数が増えるほど効果が薄れます。数十体まで、あるいは「主役だけ」といった使い方に留めるのが現実的です。まずPrimvarで足りないか、次にPrototypeを増やして足りないかを確かめ、それでも駄目なときにPromotionへ進みます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Point Instanceへの3つの手段</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Primvarを配る</b><span><code>interpolation = "varying"</code>で1体につき1個。色・大きさなど。いちばん軽い</span></div></div><div class="map-note" aria-hidden="true">↓ 形そのものを変えたい</div><div class="map-row"><div class="map-node"><b>Prototypeを増やす</b><span><code>prototypes</code>に足し、<code>protoIndices</code>で振り分ける。数が増えても構造は重くならない</span></div></div><div class="map-note" aria-hidden="true">↓ 1体だけ特別に編集したい</div><div class="map-row"><div class="map-node is-goal"><b>Promotion</b><span><code>invisibleIds</code>で隠し、同じ位置へ通常のPrimを置く。自由に編集できるが共有から外れる</span></div></div><div class="map-band">Scenegraph Instancingと違い、Prototypeを増やすことのコストが小さいのが特徴です</div><figcaption>OpenUSD Academyによる、Point Instanceに差を付ける3つの手段の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>配列の対応がずれる</h2><div class="mistake-list"><article><h3>Primvarの個数がpositionsと合わない</h3><p><code>varying</code>なら、値の個数は<code>positions</code>の要素数と同じでなければなりません。1個でも足りないと、色が付かないか、意図しない体に付きます。</p></article><article><h3>constantを指定して1体ずつ変えようとする</h3><p><code>constant</code>はPointInstancer全体で1個です。1体ずつ変えたいなら<code>varying</code>（または<code>vertex</code>）です。</p></article><article><h3>配列から要素を削除して1体を消す</h3><p><code>positions</code>や<code>protoIndices</code>から要素を消すと、それ以降の体のindexがすべてずれます。他の配列との対応も崩れます。消したいときは<code>invisibleIds</code>を使います。</p></article><article><h3>idsを振らずにinvisibleIdsを使う</h3><p><code>ids</code>を書いていない場合、番号は配列のindexとして扱われます。要素を足し引きすると意味が変わってしまうため、個体を名指ししたいなら<code>ids</code>を明示します。</p></article><article><h3>Promotionした体を隠し忘れる</h3><p><code>invisibleIds</code>を書かずに通常のPrimを置くと、同じ場所に2つ重なります。見た目ではほとんど分からないので、気付きにくい間違いです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Point Instance</dt><dd>PointInstancerが配列から置く1体。Primではないので、Pathを持たない。</dd></div><div><dt>protoIndices</dt><dd>1体ごとに、<code>prototypes</code>のどれを使うかを番号で並べた配列。</dd></div><div><dt>prototypes（Relationship）</dt><dd>PointInstancerが使う元の形を指すRelationship。複数持てる。</dd></div><div><dt>ids</dt><dd>1体ごとに振る識別番号。配列の増減があっても個体を名指しできる。</dd></div><div><dt>invisibleIds</dt><dd>描画しない体を<code>ids</code>で指定する配列。配列から要素を削除せずに隠せる。</dd></div><div><dt>ComputeMaskAtTime</dt><dd>どの体が描かれるかを<code>True</code>／<code>False</code>の並びで返すPython API。</dd></div><div><dt>Promotion</dt><dd>Point Instanceの1体を隠し、同じ位置に通常のPrimを置き直して個別に編集できるようにすること。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/asset-modularity-instancing/refining-point-instances.html">NVIDIA Learn OpenUSD — Refining Point Instances</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_point_instancer.html">OpenUSD — UsdGeomPointInstancer API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="64-point-instancing.html">← STEP 91</a><a class="nav-chapter" href="../chapters/15-instancing.html">15. Instancingと大規模シーン</a><a href="65-instancing-choice.html">STEP 93 →</a></nav></main><footer><p>OpenUSD Academy · STEP 92</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

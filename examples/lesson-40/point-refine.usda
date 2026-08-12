@@ -1,0 +1,61 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def PointInstancer "Scatter"
+    {
+        # 2種類のPrototype。protoIndices で1体ずつどちらを使うか決める
+        rel prototypes = [
+            </World/Scatter/Prototypes/Ball>,
+            </World/Scatter/Prototypes/Box>,
+        ]
+        int[] protoIndices = [0, 1, 0, 1, 0, 1]
+        int64[] ids = [0, 1, 2, 3, 4, 5]
+        point3f[] positions = [
+            (-2.5, 0, 0), (-1.5, 0, 0), (-0.5, 0, 0),
+            (0.5, 0, 0), (1.5, 0, 0), (2.5, 0, 0),
+        ]
+
+        # 1体につき1個。Point Instance へ値を配るときは varying を使う
+        color3f[] primvars:displayColor = [
+            (0.85, 0.25, 0.2), (0.75, 0.45, 0.15), (0.55, 0.6, 0.2),
+            (0.25, 0.6, 0.4), (0.2, 0.5, 0.75), (0.35, 0.3, 0.8),
+        ] (
+            interpolation = "varying"
+        )
+
+        def Scope "Prototypes"
+        {
+            def Sphere "Ball"
+            {
+                double radius = 0.35
+            }
+
+            def Cube "Box"
+            {
+                double size = 0.6
+            }
+        }
+    }
+
+    def DistantLight "Key"
+    {
+        float inputs:intensity = 18000
+        float3 xformOp:rotateXYZ = (-35, 20, 0)
+        uniform token[] xformOpOrder = ["xformOp:rotateXYZ"]
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 35
+        float2 clippingRange = (0.1, 200)
+        double3 xformOp:translate = (0, 0.3, 11)
+        float3 xformOp:rotateXYZ = (-4, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+    }
+}

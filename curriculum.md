@@ -166,19 +166,22 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 86:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
 - **STEP 87:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
 - **STEP 88:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
-- **STEP 89:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
-- **STEP 90:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
+- **STEP 89:** [Hierarchical RefinementとAd Hoc Arc](lessons/38-hierarchical-refinement.html) — Prototypeを増やす書き方と増やさない書き方
+- **STEP 90:** [Broadcasted Refinement](lessons/39-broadcasted-refinement.html) — 下流の1か所で対象の全Instanceを変える
+- **STEP 91:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
+- **STEP 92:** [Point Instanceに差を付ける](lessons/40-point-instance-refinement.html) — Primvar・Prototype追加・Promotion
+- **STEP 93:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
 
 ## [16. 調査・検証・総復習](chapters/16-debugging.html)
 
 最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 91:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
-- **STEP 92:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
-- **STEP 93:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
-- **STEP 94:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
-- **STEP 95:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
-- **STEP 96:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
-- **STEP 97:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
+- **STEP 94:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
+- **STEP 95:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
+- **STEP 96:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
+- **STEP 97:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
+- **STEP 98:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
+- **STEP 99:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
+- **STEP 100:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
 
 > **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。

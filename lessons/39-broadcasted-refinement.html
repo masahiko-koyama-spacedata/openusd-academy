@@ -1,0 +1,63 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 90: Broadcasted Refinement — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 90 · BROADCASTED REFINEMENT</p><h1>Broadcasted<span> Refinement</span></h1><p class="lesson-lead">下流の1か所を書き換えて、対象の全部へ一度に届かせます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Inheritsの受け口に下流からOpinionを足せば Assetを書き換えずに対象の全Instanceへ一度に届く</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Assetを書き換えずに、共有先を一括で変える</h2><p>ここまでは「1体ずつ差を付ける」話でした。<strong>Broadcasted Refinement</strong>は逆で、共有している一群へ<strong>同じ変更を一度に配る</strong>やり方です。broadcastは放送という意味で、1か所へ書いた内容が対象全体へ届くことを指しています。</p><p>素直に考えると、共有元のAssetファイルを直せば全部変わります。しかしそれは<strong>やってはいけない直し方</strong>です。そのAssetは他のシーンからも参照されているので、無関係な場所まで巻き込みます。Assetは上流の資産で、下流のシーンから書き換えるものではありません。</p><p>正しいやり方は、<a href="12-inherits.html">STEP 42</a>のInheritsを<strong>受け口</strong>として使うことです。Asset側にはあらかじめ空の<code>class</code>を置き、そこからInheritsしておきます。下流のシーンは、Assetファイルには一切触れず、自分のLayerでその<code>class</code>へOpinionを書きます。Inheritsを経由して、参照している全Instanceへ届きます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>なぜInheritsなのかというと、Inheritsは<a href="21-value-resolution.html">STEP 48</a>のLIVERPSでReferenceより<strong>強い</strong>位置にいるからです。Referenceで持ち込んだ中身に対して、Inheritsで上書きが効きます。Specializesでも同じ形が作れますが、こちらはReferenceより弱いため、「既定値として下敷きに置く」用途になります。<strong>上書きしたいならInherits、下敷きにしたいならSpecializes</strong>と覚えます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>Asset側は受け口を置いておくだけ</h2><div class="code-card usda-card"><div class="code-title"><span>chair.usda — 上流のAsset</span><span>USDA</span></div><pre><code>class Xform "_Style"
+{
+}
+
+class Xform "_Worn"
+{
+}
+
+def Xform "Chair" (
+    inherits = &lt;/_Style&gt;
+)
+{
+    def Sphere "Seat" { double radius = 0.5 }
+}</code></pre></div><p><code>class</code>は<a href="27c-class.html">STEP 38</a>で見たとおり、それ自体は描画されない、上書き用の型です。中身は空で構いません。ここで大事なのは<strong>受け口を最初から用意しておくこと</strong>で、これはAssetを設計する時点での判断になります。用意していないAssetに後から差し込むことはできません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>下流のLayerからclassへ1か所書く</h2><div class="code-card python-card"><div class="code-title"><span>broadcast.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.Open("scene.usda")   # 下流のシーン
+print("初期:", [str(p.GetPath()) for p in stage.GetPrototypes()])
+
+# chair.usda には触らない。下流のLayerで class へ Opinion を足す
+over = stage.OverridePrim("/_Style/Seat")
+UsdGeom.PrimvarsAPI(over).CreatePrimvar(
+    "displayColor", Sdf.ValueTypeNames.Color3fArray,
+    UsdGeom.Tokens.constant).Set([Gf.Vec3f(0.9, 0.4, 0.1)])
+
+print("全体へ1か所:", [str(p.GetPath()) for p in stage.GetPrototypes()])
+for name in "ABC":
+    print("   /World/%s/Seat -> %s" % (name,
+        stage.GetPrimAtPath("/World/%s/Seat" % name)
+             .GetAttribute("primvars:displayColor").Get()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>初期: ['/__Prototype_1']
+全体へ1か所: ['/__Prototype_2']
+   /World/A/Seat -> [(0.9, 0.4, 0.1)]
+   /World/B/Seat -> [(0.9, 0.4, 0.1)]
+   /World/C/Seat -> [(0.9, 0.4, 0.1)]</code></pre></div><p>1か所書いただけで3体すべてに届きました。そして<code>chair.usda</code>は変更していません。</p><p>Prototypeの数が<strong>1つのまま</strong>である点も確認してください。共有は壊れていません。ただし名前が<code>/__Prototype_1</code>から<code>/__Prototype_2</code>へ変わっています。中身が変わったので、Prototypeが作り直されたためです。<strong>数は変わらないが、同じPrototypeではない</strong>という点に注意します。</p></section>
+<section class="lesson-section"><p class="section-kicker">グループを分ける</p><h2>受け口を分ければ、その群だけのPrototypeができる</h2><p>Broadcastは「全部」だけではありません。受け口の<code>class</code>を分け、対象のInstanceだけにInheritsを足せば、<strong>その群だけ</strong>に届きます。</p><div class="code-card python-card"><div class="code-title"><span>broadcast_group.py</span><span>Python</span></div><pre><code># B と C にだけ、もう一つの class を Inherits させる
+for name in "BC":
+    stage.GetPrimAtPath("/World/" + name).GetInherits().AddInherit("/_Worn")
+
+worn = stage.OverridePrim("/_Worn/Seat")
+UsdGeom.PrimvarsAPI(worn).CreatePrimvar(
+    "displayColor", Sdf.ValueTypeNames.Color3fArray,
+    UsdGeom.Tokens.constant).Set([Gf.Vec3f(0.35, 0.25, 0.2)])
+
+print("一部グループへ:", [str(p.GetPath()) for p in stage.GetPrototypes()])
+for name in "ABC":
+    prim = stage.GetPrimAtPath("/World/" + name)
+    print("   /World/%s -> Prototype %s / 色 %s" % (name,
+        prim.GetPrototype().GetPath(),
+        stage.GetPrimAtPath("/World/%s/Seat" % name)
+             .GetAttribute("primvars:displayColor").Get()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>一部グループへ: ['/__Prototype_2', '/__Prototype_3']
+   /World/A -> Prototype /__Prototype_2 / 色 [(0.9, 0.4, 0.1)]
+   /World/B -> Prototype /__Prototype_3 / 色 [(0.35, 0.25, 0.2)]
+   /World/C -> Prototype /__Prototype_3 / 色 [(0.35, 0.25, 0.2)]</code></pre></div><p>Prototypeが2つになり、<code>B</code>と<code>C</code>が<strong>同じ<code>/__Prototype_3</code>を共有</strong>しています。これが「対象グループ用の新しいPrototypeを作る」ということです。100体のうち30体を汚した見た目にしたいなら、その30体に<code>/_Worn</code>をInheritsさせるだけで、Prototypeは2つで済みます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>どこへ書くと、どこまで届くか</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>chair.usda（上流のAsset）</b><span>空の<code>class</code>を置き、<code>inherits</code>しておくだけ。下流から書き換えない</span></div></div><div class="map-note" aria-hidden="true">↑ Inherits がつなぐ</div><div class="map-row"><div class="map-node"><b>下流のLayerで /_Style へ書く</b><span>Inheritsしている<strong>全部</strong>へ届く。Prototypeは1つのまま</span></div><div class="map-node is-goal"><b>下流のLayerで /_Worn へ書く</b><span>それをInheritsした<strong>群だけ</strong>へ届く。その群用のPrototypeが1つ増える</span></div></div><div class="map-band">Assetファイルは無変更。書くのは常に下流のLayerです</div><figcaption>OpenUSD Academyによる、Broadcasted Refinementの届く範囲の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>届かない、または届きすぎる</h2><div class="mistake-list"><article><h3>Assetファイルそのものを書き換える</h3><p>結果だけ見れば同じに見えますが、そのAssetを参照している他のシーンまで変わります。Broadcasted Refinementは<strong>下流のLayerから行う</strong>のが要点で、Assetを直すのは別の作業です。</p></article><article><h3>受け口のclassを用意していないAssetに使おうとする</h3><p>Inheritsが無ければ届く経路がありません。後から足すにはAsset側の変更が必要になります。再利用されるAssetでは、受け口を最初から設計に入れておきます。</p></article><article><h3>SpecializesとInheritsを取り違える</h3><p>Referenceで持ち込んだ値を上書きしたいのにSpecializesを使うと、Referenceのほうが強いため効きません。上書きしたいならInheritsです。</p></article><article><h3>Prototypeが「同じ」だと思い込む</h3><p>数が1つのままでも、中身が変われば別のPrototypeとして作り直されます。番号の文字列で同一性を判断しないでください。</p></article><article><h3>class名を通常のPrimと同じ場所に置く</h3><p><code>class</code>は描画されませんが、Stageの階層には現れます。<code>_</code>で始めるなど、通常のPrimと見分けられる名前にしておくと、後から読む人が迷いません。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Broadcasted Refinement</dt><dd>Inheritsなどの受け口へ下流からOpinionを足し、対象の全Instanceへ一度に変更を届ける方法。</dd></div><div><dt>受け口のclass</dt><dd>Asset側にあらかじめ置いておく空の<code>class</code>。下流はここへ書き込むことで、Assetを変更せずに中身へ届かせられる。</dd></div><div><dt>Opinion</dt><dd>あるLayerに書かれた、そのPropertyやMetadataについての意見。合成の強さの順に評価される。</dd></div><div><dt>Inherits</dt><dd>classからの継承を表すComposition Arc。LIVERPSでReferenceより強いため、参照で持ち込んだ値を上書きできる。</dd></div><div><dt>Specializes</dt><dd>Inheritsと似た形だが、LIVERPSでReferenceより弱いComposition Arc。既定値の下敷きとして使う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://docs.nvidia.com/learn-openusd/latest/asset-modularity-instancing/refining-scenegraph-instances/index.html">NVIDIA Learn OpenUSD — Refining Scenegraph Instances</a></li><li><a href="https://openusd.org/release/api/_usd__page__scenegraph_instancing.html">OpenUSD — Scenegraph Instancing</a></li><li><a href="https://openusd.org/release/glossary.html#usdglossary-inherits">OpenUSD Glossary — Inherits</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="38-hierarchical-refinement.html">← STEP 89</a><a class="nav-chapter" href="../chapters/15-instancing.html">15. Instancingと大規模シーン</a><a href="64-point-instancing.html">STEP 91 →</a></nav></main><footer><p>OpenUSD Academy · STEP 90</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

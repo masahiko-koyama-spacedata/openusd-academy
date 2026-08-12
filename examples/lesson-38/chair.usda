@@ -1,0 +1,22 @@
+#usda 1.0
+(
+    defaultPrim = "Chair"
+)
+
+# 共有される中身。displayColor は書かない（外側から配れるようにするため）
+def Xform "Chair"
+{
+    def Sphere "Seat"
+    {
+        double radius = 0.5
+    }
+
+    def Cylinder "Leg"
+    {
+        double radius = 0.12
+        double height = 1
+        uniform token axis = "Y"
+        double3 xformOp:translate = (0, -0.85, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
