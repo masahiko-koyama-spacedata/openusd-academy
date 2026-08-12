@@ -33,7 +33,7 @@ def export(source, out_path, **options):
         "academy:exportOptions", Sdf.ValueTypeNames.String,
         custom=True).Set(json.dumps(opts, sort_keys=True))
 
-    ... 形の書き出し ...
+    # …（ここで Mesh などを書き出す。STEP 73 の write_usd と同じ）
 
     stage.Save()
     return opts</code></pre></div><p><code>dict(DEFAULTS, **options)</code>という書き方で、既定値に呼び出し側の指定を重ねています。何も渡さなければ<code>DEFAULTS</code>のまま動き、必要な条件だけを指定できます。</p></section>

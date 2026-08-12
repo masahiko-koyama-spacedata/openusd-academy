@@ -22,7 +22,7 @@ seat.GetAttribute("primvars:displayColor").Set([Gf.Vec3f(1, 0, 0)])
 )
 {
     double3 xformOp:translate = (-2.4, 0, 0)
-    double3 xformOp:rotateY = 15
+    float xformOp:rotateY = 15
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateY"]
     token visibility = "inherited"
 }</code></pre></div><p>Instance自身に書いたPropertyは共有されません。位置・向き・大きさ・表示のオンオフは、これだけで個別に指定できます。多くの場合、必要な個体差はここで足ります。</p></section>

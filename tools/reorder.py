@@ -473,9 +473,11 @@ def render_curriculum():
         md_sections.append("## [%s](chapters/%s.html)\n\n%s\n\n%s"
                            % (ch["title"], ch["slug"], ch["lead"], "\n".join(md_lines)))
 
-    intro = ("このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、"
-             "[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、"
-             "日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-06）。")
+    intro_md = ("このカリキュラムは、[OpenUSD公式ドキュメント](https://openusd.org/release/index.html) を技術上の一次情報とし、"
+                "[NVIDIA Learn OpenUSD](https://docs.nvidia.com/learn-openusd/latest/index.html) を主要な学習資料として照合したうえで、"
+                "日本語の初学者が段階的に進めるようAcademy独自に整理した計画です（確認日: 2026-08-06）。")
+    # HTML側ではMarkdownのリンク記法をアンカーへ変換する
+    intro = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', intro_md)
     note = ("**STEP番号のとおりに上から進めてください。** 各ページの前後リンクも同じ並びなので、"
             "順にたどるだけで迷いません。章の見出しをたどると、その章の全体像をまとめたページへ移動します。"
             "初学者がつまずきにくい順序を優先しているため、公式資料の章立てとは並びが異なります。")
@@ -503,7 +505,7 @@ def render_curriculum():
     md = ("# OpenUSD Academy カリキュラム\n\n%s\n\n> %s\n\n%s\n\n"
           "> **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。"
           "公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。\n"
-          % (intro, note, "\n\n".join(md_sections)))
+          % (intro_md, note, "\n\n".join(md_sections)))
 
     open(os.path.join(REPO, "curriculum.html"), "w", encoding="utf-8").write(html)
     open(os.path.join(REPO, "curriculum.md"), "w", encoding="utf-8").write(md)
@@ -547,16 +549,22 @@ def normalize_labels():
                 label = "STEP %02d" % target
                 return '<a href="%s">%s</a>' % (href, (label + " " + rest).strip() if rest else label)
 
-            text = re.sub(r'<a href="((?:\.\./lessons/)?[0-9][^"]*\.html)">([^<]*)</a>', relabel, text)
+            # リンク文字列にタグ（<code> など）が入る場合もあるので [^<]* では拾えない。
+            text = re.sub(r'<a href="((?:\.\./lessons/)?[0-9][^"]*\.html)">(.*?)</a>',
+                          relabel, text, flags=re.S)
 
             # 2. this page's own labels
+            #    LESSON と STEP の両方を拾う。そうしないと一度変換した後に
+            #    番号がずれても二度と直らない（実際にこれで41ページがずれた）。
             own = steps_by_file.get(name)
             if own:
-                text = re.sub(r'(<p class="eyebrow">)LESSON\s+[0-9]+[A-Z]?',
+                text = re.sub(r'(<p class="eyebrow">)(?:LESSON|STEP)\s+[0-9]+[A-Z]?',
                               lambda m: "%sSTEP %02d" % (m.group(1), own), text)
-                text = re.sub(r'(<title>)Lesson\s+[0-9]+[A-Z]?:',
+                text = re.sub(r'(<title>)(?:Lesson|STEP)\s+[0-9]+[A-Z]?:',
                               lambda m: "%sSTEP %02d:" % (m.group(1), own), text)
-                text = re.sub(r'(OpenUSD Academy · )Lesson\s+[0-9]+[A-Z]?',
+                if not re.search(r'<title>STEP\s+[0-9]+:', text):
+                    text = re.sub(r'<title>', '<title>STEP %02d: ' % own, text, count=1)
+                text = re.sub(r'(<footer><p>OpenUSD Academy · )[^<]*',
                               lambda m: "%sSTEP %02d" % (m.group(1), own), text)
 
             # 3. remaining plain-text mentions (including not-yet-written lessons)
