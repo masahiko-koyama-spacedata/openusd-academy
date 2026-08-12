@@ -59,6 +59,7 @@
       <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
       <dt>ComputeBoundMaterial</dt><dd>継承と強さの規則をすべて解いた結果として、実際に割り当てられているMaterialを返すPython APIです。</dd>
       <dt>ComputeFlattened</dt><dd>Indexed Primvarのindexを解いた後の値の並びを返すPython APIです。</dd>
+      <dt>ComputeInstanceTransformsAtTime</dt><dd>Point Instance 1体ごとの変換を行列の配列で返すPython APIです。<code>positions</code>・<code>orientations</code>・<code>scales</code>と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは<code>ComputeLocalToWorldTransform()</code>を掛けます。</dd>
       <dt>ComputeLocalToWorldTransform</dt><dd>そのPrimの、世界座標への変換行列を求めるPython API。</dd>
       <dt>ComputeMaskAtTime</dt><dd>どの配置が有効かを真偽の配列で返すPython API。</dd>
       <dt>ComputeVisibility</dt><dd>親からの継承まで含めて、最終的に描画されるかを求めるPython API。</dd>
@@ -231,7 +232,7 @@
       <dt>Primvar Inheritance</dt><dd><code>constant</code>のPrimvarがScene Namespaceを下って子のImageable Primへ適用される仕組みです。</dd>
       <dt>PrimvarsAPI</dt><dd>Prim上のPrimvarを作成・取得するためのAPI Schemaです。</dd>
       <dt>Prim（プリム）</dt><dd>Stageを構成する基本要素。シーングラフ上のノードです。</dd>
-      <dt>Promotion</dt><dd>Point Instanceの1体を隠し、同じ位置に通常のPrimを置き直して個別に編集できるようにすることです。</dd>
+      <dt>Promotion</dt><dd>Point Instanceの1体を<code>DeactivateId()</code>でpruneし、<code>ComputeInstanceTransformsAtTime()</code>で求めた変換を持つ通常のPrimを同じ場所へ置き直して、個別に編集できるようにすることです。</dd>
       <dt>Property Path</dt><dd>Prim Pathの後ろに <code>.</code> とProperty名を続けたPathです。</dd>
       <dt>Property Stack</dt><dd>あるPropertyへ値を主張しているSpecを、強い順に並べたリストです。</dd>
       <dt>Property（プロパティ）</dt><dd>Primが持つ情報。AttributeとRelationshipの2種類があります。</dd>

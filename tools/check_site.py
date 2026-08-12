@@ -172,27 +172,57 @@ for rel, path in [(r, os.path.join(REPO, r)) for r in
             print("   - USDA構文エラー [%s] %s" % (title, msg.splitlines()[0][:110]))
 
 # --- Python例のimport漏れ ---
+# import を書いていないカードを一律に飛ばすと、ページ内のどのカードでも
+# import されていないモジュールを見逃す（実際に adhoc.py で起きた）。
+# ページ単位で「そこまでに import されたもの」を積み上げて判定する。
 MODS = ["Ar", "Gf", "Plug", "Sdf", "Sdr", "Tf", "Trace", "Usd", "UsdGeom",
         "UsdLux", "UsdShade", "UsdUtils", "Vt", "Work"]
 py_bad = 0
 for rel in sorted(os.path.join("lessons", f) for f in os.listdir(os.path.join(REPO, "lessons"))
                   if f.endswith(".html")):
     text = open(os.path.join(REPO, rel), encoding="utf-8").read()
+    seen = set()          # このページでここまでに import 済みのモジュール
     for m in re.finditer(r'<div class="code-card python-card">.*?<span>([^<]*)</span>.*?<pre><code>(.*?)</code></pre>',
                          text, re.S):
         code = _html.unescape(re.sub(r"<[^>]+>", "", m.group(2)))
-        imp = re.search(r"from pxr import ([^\n]+)", code)
-        if not imp:
-            continue      # 続きのスニペットは import を書かない
-        imported = {x.strip() for x in imp.group(1).split(",")}
-        used = {n for n in MODS if re.search(r"\b%s\." % re.escape(n), code)}
-        missing = sorted(used - imported)
+        for imp in re.findall(r"from pxr import ([^\n]+)", code):
+            seen |= {x.strip() for x in imp.split(",")}
+        # 出力例をコメントで併記しているので、コメントは使用扱いにしない
+        live = re.sub(r"#[^\n]*", "", code)
+        used = {n for n in MODS if re.search(r"\b%s\." % re.escape(n), live)}
+        missing = sorted(used - seen)
         if missing:
             py_bad += 1
             print("\n%s" % rel)
-            print("   - import漏れ [%s] %s" % (m.group(1), ", ".join(missing)))
+            print("   - import漏れ [%s] %s（このページのどのカードにも無い）"
+                  % (m.group(1), ", ".join(missing)))
+
+# --- xformOp の型が Python API の既定精度と一致しているか ---
+# AddScaleOp() の既定は PrecisionFloat なので float3、AddTranslateOp() は
+# PrecisionDouble なので double3 になる。USDA 側を double3 xformOp:scale と
+# 書くと、対訳の Python が別の型を作ることになる。
+XFORM_PRECISION = {"xformOp:scale": "float3",
+                   "xformOp:translate": "double3",
+                   "xformOp:rotateXYZ": "float3",
+                   "xformOp:rotateXYZ:": "float3"}
+xf_bad = 0
+for rel in sorted([os.path.join("lessons", f) for f in os.listdir(os.path.join(REPO, "lessons"))
+                   if f.endswith(".html")]
+                  + [os.path.join(dp, f).replace(REPO + os.sep, "")
+                     for dp, _dn, fn in os.walk(os.path.join(REPO, "examples"))
+                     for f in fn if f.endswith(".usda")]):
+    text = open(os.path.join(REPO, rel), encoding="utf-8").read()
+    # xformOp:translate:pivot などサフィックス付きは別扱いなので除外する
+    for typ, name in re.findall(
+            r"\b(double3|float3) (xformOp:(?:scale|translate|rotateXYZ))(?![:\w])", text):
+        want = XFORM_PRECISION.get(name)
+        if want and typ != want:
+            xf_bad += 1
+            print("\n%s" % rel)
+            print("   - xformOpの型がAPIの既定と違う: %s %s（%s が既定）" % (typ, name, want))
 
 # --- 教材ルールの必須セクション ---
+
 REQUIRED = (("USDA→Python mapping", r"USDA\s*→\s*(Python|コマンド)\s*mapping"),
             ("Diagram", r'class="chapter-map"|class="concept-flow"|class="hierarchy-figure"|class="tree-stage"'),
             ("USDAカード", r"code-card usda-card"),
@@ -209,10 +239,39 @@ for rel in sorted(os.path.join("lessons", f) for f in os.listdir(os.path.join(RE
         for name in missing:
             print("   - 必須セクションが無い: %s" % name)
 
+# --- 記法（記号）の説明が初出のレッスンにあるか ---
+# AGENTS.md のルール7。以前は「全レッスンで説明する」と読める書き方だったが、
+# 100レッスンで毎回繰り返すと本題が埋もれるため「初出時に説明する」へ改めた。
+# 改めた以上、初出のレッスンにあることは機械で確かめる。
+SYMBOLS = ((u"インデント", ["01-reading-usda.html", "07-usda-syntax.html"]),
+           (u"波括弧", ["01-reading-usda.html", "07-usda-syntax.html"]),
+           (u"引用符", ["01-reading-usda.html", "07-usda-syntax.html"]),
+           (u"Path", ["01-reading-usda.html", "05-prim-property-paths.html"]),
+           (u"アットマーク|Asset Path", ["12-references.html"]))
+sym_bad = 0
+for label, files in SYMBOLS:
+    for fn in files:
+        path = os.path.join(REPO, "lessons", fn)
+        if not os.path.exists(path):
+            continue
+        if not re.search(label, open(path, encoding="utf-8").read()):
+            sym_bad += 1
+            print("\nlessons/%s" % fn)
+            print("   - 記法の説明が無い: %s（初出のレッスンなので必要）" % label)
+
 print("\n%d pages checked, %d with issues" % (len(list(pages())), problems))
 print("%d lessons nav-checked, %d with issues" % (len(order), nav_problems))
 print("%d USDA blocks parsed, %d with syntax errors" % (usda_checked, usda_bad))
 print("%d python blocks with missing imports" % py_bad)
 print("%d lessons missing a required section" % sec_bad)
+print("%d symbol explanations missing at first use" % sym_bad)
 
+# 検査が問題を見つけたら 0 以外で終わる。ここが常に 0 だったため、
+# エラーを表示していてもシェルやCIからは成功として扱われていた。
+failures = problems + nav_problems + usda_bad + py_bad + xf_bad + sec_bad + sym_bad
+if failures:
+    print("\nFAILED: %d issue(s)" % failures)
+    sys.exit(1)
+print("\nAll checks passed")
 sys.exit(0)
+

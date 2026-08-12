@@ -9,7 +9,7 @@ def Xform "Robot"
 {
     def Cube "Body"
     {
-        double3 xformOp:scale = (0.75, 1.5, 0.5)
+        float3 xformOp:scale = (0.75, 1.5, 0.5)
         uniform token[] xformOpOrder = ["xformOp:scale"]
     }
 }

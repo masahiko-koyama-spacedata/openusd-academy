@@ -9,7 +9,7 @@ def Xform "Chair"
 {
     def Cube "Geometry"
     {
-        double3 xformOp:scale = (1, 1.5, 1)
+        float3 xformOp:scale = (1, 1.5, 1)
         uniform token[] xformOpOrder = ["xformOp:scale"]
     }
 }

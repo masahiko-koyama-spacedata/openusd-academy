@@ -27,7 +27,7 @@ def Xform "Chair"
         double size = 0.8
         color3f[] primvars:displayColor = [(0.2, 0.7, 0.3)]
         double3 xformOp:translate = (0, 0.8, -0.3)
-        double3 xformOp:scale = (1, 1, 0.25)
+        float3 xformOp:scale = (1, 1, 0.25)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
     }
 }</code></pre></div><p>この1ファイルが「椅子」というまとまりです。3つの印が付いています。<code>defaultPrim</code>で入口を示し、<code>kind = "component"</code>で再利用の単位だと宣言し、座面と背もたれはその内部として閉じています。<a href="31-encapsulation.html">STEP 56 Encapsulation</a>で扱ったとおり、外からは<code>Chair</code>だけを見ます。</p><p class="example-link"><a href="../examples/lesson-61/instance-chair.usda">このUSDAファイルを開く</a></p></section>

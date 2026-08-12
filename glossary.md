@@ -196,6 +196,10 @@ Primへ寄与するsourceとComposition構造を保持するindexです。
 
 Indexed Primvarのindexを解いた後の値の並びを返すPython APIです。
 
+### ComputeInstanceTransformsAtTime
+
+Point Instance 1体ごとの変換を行列の配列で返すPython APIです。`positions`・`orientations`・`scales`と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは`ComputeLocalToWorldTransform()`を掛けます。
+
 ### ComputeLocalToWorldTransform
 
 そのPrimの、世界座標への変換行列を求めるPython API。
@@ -886,7 +890,7 @@ Stageを構成する基本要素。シーングラフ上のノードです。
 
 ### Promotion
 
-Point Instanceの1体を隠し、同じ位置に通常のPrimを置き直して個別に編集できるようにすることです。
+Point Instanceの1体を`DeactivateId()`でpruneし、`ComputeInstanceTransformsAtTime()`で求めた変換を持つ通常のPrimを同じ場所へ置き直して、個別に編集できるようにすることです。
 
 ### Property Path
 

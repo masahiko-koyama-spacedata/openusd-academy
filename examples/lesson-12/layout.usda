@@ -12,7 +12,7 @@ over "World"
         def Cube "Floor"
         {
             double size = 6
-            double3 xformOp:scale = (1, 0.05, 1)
+            float3 xformOp:scale = (1, 0.05, 1)
             uniform token[] xformOpOrder = ["xformOp:scale"]
         }
     }

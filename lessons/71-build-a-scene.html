@@ -39,7 +39,7 @@ def Xform "Park" (
 
     def Camera "ShotCam" { ... }
 }</code></pre></div><p>この短いファイルに、これまでのSTEPがひととおり入っています。<a href="15-scope.html">STEP 14 Scope</a>で整理し、<a href="12-references.html">STEP 45 Reference</a>で参照し、<a href="61-scenegraph-instancing.html">STEP 86 instanceable</a>で共有し、<a href="19d-assembly.html">STEP 64 assembly</a>で役割を宣言し、<a href="17a-translate.html">STEP 17 translate</a>で置いています。</p><p class="example-link"><a href="../examples/lesson-71/park.usda">このUSDAファイルを開く</a></p></section>
-<section class="lesson-section"><p class="section-kicker">結果</p><h2>できあがり</h2><figure class="render-result"><img src="../assets/images/lesson-71/park.png" alt="緑色の地面の上に、同じ形のベンチが3台置かれた描画結果" width="800" height="583"><figcaption>ベンチ3台と地面。ベンチの形も色も、このファイルには書かれていません。<br><small>撮影: <code>examples/lesson-71/park.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>確かめる</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>できあがり</h2><figure class="render-result"><img src="../assets/images/lesson-71/park.png" alt="緑色の地面の上に、同じ形のベンチが3台置かれた描画結果" width="800" height="583"><figcaption>ベンチ3台と地面。ベンチの形も色も、このファイルには書かれていません。<br><small>撮影: <code>examples/lesson-71/park.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>確かめる</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
 
 stage = Usd.Stage.Open("park.usda")
 print(len(list(stage.Traverse())))                          # 7
