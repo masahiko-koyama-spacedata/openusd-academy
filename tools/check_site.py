@@ -181,9 +181,19 @@ py_bad = 0
 for rel in sorted(os.path.join("lessons", f) for f in os.listdir(os.path.join(REPO, "lessons"))
                   if f.endswith(".html")):
     text = open(os.path.join(REPO, rel), encoding="utf-8").read()
-    seen = set()          # このページでここまでに import 済みのモジュール
+    # カード見出しが別の .py なら別ファイル。そこで import を引き継ぐと、
+    # 前のファイルの import で通ってしまう。同じファイル名の続きだけ引き継ぐ。
+    by_file = {}          # ファイル名 -> import 済みモジュール
+    current = None
     for m in re.finditer(r'<div class="code-card python-card">.*?<span>([^<]*)</span>.*?<pre><code>(.*?)</code></pre>',
                          text, re.S):
+        title = m.group(1)
+        name = re.search(r"[\w.-]+\.py", title)
+        if name:
+            current = name.group(0)
+        elif current is None:
+            current = title            # ファイル名が無い最初のカード
+        seen = by_file.setdefault(current, set())
         code = _html.unescape(re.sub(r"<[^>]+>", "", m.group(2)))
         for imp in re.findall(r"from pxr import ([^\n]+)", code):
             seen |= {x.strip() for x in imp.split(",")}
@@ -194,8 +204,8 @@ for rel in sorted(os.path.join("lessons", f) for f in os.listdir(os.path.join(RE
         if missing:
             py_bad += 1
             print("\n%s" % rel)
-            print("   - import漏れ [%s] %s（このページのどのカードにも無い）"
-                  % (m.group(1), ", ".join(missing)))
+            print("   - import漏れ [%s] %s（%s のどのカードにも無い）"
+                  % (title, ", ".join(missing), current))
 
 # --- xformOp の型が Python API の既定精度と一致しているか ---
 # AddScaleOp() の既定は PrecisionFloat なので float3、AddTranslateOp() は
@@ -212,6 +222,11 @@ for rel in sorted([os.path.join("lessons", f) for f in os.listdir(os.path.join(R
                      for dp, _dn, fn in os.walk(os.path.join(REPO, "examples"))
                      for f in fn if f.endswith(".usda")]):
     text = open(os.path.join(REPO, rel), encoding="utf-8").read()
+    # 明示的に PrecisionDouble / PrecisionFloat を使うと書いてあるページは、
+    # その精度を意図しているので対象外。double3 xformOp:scale 自体は
+    # OpenUSD として正しい記述で、誤りなのは「対訳のPythonと型が食い違う」ときだけ。
+    if re.search(r"Precision(?:Double|Float)|MakeMatrixXform", text):
+        continue
     # xformOp:translate:pivot などサフィックス付きは別扱いなので除外する
     for typ, name in re.findall(
             r"\b(double3|float3) (xformOp:(?:scale|translate|rotateXYZ))(?![:\w])", text):
@@ -219,7 +234,7 @@ for rel in sorted([os.path.join("lessons", f) for f in os.listdir(os.path.join(R
         if want and typ != want:
             xf_bad += 1
             print("\n%s" % rel)
-            print("   - xformOpの型がAPIの既定と違う: %s %s（%s が既定）" % (typ, name, want))
+            print("   - xformOpの型がAPIの既定と違う: %s %s（%s が既定。\n     意図して別精度にするなら Precision* を明示する）" % (typ, name, want))
 
 # --- 教材ルールの必須セクション ---
 

@@ -51,8 +51,8 @@ python3 tools/check_order.py
 - 相対リンク・タグの対応・img の alt・レッスン必須要素・見出しの句点
 - 前後ナビの行き先とラベルが学習順序と一致しているか
 - **掲載中のUSDAを `usdcat` で実際に解析する**（断片・端末出力は除外）
-- **Python例の import 漏れ**（ページ内でそこまでに import されたものを積み上げて判定。コメント内の出現は使用扱いにしない）
-- **xformOp の型が Python API の既定精度と一致するか**（`AddScaleOp()` は float、`AddTranslateOp()` は double）
+- **Python例の import 漏れ**（カード見出しの `.py` 名で「同じファイルの続き」だけ import を引き継ぐ。別ファイル名のカードは独立して判定する。コメント内の出現は使用扱いにしない）
+- **xformOp の型が Python API の既定精度と一致するか**（`AddScaleOp()` は float、`AddTranslateOp()` は double）。`double3 xformOp:scale` 自体はOpenUSDとして正しい記述なので、`Precision*` を明示しているページは対象外にする
 - 必須セクション（mapping / Diagram / USDAカード / Pythonカード / よくある間違い）
 - 記法（インデント・波括弧・引用符・Path・Asset Path）の説明が初出のレッスンにあるか
 

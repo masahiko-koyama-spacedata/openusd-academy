@@ -69,7 +69,7 @@ for prim in [body.GetPrim(), knob.GetPrim()]:
         double radius = 0.35
         rel material:binding = &lt;/World/Looks/Trim&gt;
     }
-}</code></pre></div><figure class="render-result"><img src="../assets/images/lesson-50/binding-stronger.png" alt="大きな赤い球と、その右上に小さな赤い球が並び、どちらも同じ色になっている描画結果" width="800" height="583"><figcaption><code>Knob</code>は<code>Trim</code>（青）を指したままです。それでも祖先の<code>strongerThanDescendants</code>が勝ち、両方とも<code>Base</code>（赤）になりました。<br><small>撮影: <code>examples/lesson-50/binding-stronger.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>stronger.py</span><span>Python</span></div><pre><code>binding = UsdShade.MaterialBindingAPI(geom.GetPrim())
+}</code></pre></div><figure class="render-result"><img src="../assets/images/lesson-50/binding-stronger.png" alt="大きな赤い球と、その右上に小さな赤い球が並び、どちらも同じ色になっている描画結果" width="800" height="583"><figcaption><code>Knob</code>は<code>Trim</code>（青）を指したままです。それでも祖先の<code>strongerThanDescendants</code>が勝ち、両方とも<code>Base</code>（赤）になりました。<br><small>撮影: <code>examples/lesson-50/binding-stronger.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>compute_bound.py（続き）</span><span>Python</span></div><pre><code>binding = UsdShade.MaterialBindingAPI(geom.GetPrim())
 binding.Bind(base, UsdShade.Tokens.strongerThanDescendants)
 
 for prim in [body.GetPrim(), knob.GetPrim()]:

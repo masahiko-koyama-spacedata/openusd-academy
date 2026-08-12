@@ -68,6 +68,10 @@ appliedなAPI Schemaの一覧を保持するPrim Metadata。
 
 `Apply()`して`apiSchemas`に記録が残るAPI Schema。
 
+### ApplyMask / IgnoreMask
+
+`ComputeInstanceTransformsAtTime()`の引数です。`ApplyMask`（既定）は`inactiveIds`や`invisibleIds`で外れた体を配列から除き、`IgnoreMask`はすべての体を返します。
+
 ### Arc Strength（強度）
 
 競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。
@@ -198,7 +202,7 @@ Indexed Primvarのindexを解いた後の値の並びを返すPython APIです�
 
 ### ComputeInstanceTransformsAtTime
 
-Point Instance 1体ごとの変換を行列の配列で返すPython APIです。`positions`・`orientations`・`scales`と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは`ComputeLocalToWorldTransform()`を掛けます。
+Point Instance 1体ごとの変換を行列の配列で返すPython APIです。`positions`・`orientations`・`scales`と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは`ComputeLocalToWorldTransform()`を掛けます。既定の`ApplyMask`ではpruneした体が除かれるため、Promotionでは`IgnoreMask`を渡します。
 
 ### ComputeLocalToWorldTransform
 

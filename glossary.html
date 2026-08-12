@@ -27,6 +27,7 @@
       <dt>apiSchemas</dt><dd>appliedなAPI Schemaの一覧を保持するPrim Metadata。</dd>
       <dt>append</dt><dd>一覧の末尾へ項目を足すキーワード。</dd>
       <dt>applied API Schema</dt><dd><code>Apply()</code>して<code>apiSchemas</code>に記録が残るAPI Schema。</dd>
+      <dt>ApplyMask / IgnoreMask</dt><dd><code>ComputeInstanceTransformsAtTime()</code>の引数です。<code>ApplyMask</code>（既定）は<code>inactiveIds</code>や<code>invisibleIds</code>で外れた体を配列から除き、<code>IgnoreMask</code>はすべての体を返します。</dd>
       <dt>Arc Strength（強度）</dt><dd>競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。</dd>
       <dt>array</dt><dd>同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。</dd>
       <dt>assembly</dt><dd>公開できるまとまりを示すKind。列や区画のような集合に使う。</dd>
@@ -59,7 +60,7 @@
       <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
       <dt>ComputeBoundMaterial</dt><dd>継承と強さの規則をすべて解いた結果として、実際に割り当てられているMaterialを返すPython APIです。</dd>
       <dt>ComputeFlattened</dt><dd>Indexed Primvarのindexを解いた後の値の並びを返すPython APIです。</dd>
-      <dt>ComputeInstanceTransformsAtTime</dt><dd>Point Instance 1体ごとの変換を行列の配列で返すPython APIです。<code>positions</code>・<code>orientations</code>・<code>scales</code>と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは<code>ComputeLocalToWorldTransform()</code>を掛けます。</dd>
+      <dt>ComputeInstanceTransformsAtTime</dt><dd>Point Instance 1体ごとの変換を行列の配列で返すPython APIです。<code>positions</code>・<code>orientations</code>・<code>scales</code>と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは<code>ComputeLocalToWorldTransform()</code>を掛けます。既定の<code>ApplyMask</code>ではpruneした体が除かれるため、Promotionでは<code>IgnoreMask</code>を渡します。</dd>
       <dt>ComputeLocalToWorldTransform</dt><dd>そのPrimの、世界座標への変換行列を求めるPython API。</dd>
       <dt>ComputeMaskAtTime</dt><dd>どの配置が有効かを真偽の配列で返すPython API。</dd>
       <dt>ComputeVisibility</dt><dd>親からの継承まで含めて、最終的に描画されるかを求めるPython API。</dd>
