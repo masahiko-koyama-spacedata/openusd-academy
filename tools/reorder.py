@@ -109,6 +109,7 @@ PLAN = [
             ("17c-scale.html", "Lesson 17C", "Scale", "各軸の倍率を記述する"),
             ("17d-pivot.html", "Lesson 17D", "Pivot", "回転と拡縮の中心を決める"),
             ("18-xform-op-order.html", "Lesson 18", "XformOpOrder", "変換順序で結果が変わる理由"),
+            ("79-camera.html", "Lesson 79", "Camera", "焦点距離とアパーチャで写す範囲を決める"),
         ]),
     dict(
         title="5. Meshの形と、その上へ値を配る", slug="05-primvars",
@@ -133,6 +134,9 @@ PLAN = [
         items=[
             ("35-mesh-topology.html", "Lesson 35", "Meshのトポロジ", "points・faceVertexCounts・faceVertexIndicesで形を作る"),
             ("36-mesh-attributes.html", "Lesson 36", "Meshの見え方を決めるAttribute", "subdivisionScheme・orientation・doubleSided・extent"),
+            ("80-gprim-types.html", "Lesson 80", "Gprimの種類", "Cube・Sphere・Cylinder・BasisCurvesなど"),
+            ("81-purpose.html", "Lesson 81", "purposeとproxyPrim", "同じAssetを用途で描き分ける"),
+            ("82-collections.html", "Lesson 82", "Collection", "階層をまたいだ集まりに名前を付ける"),
             ("23-primvars.html", "Lesson 23", "Primvars", "Attributeとの違いと三つの機能"),
             ("24a-constant.html", "Lesson 24A", "constant interpolation", "Prim全体へ一つの値"),
             ("24b-uniform.html", "Lesson 24B", "uniform interpolation", "Faceごとに一つの値"),

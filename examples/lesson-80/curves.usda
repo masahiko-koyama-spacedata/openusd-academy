@@ -1,0 +1,20 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def BasisCurves "Wire"
+    {
+        uniform token type = "linear"
+        uniform token wrap = "nonperiodic"
+        int[] curveVertexCounts = [4]
+        point3f[] points = [(0, 0, 0), (0.5, 1, 0), (1.5, 1, 0), (2, 0, 0)]
+        float[] widths = [0.05] (
+            interpolation = "constant"
+        )
+    }
+}

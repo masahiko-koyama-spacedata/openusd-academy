@@ -1,0 +1,71 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 25: Gprimの種類 — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 25 · GPRIM TYPES</p><h1>Gprimの<span>種類</span></h1><p class="lesson-lead">Meshを組み立てなくても置ける形があります</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Meshを組み立てなくても Cube・Sphere・Cylinder・Cone・Capsuleは数値だけで置ける</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Gprimは1つではない</h2><p><a href="35-mesh-topology.html">STEP 23</a>でMeshを3つの配列から組み立てました。しかし、箱や球を置きたいだけなら点と面を並べるのは大げさです。OpenUSDには、<strong>数値をいくつか書くだけで形が決まるGprim</strong>が用意されています。</p><p>これらを<strong>Quadric（二次曲面）</strong>や基本形状と呼びます。共通しているのは、<code>points</code>や<code>faceVertexIndices</code>を持たず、代わりに<code>size</code>や<code>radius</code>といった<strong>その形に固有の数値</strong>を持つことです。描画するときにRendererが実際の形へ展開します。</p><div class="table-wrap"><table><thead><tr><th>型</th><th>固有のAttribute</th><th>形</th></tr></thead><tbody><tr><td><code>Cube</code></td><td><code>size</code></td><td>一辺の長さで決まる立方体</td></tr><tr><td><code>Sphere</code></td><td><code>radius</code></td><td>球</td></tr><tr><td><code>Cylinder</code></td><td><code>radius</code> / <code>height</code> / <code>axis</code></td><td>円柱</td></tr><tr><td><code>Cone</code></td><td><code>radius</code> / <code>height</code> / <code>axis</code></td><td>円錐</td></tr><tr><td><code>Capsule</code></td><td><code>radius</code> / <code>height</code> / <code>axis</code></td><td>両端が半球の円柱</td></tr><tr><td><code>Plane</code></td><td><code>width</code> / <code>length</code> / <code>axis</code></td><td>平面</td></tr></tbody></table></div><p><code>axis</code>は「どの軸を高さ方向にするか」で、<code>"X"</code>・<code>"Y"</code>・<code>"Z"</code>から選びます。既定は<code>"Z"</code>なので、Y-upのシーンで縦の円柱を置きたいなら<code>uniform token axis = "Y"</code>を明示します。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>基本形状は<strong>proxy（代役）として便利</strong>です。重いMeshの代わりに軽いCubeを置いておき、確認時はCubeを、最終描画ではMeshを使う、という分け方ができます。この仕組みが次のSTEPで扱う<code>purpose</code>です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>5種類を並べる</h2><div class="code-card usda-card"><div class="code-title"><span>gprims.usda（抜粋）</span><span>USDA</span></div><pre><code>def Cube "Box"
+{
+    double size = 1
+}
+
+def Sphere "Ball"
+{
+    double radius = 0.6
+}
+
+def Cylinder "Pipe"
+{
+    uniform token axis = "Y"
+    double height = 1.2
+    double radius = 0.45
+}
+
+def Cone "Tip"
+{
+    uniform token axis = "Y"
+    double height = 1.2
+    double radius = 0.55
+}
+
+def Capsule "Pill"
+{
+    uniform token axis = "Y"
+    double height = 0.8
+    double radius = 0.35
+}</code></pre></div><p>どれも波括弧の中に数値が2〜3行あるだけです。<code>points</code>も<code>faceVertexCounts</code>もありません。<code>uniform</code>が付いた<code>axis</code>は、<a href="36-mesh-attributes.html">STEP 24</a>で見たとおり「時間で変化しない」という宣言です。</p><p class="example-link"><a href="../examples/lesson-80/gprims.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>数値だけで、それぞれの形になる</h2><figure class="render-result"><img src="../assets/images/lesson-80/gprims.png" alt="左から立方体・球・円柱・円錐・カプセルが横一列に並び、それぞれ違う色で描かれている描画結果" width="800" height="583"><figcaption>左から<code>Cube</code>・<code>Sphere</code>・<code>Cylinder</code>・<code>Cone</code>・<code>Capsule</code>。すべて<code>axis = "Y"</code>を指定して縦に立てています。<br><small>撮影: <code>examples/lesson-80/gprims.usda</code> / ソースからビルドしたOpenUSD v26.08の<code>usdrecord --disableCameraLight</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">点で表す形</p><h2>BasisCurvesとPointsは、点の並びが形になる</h2><p>基本形状とMeshのほかに、<strong>点の並びそのものが形になる</strong>Gprimが2つあります。</p><p><code>BasisCurves</code>は曲線です。<code>points</code>に制御点を並べ、<code>curveVertexCounts</code>で「1本の曲線が何点を使うか」を指定します。<a href="35-mesh-topology.html">STEP 23</a>の<code>faceVertexCounts</code>とまったく同じ考え方で、こちらは面ではなく線を区切ります。<code>type</code>が<code>cubic</code>（既定）か<code>linear</code>、<code>basis</code>が曲線の種類（既定は<code>bezier</code>）、<code>wrap</code>が閉じるかどうかです。髪や草、ワイヤーに使います。</p><p><code>Points</code>は点群です。<code>points</code>と、点ごとの大きさ<code>widths</code>を持ちます。パーティクルや点群スキャンのデータに使います。<code>ids</code>を持てるので、<a href="40-point-instance-refinement.html">STEP 101</a>のPointInstancerと同じように個体を追跡できます。</p><div class="code-card usda-card"><div class="code-title"><span>curves.usda（抜粋）</span><span>USDA</span></div><pre><code>def BasisCurves "Wire"
+{
+    uniform token type = "linear"
+    uniform token wrap = "nonperiodic"
+    int[] curveVertexCounts = [4]
+    point3f[] points = [(0, 0, 0), (0.5, 1, 0), (1.5, 1, 0), (2, 0, 0)]
+    float[] widths = [0.05] (
+        interpolation = "constant"
+    )
+}</code></pre></div><p><code>curveVertexCounts = [4]</code>は「曲線1本、制御点4個」という意味です。<code>[4, 3]</code>と書けば2本になります。<code>widths</code>にもPrimvarと同じ<code>interpolation</code>が使えて、<code>constant</code>なら全体で1つ、点ごとに変えたいなら<code>vertex</code>にします。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>形の決まり方で3つに分かれる</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>数値で決まる</b><span>Cube・Sphere・Cylinder・Cone・Capsule・Plane。<code>size</code>や<code>radius</code>だけで形になる</span></div></div><div class="map-note" aria-hidden="true">↓ もっと自由な形が要る</div><div class="map-row"><div class="map-node"><b>点の並びで決まる</b><span>BasisCurves（線）・Points（点群）。<code>points</code>と、区切りや太さを持つ</span></div></div><div class="map-note" aria-hidden="true">↓ 面を張りたい</div><div class="map-row"><div class="map-node is-goal"><b>点と面で決まる</b><span>Mesh。<code>points</code>・<code>faceVertexCounts</code>・<code>faceVertexIndices</code>の3配列</span></div></div><div class="map-band">どれもGprimなので、purpose・visibility・extent・Primvarは共通して載ります</div><figcaption>OpenUSD Academyによる、Gprimを形の決まり方で分類した図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>型ごとに固有のAttributeを見る</h2><div class="code-card python-card"><div class="code-title"><span>list_gprims.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("g.usda")
+common = {"doubleSided", "orientation", "primvars:displayColor",
+          "primvars:displayOpacity", "purpose", "visibility",
+          "extent", "proxyPrim", "xformOpOrder"}
+
+for cls in (UsdGeom.Cube, UsdGeom.Sphere, UsdGeom.Cylinder,
+            UsdGeom.Cone, UsdGeom.Capsule, UsdGeom.Plane):
+    prim = cls.Define(stage, "/" + cls.__name__).GetPrim()
+    own = [a.GetName() for a in prim.GetAttributes()
+           if a.GetName() not in common and not a.GetName().startswith("xformOp")]
+    print("%-12s %s" % (prim.GetTypeName(), own))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>Cube         ['size']
+Sphere       ['radius']
+Cylinder     ['axis', 'height', 'radius']
+Cone         ['axis', 'height', 'radius']
+Capsule      ['axis', 'height', 'radius']
+Plane        ['axis', 'length', 'width']</code></pre></div><p>除外した<code>common</code>のほうが、すべてのGprimに共通する部分です。<code>purpose</code>・<code>visibility</code>・<code>extent</code>・<code>primvars:displayColor</code>はどの形にもあります。<strong>共通の部分と、形ごとの部分</strong>という見方は、<a href="37-lights.html">STEP 38</a>のLightAPIとLight型の関係と同じです。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">def Cube "Box" { double size = 1 }</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdGeom.Cube.Define(stage, "/Box").CreateSizeAttr(1)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">double radius = 0.6</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">sphere.CreateRadiusAttr(0.6)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">uniform token axis = "Y"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">cylinder.CreateAxisAttr(UsdGeom.Tokens.y)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">int[] curveVertexCounts = [4]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">curves.CreateCurveVertexCountsAttr([4])</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">float[] widths = [0.05]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">curves.CreateWidthsAttr([0.05])</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>基本形状にもPrimvarは載る</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>基本形状はどれもGprimなので、<a href="23-primvars.html">STEP 28</a>のPrimvarをそのまま載せられます。上の画像で色が違うのは、それぞれに<code>primvars:displayColor</code>を<code>constant</code>で書いたからです。</p><p>ただし<code>uniform</code>や<code>faceVarying</code>は使いにくくなります。Face数がRendererの展開しだいで変わるためです。<strong>基本形状に載せるPrimvarは<code>constant</code>を基本にする</strong>と考えておくと安全です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>向きと大きさの取り違え</h2><div class="mistake-list"><article><h3>axisを書かずに縦の円柱を期待する</h3><p><code>axis</code>の既定は<code>"Z"</code>です。Y-upのシーンでは横に倒れて見えます。縦にしたいなら<code>"Y"</code>を明示します。</p></article><article><h3>Cubeのsizeを半径だと思う</h3><p><code>size</code>は<strong>一辺の長さ</strong>です。<code>size = 1</code>の立方体は-0.5から0.5までを占めます。<code>Sphere</code>の<code>radius</code>とは意味が違います。</p></article><article><h3>Capsuleのheightに全長を入れる</h3><p><code>height</code>は<strong>円柱部分の長さ</strong>で、両端の半球は含みません。全長は<code>height + radius × 2</code>になります。</p></article><article><h3>基本形状にfaceVaryingのPrimvarを書く</h3><p>Face数が実装しだいなので、期待どおりに対応しません。<code>constant</code>を使います。</p></article><article><h3>extentを書き忘れる</h3><p>基本形状でも<code>extent</code>は自動では入りません。<a href="36-mesh-attributes.html">STEP 24</a>と同じで、必要なら<code>ComputeExtentFromPlugins</code>で計算して書きます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Quadric（二次曲面）</dt><dd>数値をいくつか書くだけで形が決まるGprimの総称。Sphere・Cylinder・Cone・Capsuleなど。</dd></div><div><dt>Cube</dt><dd>立方体のGprim。<code>size</code>は一辺の長さ。</dd></div><div><dt>Capsule</dt><dd>両端が半球の円柱。<code>height</code>は円柱部分だけの長さ。</dd></div><div><dt>axis</dt><dd>Cylinder・Cone・Capsule・Planeで、どの軸を高さ方向にするかを決めるAttribute。既定は<code>"Z"</code>。</dd></div><div><dt>BasisCurves</dt><dd>制御点の並びで曲線を表すGprim。<code>curveVertexCounts</code>で1本ごとの点数を区切る。</dd></div><div><dt>Points</dt><dd>点群を表すGprim。点ごとの大きさを<code>widths</code>で持つ。</dd></div><div><dt>widths</dt><dd>曲線や点の太さ。Primvarと同じ<code>interpolation</code>が使える。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/usd_geom_page_front.html">OpenUSD — UsdGeom module</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_gprim.html">OpenUSD — UsdGeomGprim API</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_basis_curves.html">OpenUSD — UsdGeomBasisCurves API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="36-mesh-attributes.html">← STEP 24</a><a class="nav-chapter" href="../chapters/05-primvars.html">5. Meshの形と、その上へ値を配る</a><a href="81-purpose.html">STEP 26 →</a></nav></main><footer><p>OpenUSD Academy · STEP 25</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

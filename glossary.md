@@ -52,6 +52,10 @@ Scenegraph上で対象Primより上にある、親や親の親のことです。
 
 祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。
 
+### Aperture（アパーチャ）
+
+撮像面の大きさです。`horizontalAperture`・`verticalAperture`で、world unitの10分の1で表します。
+
 ### API Schema
 
 Primの型を変えずに、機能や情報を足すSchema。
@@ -124,6 +128,14 @@ Primが持つ値のあるProperty。色、サイズ、位置などを表しま�
 
 その形自体が伸びる方向を決めるAttribute。既定値は`'Z'`。
 
+### axis（Gprim）
+
+Cylinder・Cone・Capsule・Planeで、どの軸を高さ方向にするかを決めるAttributeです。既定は`Z`です。
+
+### BasisCurves
+
+制御点の並びで曲線を表すGprimです。`curveVertexCounts`で1本ごとの点数を区切ります。
+
 ### BBoxCache
 
 Primを囲む箱を計算するためのPythonのオブジェクト。
@@ -144,6 +156,10 @@ bindingのRelationshipに付けるMetadataです。`weakerThanDescendants`が既
 
 共有を保ったまま、classなどを経由して全Instanceを一度に変えること。
 
+### Capsule
+
+両端が半球の円柱です。`height`は円柱部分だけの長さで、全長は`height + radius × 2`です。
+
 ### catmullClark
 
 OpenUSDのMeshで既定となっている細分化の方式です。
@@ -159,6 +175,14 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 ### Clip Manifest
 
 どの属性がClipから供給されるかを、名前と型だけで宣言したLayerです。全ファイルを開かずに済ませるために使います。
+
+### clippingRange
+
+描画する距離の範囲です。world unitで手前と奥の2つを持ちます。既定は`(1, 1000000)`です。
+
+### Collection
+
+階層と関係なくPrimの集まりに名前を付ける仕組みです。`CollectionAPI`で作ります。
 
 ### Collection-based binding
 
@@ -224,6 +248,10 @@ Point Instance 1体ごとの変換を行列の配列で返すPython APIです。
 
 どの配置が有効かを真偽の配列で返すPython API。
 
+### ComputePurpose
+
+継承をたどった結果のpurposeを返すPython APIです。
+
 ### ComputeVisibility
 
 親からの継承まで含めて、最終的に描画されるかを求めるPython API。
@@ -251,6 +279,10 @@ Payloadの先に置く、Assetの実際の中身。
 ### CreateClassPrim
 
 `class`のPrimを作るPython API。
+
+### Cube
+
+立方体のGprimです。`size`は一辺の長さで、半径ではありません。
 
 ### custom
 
@@ -356,6 +388,10 @@ Gprimに最初から用意されている表示用の色のPrimvarです。既�
 
 Assetを外から使うときに最初に開かれるファイル、およびそのPrimです。
 
+### expansionRule
+
+Collectionで、指定したPathの子孫まで含めるかを決めるAttributeです。`explicitOnly`・`expandPrims`・`expandPrimsAndProperties`があります。
+
 ### explicit
 
 キーワードを付けずに書き、一覧を丸ごと置き換える記述。
@@ -419,6 +455,10 @@ Load可能なPrimの一覧を返すPython API。
 ### Flatten
 
 合成した結果を1枚のLayerにまとめること。Pythonでは`stage.Flatten()`。
+
+### focalLength（焦点距離）
+
+レンズの焦点距離です。world unitの10分の1で表し、大きいほど狭く写ります。
 
 ### Free Camera
 
@@ -535,6 +575,10 @@ PointInstancerの各配置に振る番号。表示制御の対象を指すのに
 ### inactiveIds
 
 指定したidの配置を無かったことにするPrim Metadata。
+
+### includes / excludes
+
+Collectionに入れるPathと、そこから除くPathを指すRelationshipです。
 
 ### Indexed Primvar
 
@@ -728,6 +772,10 @@ Bindingを読み書きするAPI Schema。
 
 行と列に並んだ数のまとまりです。`matrix4d`は座標変換に使います。
 
+### Membership Query
+
+あるPathがCollectionに含まれるかを判定するオブジェクトです。`ComputeMembershipQuery()`で得ます。
+
 ### Mesh
 
 多角形の面を集めて形を記述するGprimです。`UsdGeomMesh`に対応します。
@@ -860,6 +908,10 @@ Point Instancingを担うPrim型。
 
 頂点の座標を並べたAttributeです。型は`point3f[]`で、並べた順がPoint番号になります。
 
+### Points
+
+点群を表すGprimです。点ごとの大きさを`widths`で持ちます。
+
 ### positions
 
 各配置の位置を並べた`point3f[]`の配列。
@@ -936,6 +988,10 @@ Prim上のPrimvarを作成・取得するためのAPI Schemaです。
 
 Stageを構成する基本要素。シーングラフ上のノードです。
 
+### projection
+
+投影方法です。`perspective`（既定）と`orthographic`があります。
+
 ### Promotion
 
 Point Instanceの1体を`DeactivateId()`でpruneし、`ComputeInstanceTransformsAtTime()`で求めた変換を持つ通常のPrimを同じ場所へ置き直して、個別に編集できるようにすることです。
@@ -968,6 +1024,10 @@ PointInstancerが使う元の形を指すRelationshipです。複数持てます
 
 外側のPrototypeが内側のInstanceを持ち、内側のPrototypeが実際の形を持つ構造。
 
+### proxyPrim
+
+代役がどのPrimかを指すRelationshipです。対応関係を明示するために書きます。
+
 ### prune（刈り取り）
 
 対象を構成から取り除くことです。表示を切るのとは違い、そこに無いものとして扱われます。
@@ -991,6 +1051,10 @@ Stage階層の出発点です。Pathでは `/` で表します。
 ### purpose
 
 そのPrimを何のために描くかを示すImageableのAttribute。描画対象かどうかに関わる。
+
+### Quadric（二次曲面）
+
+数値をいくつか書くだけで形が決まるGprimの総称です。Sphere・Cylinder・Cone・Capsuleなど。
 
 ### radian（ラジアン）
 
@@ -1348,6 +1412,10 @@ OpenUSD一般の規則を検査するコマンドです。終了コードで結�
 
 `extentsHint`などのモデル情報を読み書きするAPI Schema。
 
+### UsdGeomCamera
+
+カメラを表すPrimです。`Xformable`なので階層と変換に従い、-Z方向を向きます。
+
 ### UsdGeomPrimvar
 
 Primvarを読み書きするためのPythonのクラス。
@@ -1459,6 +1527,10 @@ Pointごとに一つの値を対応させ、Surfaceの基底関数で補間す�
 ### Vt.Vec3fArray / Vt.IntArray
 
 Pythonのリストを、USDが扱える配列へ包む型。
+
+### widths
+
+曲線や点の太さです。Primvarと同じ`interpolation`が使えます。
 
 ### Workstream
 

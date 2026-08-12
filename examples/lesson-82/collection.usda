@@ -1,0 +1,43 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World" (
+    prepend apiSchemas = ["CollectionAPI:walls"]
+)
+{
+    uniform token collection:walls:expansionRule = "expandPrims"
+    rel collection:walls:includes = </World/Building>
+    rel collection:walls:excludes = </World/Building/Door>
+
+    def Xform "Building"
+    {
+        def Cube "Wall_A"
+        {
+            double size = 1
+        }
+        def Cube "Wall_B"
+        {
+            double size = 1
+        }
+        def Cube "Door"
+        {
+            double size = 1
+        }
+        def Cube "Lamp"
+        {
+            double size = 1
+        }
+    }
+
+    def Xform "Props"
+    {
+        def Cube "Chair"
+        {
+            double size = 1
+        }
+    }
+}
