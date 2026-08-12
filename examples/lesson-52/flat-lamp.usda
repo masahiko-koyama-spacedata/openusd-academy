@@ -1,8 +1,7 @@
 #usda 1.0
 (
     defaultPrim = "Lamp"
-    doc = """Generated from Composed Stage of root layer /Users/koyamamasahiko/Library/Mobile Documents/com~apple~CloudDocs/Documents/openusd-academy/examples/lesson-47/lamp_contents.usda
-"""
+    doc = """比較用: lamp_contents.usda を Flatten して1枚にまとめたもの"""
     metersPerUnit = 1
     upAxis = "Y"
 )
