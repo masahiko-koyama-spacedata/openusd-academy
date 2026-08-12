@@ -2,6 +2,80 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "USD: Open in usdview",
+      "detail": "いま開いているUSDAを usdview で開く（ビルドしたOpenUSD v26.08）",
+      "type": "process",
+      "command": "${workspaceFolder}/tools/usdview.sh",
+      "args": [
+        "${file}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": false,
+        "showReuseMessage": false
+      },
+      "runOptions": {
+        "instanceLimit": 4
+      }
+    },
+    {
+      "label": "USD: Open in usdview (選択したPrimを指定)",
+      "detail": "Primのフルパスを入力して、選択した状態で usdview を開く",
+      "type": "process",
+      "command": "${workspaceFolder}/tools/usdview.sh",
+      "args": [
+        "${file}",
+        "--select",
+        "${input:primPath}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "USD: Open in usdview (Payloadを開かない)",
+      "detail": "重いAssetの骨格だけを見る。--unloaded を付けて開く",
+      "type": "process",
+      "command": "${workspaceFolder}/tools/usdview.sh",
+      "args": [
+        "${file}",
+        "--unloaded"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": false,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "USD: Preview (シーンのライトだけで描画)",
+      "detail": "ビルドしたusdrecordで --disableCameraLight を付けて描画する。自分で書いたLightだけの結果を見る",
+      "type": "shell",
+      "command": "PYTHONPATH=\"$HOME/Developer/usd-install/lib/python3.9/site-packages\" \"$HOME/Developer/usd-install/bin/usdrecord\" --camera ShotCam --disableCameraLight --imageWidth 1200 --complexity high \"${file}\" \"${env:TMPDIR}usd-lit-${fileBasenameNoExtension}.png\" && open \"${env:TMPDIR}usd-lit-${fileBasenameNoExtension}.png\"",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": false,
+        "showReuseMessage": false
+      }
+    },
+    {
       "label": "USD: Validate and Preview Current File",
       "detail": "usdchecker で検証し、通ったら usdrecord で描画してプレビューを開く",
       "type": "shell",
@@ -112,6 +186,14 @@
         "panel": "dedicated",
         "clear": true
       }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "primPath",
+      "type": "promptString",
+      "description": "選択するPrimのフルパス",
+      "default": "/World"
     }
   ]
 }

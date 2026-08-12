@@ -58,3 +58,41 @@ python3 tools/check_order.py
 
 **問題が1件でもあれば終了コード 1 を返す。** 以前は常に 0 を返していたため、
 エラーを表示していてもシェルやCIからは成功として扱われていた。
+
+## usdview.sh
+
+ソースからビルドした OpenUSD の `usdview` を開くためのランチャ。
+
+```
+tools/usdview.sh examples/lesson-71/park.usda
+tools/usdview.sh examples/lesson-71/park.usda --select /Park/Benches/Bench_1
+tools/usdview.sh examples/lesson-13/asset.usda --unloaded
+```
+
+`usdview` は `pip install usd-core` には含まれないため、`~/Developer/usd-install`
+にビルドしたものを使う。`PYTHONPATH` を通さないと `pxr` が見つからず起動しない。
+場所を変えた場合は `USD_INSTALL` 環境変数で指定する。
+
+USDA の相対参照はファイル自身の場所から解決されるので、スクリプト内で
+対象ファイルのディレクトリへ移動してから起動している。
+
+## VS Code のタスク
+
+`.vscode/tasks.json` に登録済み。コマンドパレットの **Tasks: Run Task** から実行する。
+
+| タスク | 内容 |
+| --- | --- |
+| USD: Validate and Preview Current File | 既定のビルドタスク。usdchecker → usdrecord → プレビューを開く |
+| USD: Open in usdview | いま開いているUSDAを usdview で開く |
+| USD: Open in usdview (選択したPrimを指定) | Primのフルパスを入力し、選択した状態で開く |
+| USD: Open in usdview (Payloadを開かない) | `--unloaded` で骨格だけ見る |
+| USD: Preview (シーンのライトだけで描画) | `--disableCameraLight` 付き。自分で書いたLightだけの結果を見る |
+| USD: Validate Current File | usdchecker だけ |
+| USD: Show Scenegraph (usdtree) | 階層をツリー表示 |
+| USD: Show Composed Result (usdcat --flatten) | 合成後を1枚のUSDAで表示 |
+| Academy: Check Site | サイト全体の検査 |
+| Academy: Rebuild Curriculum | 学習順序・章ページ・ナビの再生成 |
+
+**ライトを確かめるときは「シーンのライトだけで描画」を使う。** 既定のプレビューは
+Apple の `usdrecord` で、ビューアが足すカメラライトが乗るため、自分で書いた Light の
+効果が分からない（[[STEP 34]] 参照）。
