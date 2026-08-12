@@ -104,6 +104,18 @@ Primが持つ値のあるProperty。色、サイズ、位置などを表しま�
 
 Primを囲む箱を計算するためのPythonのオブジェクト。
 
+### Binding Inheritance（bindingの継承）
+
+祖先に書いた`material:binding`が、bindingを持たない子孫へ受け継がれる仕組みです。
+
+### bindMaterialAs
+
+bindingのRelationshipに付けるMetadataです。`weakerThanDescendants`が既定で、`strongerThanDescendants`を指定できます。
+
+### Bounding Box（バウンディングボックス）
+
+対象を囲む最小の直方体です。中身を読まずに大きさや位置を判断するために使います。
+
 ### Broadcasted Refinement
 
 共有を保ったまま、classなどを経由して全Instanceを一度に変えること。
@@ -120,6 +132,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 
 そのPrimのReferenceの記述をすべて取り除くPython API。
 
+### Collection-based binding
+
+階層ではなく、`CollectionAPI`で作ったPrimの集まりに対してMaterialを結ぶ方法です。
+
 ### Composed Prim
 
 合成の結果としてStage上に現れるPrim。
@@ -135,6 +151,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 ### Composition（コンポジション）
 
 複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。
+
+### ComputeBoundMaterial
+
+継承と強さの規則をすべて解いた結果として、実際に割り当てられているMaterialを返すPython APIです。
 
 ### ComputeFlattened
 
@@ -155,6 +175,10 @@ Indexed Primvarのindexを解いた後の値の並びを返すPython APIです�
 ### concrete Schema
 
 型として実際に書けるTyped Schema。MeshやCubeなど。
+
+### Connection（接続）
+
+AttributeとAttributeを結ぶ仕組みです。`.connect`を付けて接続先のProperty Pathを書きます。
 
 ### constant
 
@@ -228,6 +252,10 @@ Compositionの結果、そのPrimが存在すると判定された状態。`IsDe
 
 Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは`constant`です。
 
+### doubleSided
+
+裏側から見た面も表として扱うかどうかを決めるAttributeです。既定は`false`です。
+
 ### Encapsulation（カプセル化）
 
 持ち込まれた側のComposition Arcが、そのファイルの中で完結していることです。
@@ -243,6 +271,10 @@ Assetを外から使うときに最初に開かれるファイル、およびそ
 ### Export Options
 
 変換の条件を、外から指定できるようにしたものです。
+
+### extent
+
+Gprimを囲む直方体を、最小点と最大点の2つで表したAttributeです。型は`float3[]`です。
 
 ### extentsHint
 
@@ -388,6 +420,10 @@ PointInstancerの各配置に振る番号。表示制御の対象を指すのに
 
 別のPrimの意見を受け取るComposition Arc。`class`と組み合わせて使うことが多い。
 
+### Input（inputs:）
+
+Shaderなどへ入る値を表すPropertyです。名前が`inputs:`で始まります。
+
 ### Instance
 
 共有するPrototypeをシーン内で繰り返し利用するものです。
@@ -488,6 +524,10 @@ Payloadを張った位置。ここから先を開くかどうかを選べる。
 
 中身から計算した要約を、入口側へ書き写しておくことです。
 
+### Looks
+
+MaterialとShaderをまとめて置くScopeに広く使われる名前です。規則ではなく慣習です。
+
 ### MassUnits
 
 Pythonで質量の単位を指定するための定数群。`kilograms`、`grams`、`slugs`。
@@ -499,6 +539,10 @@ Pythonで質量の単位を指定するための定数群。`kilograms`、`grams
 ### Material Binding
 
 GprimからMaterialへの結び付きです。`material:binding`というRelationshipで書かれます。
+
+### Material Purpose
+
+用途ごとにMaterialを使い分ける仕組みです。`material:binding:preview`と`material:binding:full`、および用途を限定しない指定があります。
 
 ### MaterialBindingAPI
 
@@ -532,6 +576,10 @@ Instanceを含むPrimを、さらにInstanceにすること。
 
 記録を残さず、読み書きの窓口としてだけ働くAPI Schema。
 
+### normals
+
+面の向きを表す法線のAttributeです。型は`normal3f[]`で、Primvarではありません。
+
 ### OpenUSD
 
 3Dシーンを記述、合成、シミュレーション、共同作業するためのフレームワーク。
@@ -540,9 +588,17 @@ Instanceを含むPrimを、さらにInstanceにすること。
 
 あるLayerが、あるPropertyやMetadataに対して持つ値の主張。
 
+### orientation
+
+`faceVertexIndices`の並べ方から面の表裏を決める規則です。`rightHanded`が既定で、`leftHanded`にすると判定が逆になります。
+
 ### orientations / scales
 
 PointInstancerで、向きと大きさを配置ごとに指定する配列。
+
+### Output（outputs:）
+
+外へ出す値を表すPropertyです。名前が`outputs:`で始まります。
 
 ### over
 
@@ -591,6 +647,10 @@ Meshの頂点の位置です。`points`に並ぶ座標を指します。
 ### PointInstancer
 
 Point Instancingを担うPrim型。
+
+### points
+
+頂点の座標を並べたAttributeです。型は`point3f[]`で、並べた順がPoint番号になります。
 
 ### positions
 
@@ -840,9 +900,17 @@ UVを保持するPrimvarの、慣習的な名前。
 
 合成されたOpenUSDシーンにアクセスする中心的なオブジェクトです。
 
+### strongerThanDescendants
+
+祖先のbindingを子孫のbindingより強くする指定です。上からまとめて差し替えるときに使います。
+
 ### Subdivision Surface（細分化サーフェス）
 
 粗い多角形Meshを規則にしたがって細かく分割し、なめらかな形を作る仕組みです。
+
+### Subdivision Surface（細分化曲面）
+
+粗い多角形を規則的に分割して滑らかな面を作る仕組みです。元のデータは粗いまま保たれます。
 
 ### subdivisionScheme
 
@@ -883,6 +951,10 @@ Relationshipが持つTarget Pathの一覧です。対象が一つのときも一
 ### Topology（トポロジー）
 
 PointとFaceのつながり方です。Primvarに必要な値の個数はこれで決まります。
+
+### Topology（トポロジ）
+
+Meshにおいて、どの点とどの点をつないで面を作るかというつながり方の情報です。座標そのものとは区別されます。
 
 ### Translate
 
@@ -968,13 +1040,25 @@ Primvarを読み書きするためのPythonのクラス。
 
 ツール間で共通して扱える、標準的なShaderの種類。
 
+### UsdPrimvarReader
+
+Gprimに載っているPrimvarを読み出す標準Shaderです。型ごとに`UsdPrimvarReader_float2`などがあります。
+
 ### usdrecord
 
 Stageを画像として描き出すコマンドです。
 
+### UsdShade
+
+マテリアルとシェーダを記述するためのSchemaの集まりです。
+
 ### usdtree
 
 Stageの階層を、Specifierと型名付きのツリーで表示するコマンドです。
+
+### UsdUVTexture
+
+画像ファイルをUV座標でサンプリングする標準Shaderです。出力は`rgb`・`r`・`g`・`b`・`a`です。
 
 ### USDZ
 
@@ -987,6 +1071,10 @@ Unicode文字を表す文字エンコーディングです。USDAは人が読め
 ### UV
 
 Surface上の位置をテクスチャ画像の座標へ対応させる値です。`faceVarying`で持たせることが多い値です。
+
+### UV座標
+
+テクスチャ画像のどこを形のどこへ対応させるかを表す2次元の座標です。USDでは`primvars:st`という名前で書くのが慣習です。
 
 ### Validation（検証）
 

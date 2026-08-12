@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Mesh "Plate"
+    {
+        uniform token subdivisionScheme = "none"
+
+        # Face は 2 枚。1 枚目は四角形（4）、2 枚目は三角形（3）
+        int[] faceVertexCounts = [4, 3]
+
+        # 合計 7 個。Face の順に、points の番号を並べる
+        int[] faceVertexIndices = [0, 1, 4, 3, 1, 2, 4]
+
+        # Point は 5 個
+        point3f[] points = [
+            (0, 0, 0), (1, 0, 0), (2, 0, 0),
+            (0, 1, 0), (1, 1, 0),
+        ]
+
+        # Face ごとに 1 個 = 2 個。どこが 1 枚の Face かを見えるようにする
+        color3f[] primvars:displayColor = [(0.85, 0.2, 0.2), (0.15, 0.35, 0.85)] (
+            interpolation = "uniform"
+        )
+    }
+
+    def Camera "ShotCam"
+    {
+        float focalLength = 50
+        float2 clippingRange = (0.1, 100)
+        double3 xformOp:translate = (1, 0.5, 6.9)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

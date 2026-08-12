@@ -111,18 +111,28 @@ PLAN = [
             ("18-xform-op-order.html", "Lesson 18", "XformOpOrder", "変換順序で結果が変わる理由"),
         ]),
     dict(
-        title="5. 形の上へ値を配る", slug="05-primvars",
-        lead="Primvarの回です。値の個数の数え方が中心で、5つのInterpolationを一つずつ確かめます。",
-        takeaway="interpolationを決めれば、必要な値の個数が決まる",
-        map=row(node("constant", "1個 — Prim全体"), node("uniform", "Face数"),
-                node("vertex / varying", "Point数"), node("faceVarying", "Face Vertex数"))
+        title="5. Meshの形と、その上へ値を配る", slug="05-primvars",
+        lead="まずMeshの形そのものを読み書きし、そこで数えた個数のままPrimvarへ進みます。",
+        takeaway="形の3つの数（Point・Face・Face Vertex）が、そのままPrimvarの個数になる",
+        map=row(node("points", "点の一覧", "is-base"), node("faceVertexIndices", "使う点の番号"),
+                node("faceVertexCounts", "何角形かの並び"))
+            + DOWN
+            + row(node("Point数", "= pointsの要素数"), node("Face数", "= countsの要素数"),
+                  node("Face Vertex数", "= countsの合計"))
+            + DOWN
+            + row(node("constant", "1個 — Prim全体"), node("uniform", "Face数"),
+                  node("vertex / varying", "Point数"), node("faceVarying", "Face Vertex数", "is-goal"))
             + DOWN
             + row(node("indices", "値を使い回して短くする"), node("継承", "constantだけが子へ降りる"))
             + band("同じ板（Face 2枚・Point 6個・Face Vertex 8個）で、全部を実際に描画して見比べます"),
-        outcomes=["interpolationごとに、値をいくつ書けばよいか数えられる",
+        outcomes=["Meshの形を3つの配列から読み取り、Point・Face・Face Vertexを数えられる",
+                  "subdivisionSchemeやorientationの書き忘れが何を招くか説明できる",
+                  "interpolationごとに、値をいくつ書けばよいか数えられる",
                   "Faceの境目で色を切り替えたいときにfaceVaryingを選べる",
                   "同じ値の繰り返しをindicesで短くできる"],
         items=[
+            ("35-mesh-topology.html", "Lesson 35", "Meshのトポロジ", "points・faceVertexCounts・faceVertexIndicesで形を作る"),
+            ("36-mesh-attributes.html", "Lesson 36", "Meshの見え方を決めるAttribute", "subdivisionScheme・orientation・doubleSided・extent"),
             ("23-primvars.html", "Lesson 23", "Primvars", "Attributeとの違いと三つの機能"),
             ("24a-constant.html", "Lesson 24A", "constant interpolation", "Prim全体へ一つの値"),
             ("24b-uniform.html", "Lesson 24B", "uniform interpolation", "Faceごとに一つの値"),
@@ -133,7 +143,27 @@ PLAN = [
             ("24g-primvar-inheritance.html", "Lesson 24G", "Primvar Inheritance", "constant Primvarを階層へ適用する"),
         ]),
     dict(
-        title="6. 時間を記述する", slug="06-time",
+        title="6. 見た目を記述する", slug="06-shading",
+        lead="形ができたので、次はその見え方です。MaterialとShaderの組み立て方と、形との結び付け方を扱います。",
+        takeaway="Materialは外向きの窓口、Shaderが中身。形からはRelationshipで結ぶ",
+        map=row(node("Gprim", "形の側", "is-base"), ARROW,
+                node("material:binding", "Relationshipで指す"), ARROW,
+                node("Material", "窓口。outputs:surface"), ARROW,
+                node("Shader", "中身。info:idと接続", "is-goal"))
+            + DOWN
+            + row(node("UsdPreviewSurface", "どこでも同じに解釈される標準Shader"),
+                  node("primvars:st", "第5章で書いたUVがここで効く"))
+            + band("bindingは子孫へ受け継がれます。祖先に一度書けば、下の形すべてに届きます"),
+        outcomes=["MaterialとShaderの役割の違いを説明できる",
+                  "outputs:surface.connectで両者をつなげる",
+                  "UsdPreviewSurfaceの主な入力を選んで質感を作れる",
+                  "material:bindingの継承と強さの規則を読み解ける"],
+        items=[
+            ("46-usdshade-basics.html", "Lesson 46", "UsdShadeの基礎", "MaterialとShaderを接続で組み立てる"),
+            ("50-material-binding.html", "Lesson 50", "Material Binding", "形とMaterialを結び、子孫へ受け継がせる"),
+        ]),
+    dict(
+        title="7. 時間を記述する", slug="07-time",
         lead="値が時間で変わる書き方です。Compositionへ進む前に済ませておきます。",
         takeaway="defaultは時間に依存しない値、Time Sampleは時点ごとの値",
         map=row(node("default", "時間に依存しない一つの値", "is-base"), ARROW,
@@ -146,7 +176,7 @@ PLAN = [
             ("11-time-codes-samples.html", "Lesson 11", "Time CodeとTime Sample", "時点と値で時間変化を記述する"),
         ]),
     dict(
-        title="7. Prim Specの3つの書き方", slug="07-specifiers",
+        title="8. Prim Specの3つの書き方", slug="08-specifiers",
         lead="Compositionの前に、def・over・classの違いをここで確実にします。これがないと合成の説明が読めません。",
         takeaway="描画されない理由は3つあり、それぞれ別の仕組み",
         map=row(node("def", "定義する。Stageに現れる", "is-goal"),
@@ -165,7 +195,7 @@ PLAN = [
             ("27c-class.html", "Lesson 27C", "class", "Inherits用の抽象Prim Specを作る"),
         ]),
     dict(
-        title="8. コンポジション", slug="08-composition",
+        title="9. コンポジション", slug="09-composition",
         lead="OpenUSDでいちばん難しい部分です。ここまでの土台があって初めて読み進められます。",
         takeaway="複数のLayerの意見を、決まった強さの順で一つに畳む",
         map=row(node("L", "Local"), node("I", "Inherits"), node("V", "Variant Sets"),
@@ -191,7 +221,7 @@ PLAN = [
             ("21-value-resolution.html", "Lesson 21", "Value Resolution", "Composition後のPropertyから最終値を選ぶ"),
         ]),
     dict(
-        title="9. ファイル先頭の宣言と入口", slug="09-stage-metadata",
+        title="10. ファイル先頭の宣言と入口", slug="10-stage-metadata",
         lead="第1章から毎回出てきた「ファイル先頭の丸括弧」を、ここで回収します。単位を直すにはscale、上方向を直すにはrotate、入口を語るにはReferenceが要るので、この位置に置いています。",
         takeaway="先頭の丸括弧は宣言であって、自動変換はしない",
         map=row(node("defaultPrim", "外から入る入口"), node("metersPerUnit", "長さの「1」"),
@@ -209,7 +239,7 @@ PLAN = [
             ("20c-kilograms-per-unit.html", "Lesson 20C", "kilogramsPerUnit", "質量の「1」が何キログラムかを宣言する"),
         ]),
     dict(
-        title="10. Compositionを組み立てる", slug="10-composition-practice",
+        title="11. Compositionを組み立てる", slug="11-composition-practice",
         lead="合成の仕組みが分かったところで、実際の組み立て方と、原因を追う道具へ進みます。",
         takeaway="合成の結果を疑う前に、寄与している記述の一覧を見る",
         map=row(node("組み立てる", "Arcの張り方・一覧の編集・境界の守り方", "is-base"), ARROW,
@@ -232,7 +262,7 @@ PLAN = [
             ("34b-property-stack.html", "Lesson 34B", "Property Stack", "Propertyへ寄与するSpecを調べる"),
         ]),
     dict(
-        title="11. モデル階層とアセット設計", slug="11-model-hierarchy",
+        title="12. モデル階層とアセット設計", slug="12-model-hierarchy",
         lead="Kindでシーンに役割を与え、再利用できるアセットの形にまとめます。",
         takeaway="Prim型は「何であるか」、Kindは「どういう役割か」",
         map=row(node("assembly", "公開できるまとまり", "is-base"), ARROW,
@@ -252,7 +282,7 @@ PLAN = [
             ("13-asset-structure.html", "Lesson 13", "再利用できるアセット設計", "Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern"),
         ]),
     dict(
-        title="12. Stageを調べて制御する", slug="12-stage-control",
+        title="13. Stageを調べて制御する", slug="13-stage-control",
         lead="大きなシーンを扱うための、読み込みと走査の制御です。",
         takeaway="見えない理由を切り分け、必要な部分だけを読む",
         map=row(node("active = false", "構成から外す。ファイルに書く"),
@@ -272,7 +302,7 @@ PLAN = [
             ("45-hydra.html", "Lesson 45", "Hydra", "Scene Indexとレンダリングの入口"),
         ]),
     dict(
-        title="13. パイプラインとData Exchange", slug="13-pipeline",
+        title="14. パイプラインとData Exchange", slug="14-pipeline",
         lead="他のツールとの間でデータを受け渡す実務です。ここからは設計の話が増えます。",
         takeaway="外から見える面と、中の作り方を分ける",
         map=row(node("Entry Point", "参照される入口", "is-base"), ARROW,
@@ -281,6 +311,9 @@ PLAN = [
             + DOWN
             + row(node("入力", "他ツールの形式"), ARROW, node("変換", "Geometry・Material"),
                   ARROW, node("検証", "usdcheckerと自前の規則", "is-goal"))
+            + DOWN
+            + row(node("Material", "窓口。outputs:surface"), ARROW, node("Shader", "中身。info:idと接続"),
+                  ARROW, node("material:binding", "形と結び、子孫へ受け継がれる"))
             + band("入口を固定しておくと、中身を作り直しても下流が壊れません"),
         outcomes=["Assetの入口と中身を分けて設計できる",
                   "作業ごとにLayerを分けて衝突を避けられる",
@@ -301,7 +334,7 @@ PLAN = [
             ("59-export-options.html", "Lesson 59", "Export Options", "変換条件を利用者へ公開する"),
         ]),
     dict(
-        title="14. Instancingと大規模シーン", slug="14-instancing",
+        title="15. Instancingと大規模シーン", slug="15-instancing",
         lead="同じものを大量に置くための仕組みです。数が増えたときに効いてきます。",
         takeaway="同じ中身は一つだけ持ち、置き方だけを増やす",
         map=row(node("そのまま並べる", "数だけPrimが増える", "is-base"), ARROW,
@@ -320,7 +353,7 @@ PLAN = [
             ("65-instancing-choice.html", "Lesson 65", "ScenegraphとPointの選択", "用途と制約を比較する"),
         ]),
     dict(
-        title="15. 調査・検証・総復習", slug="15-debugging",
+        title="16. 調査・検証・総復習", slug="16-debugging",
         lead="最後に、壊れたシーンを自分で直せるところまで進みます。",
         takeaway="推測せずに、道具で出どころを突き止める",
         map=row(node("症状", "見えない・色が違う・開けない", "is-base"), ARROW,

@@ -1,0 +1,85 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 33: Material Binding — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 33 · MATERIAL BINDING</p><h1>Material<span> Binding</span></h1><p class="lesson-lead">形とMaterialを結び、子孫へ受け継がせます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>material:binding は子孫へ受け継がれ 近い側の指定が勝つ ただし strongerThanDescendants を付けると逆転する</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>bindingはRelationshipで、API Schemaが必要</h2><p>形とMaterialを結ぶのが<strong>Binding</strong>です。<code>MaterialBindingAPI</code>というApplied API Schemaを適用すると、そのPrimに<code>rel material:binding</code>というRelationshipが使えるようになります。<a href="09b-schema-kinds.html">STEP 13</a>で見たとおり、Applied API Schemaは<code>apiSchemas</code>に名前が積まれ、Primの型は変わりません。Meshは適用後もMeshのままです。</p><p>bindingが<strong>Relationship</strong>であることには意味があります。<a href="04-attributes-relationships.html">STEP 06</a>で見たように、Relationshipは値ではなくPathを対象に持ちます。だからMaterialを別の場所へ移すと参照が壊れますし、逆に、複数の形が同じMaterialを指すのは自然にできます。</p><p>もう一つの要点は、bindingが<strong>子孫へ受け継がれる</strong>ことです。祖先のPrimにbindingを書くと、その下にあってbindingを書いていないGprimは、すべてそのMaterialが割り当てられたものとして扱われます。Assetのすべての形に1つずつ書く必要はありません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この「受け継ぐ」は、<a href="24g-primvar-inheritance.html">STEP 31</a>のPrimvar Inheritanceと同じ形の仕組みです。祖先に一度書けば下へ降りていき、途中で書き直せばそこから下が変わります。OpenUSDには同じ考え方が繰り返し出てくるので、1つ理解すると他が読みやすくなります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>祖先に1つ書き、必要な場所だけ上書きする</h2><div class="code-card usda-card"><div class="code-title"><span>binding.usda（抜粋）</span><span>USDA</span></div><pre><code># Geom にだけ bind する。子孫はこれを受け継ぐ
+def Scope "Geom" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+)
+{
+    rel material:binding = &lt;/World/Looks/Base&gt;
+
+    # binding を書いていない。祖先の Base を受け継ぐ
+    def Sphere "Body"
+    {
+        double radius = 0.8
+    }
+
+    # 自分で bind し直しているので、こちらが勝つ
+    def Sphere "Knob" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        double radius = 0.35
+        rel material:binding = &lt;/World/Looks/Trim&gt;
+    }
+}</code></pre></div><p><code>Body</code>には<code>material:binding</code>も<code>apiSchemas</code>もありません。それでも<code>Base</code>が割り当てられます。<code>Knob</code>は自分で書いているので、そちらが優先されます。既定では<strong>対象に近い側の指定が勝つ</strong>と覚えます。</p><p class="example-link"><a href="../examples/lesson-50/binding.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>受け継いだ球と、上書きした球</h2><figure class="render-result"><img src="../assets/images/lesson-50/binding.png" alt="大きな赤い球と、その右上に小さな青い球が並んでいる描画結果" width="800" height="583"><figcaption>大きい<code>Body</code>は祖先から<code>Base</code>（赤）を受け継ぎ、小さい<code>Knob</code>は自分で書いた<code>Trim</code>（青）になっています。<br><small>撮影: <code>examples/lesson-50/binding.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>ComputeBoundMaterialで、実際に効いている割り当てを見る</h2><p>あるPrimに最終的にどのMaterialが割り当てられているかは、自分で階層をたどらずに<code>ComputeBoundMaterial()</code>へ聞きます。返り値は<strong>Materialと、その割り当てを書いたRelationship</strong>の組です。2つ目を見れば「どのPrimに書かれた指定が効いたか」まで分かります。</p><div class="code-card python-card"><div class="code-title"><span>compute_bound.py</span><span>Python</span></div><pre><code>from pxr import UsdGeom, UsdShade
+
+geom = UsdGeom.Scope.Define(stage, "/Asset/Geom")
+body = UsdGeom.Mesh.Define(stage, "/Asset/Geom/Body")
+knob = UsdGeom.Mesh.Define(stage, "/Asset/Geom/Body/Knob")
+
+# 祖先にだけ bind する
+UsdShade.MaterialBindingAPI.Apply(geom.GetPrim()).Bind(base)
+
+for prim in [geom.GetPrim(), body.GetPrim(), knob.GetPrim()]:
+    binding = UsdShade.MaterialBindingAPI(prim)
+    material, rel = binding.ComputeBoundMaterial()
+    print("%-22s -> %-22s (bindingを書いたPrim: %s)"
+          % (prim.GetPath(), material.GetPath(),
+             rel.GetPrim().GetPath() if rel else "-"))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>/Asset/Geom            -> /Asset/Looks/Base      (bindingを書いたPrim: /Asset/Geom)
+/Asset/Geom/Body       -> /Asset/Looks/Base      (bindingを書いたPrim: /Asset/Geom)
+/Asset/Geom/Body/Knob  -> /Asset/Looks/Base      (bindingを書いたPrim: /Asset/Geom)</code></pre></div><p>3つとも同じMaterialで、しかも出どころが全部<code>/Asset/Geom</code>だと分かります。ここで<code>Knob</code>に自分のbindingを足すと、<code>Knob</code>だけが変わります。</p><div class="code-card python-card"><div class="code-title"><span>compute_bound.py（続き）</span><span>Python</span></div><pre><code>UsdShade.MaterialBindingAPI.Apply(knob.GetPrim()).Bind(trim)
+
+for prim in [body.GetPrim(), knob.GetPrim()]:
+    material, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial()
+    print("%-22s -> %s" % (prim.GetPath(), material.GetPath()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>/Asset/Geom/Body       -> /Asset/Looks/Base
+/Asset/Geom/Body/Knob  -> /Asset/Looks/Trim</code></pre></div></section>
+<section class="lesson-section"><p class="section-kicker">強さを逆転させる</p><h2>strongerThanDescendantsで、上から塗りつぶす</h2><p>既定では近い側が勝ちますが、これでは困る場面があります。たとえば、他所から持ってきたAssetの中でMaterialが個別に指定されていて、それをまとめて別のMaterialに差し替えたいときです。子孫を1つずつ書き換えるのは現実的ではありません。</p><p>そのために、bindingのRelationshipに<code>bindMaterialAs = "strongerThanDescendants"</code>というMetadataを付けられます。付けた側が、下にあるすべてのbindingより強くなります。</p><div class="code-card usda-card"><div class="code-title"><span>binding-stronger.usda（抜粋）</span><span>USDA</span></div><pre><code>def Scope "Geom" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+)
+{
+    rel material:binding = &lt;/World/Looks/Base&gt; (
+        bindMaterialAs = "strongerThanDescendants"
+    )
+
+    def Sphere "Body" { double radius = 0.8 }
+
+    # 自分で bind し直しても、祖先の strongerThanDescendants に負ける
+    def Sphere "Knob" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        double radius = 0.35
+        rel material:binding = &lt;/World/Looks/Trim&gt;
+    }
+}</code></pre></div><figure class="render-result"><img src="../assets/images/lesson-50/binding-stronger.png" alt="大きな赤い球と、その右上に小さな赤い球が並び、どちらも同じ色になっている描画結果" width="800" height="583"><figcaption><code>Knob</code>は<code>Trim</code>（青）を指したままです。それでも祖先の<code>strongerThanDescendants</code>が勝ち、両方とも<code>Base</code>（赤）になりました。<br><small>撮影: <code>examples/lesson-50/binding-stronger.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure><div class="code-card python-card"><div class="code-title"><span>stronger.py</span><span>Python</span></div><pre><code>binding = UsdShade.MaterialBindingAPI(geom.GetPrim())
+binding.Bind(base, UsdShade.Tokens.strongerThanDescendants)
+
+for prim in [body.GetPrim(), knob.GetPrim()]:
+    material, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial()
+    print("%-22s -> %s" % (prim.GetPath(), material.GetPath()))
+
+print("bindMaterialAs:", binding.GetMaterialBindingStrength(
+    binding.GetDirectBindingRel()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>/Asset/Geom/Body       -> /Asset/Looks/Base
+/Asset/Geom/Body/Knob  -> /Asset/Looks/Base
+bindMaterialAs: strongerThanDescendants</code></pre></div><p><code>Knob</code>のbinding自体は消えていません。書かれたまま、強さの規則で負けています。「消さずに上書きする」というのは、<a href="27b-over.html">STEP 36</a>の<code>over</code>や<a href="30-list-editing.html">STEP 54</a>のList Editingと同じ、OpenUSDに一貫した考え方です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>どちらの指定が効くか</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>祖先の binding</b><span>既定では弱い。子孫が書いていなければ効く</span></div><div class="map-node is-goal"><b>子孫の binding</b><span>既定では強い。近い側が勝つ</span></div></div><div class="map-note" aria-hidden="true">↓ bindMaterialAs = "strongerThanDescendants" を付けると</div><div class="map-row"><div class="map-node is-goal"><b>祖先の binding</b><span>下にあるすべての binding より強くなる</span></div><div class="map-node"><b>子孫の binding</b><span>書かれてはいるが、効かなくなる</span></div></div><div class="map-band">迷ったら ComputeBoundMaterial() の2つ目の返り値で、出どころのPrimを確かめます</div><figcaption>OpenUSD Academyによる、Material Bindingの強さの逆転を示す図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">purposeとCollection</p><h2>用途別のbindingと、まとめてのbinding</h2><p>ここまでは1種類のbindingだけを扱いました。実務では、これに2つの軸が加わります。用語だけ押さえておきます。</p><p><strong>Material Purpose</strong>は、用途ごとにMaterialを使い分ける仕組みです。<code>material:binding</code>のほかに<code>material:binding:preview</code>と<code>material:binding:full</code>を書き分けられます。<code>preview</code>は画面で素早く見るための軽いMaterial、<code>full</code>は最終レンダリング用です。用途を指定せずに書いた<code>material:binding</code>は、どちらの用途にも使える指定として扱われます。</p><p><strong>Collection-based binding</strong>は、階層と関係なく「このPrimたち」とまとめて指定する方法です。<a href="09b-schema-kinds.html">STEP 13</a>で見た<code>CollectionAPI</code>で対象の集まりを作り、それに対してMaterialを結びます。階層がMaterialごとに整理されていないAssetで有効です。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>強さの規則は、直接のbindingとCollection-based bindingが混ざると複雑になります。設計としては、まず<strong>階層を用途どおりに整理して、祖先へ1つ書く</strong>のが最も読みやすい形です。それで足りないときにだけ、Collectionや<code>strongerThanDescendants</code>を持ち出します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>binding が効かない、たどれない</h2><div class="mistake-list"><article><h3>MaterialBindingAPIを適用せずにrelだけ書く</h3><p><code>rel material:binding</code>だけ書いても動いてしまうことがありますが、<code>apiSchemas</code>に<code>MaterialBindingAPI</code>が入っていないと、そのPropertyはSchemaに裏付けられていない状態です。<code>usdchecker</code>や下流のツールが警告します。Pythonからは<code>UsdShade.MaterialBindingAPI.Apply(prim)</code>で適用します。</p></article><article><h3>自分で階層をさかのぼって判定する</h3><p>継承と強さの規則を自前で実装すると、<code>strongerThanDescendants</code>やCollection-based bindingを取りこぼします。必ず<code>ComputeBoundMaterial()</code>に聞きます。</p></article><article><h3>Materialを移動してbindingを直し忘れる</h3><p>bindingはPathを指すRelationshipです。<code>/Asset/Looks</code>の中でMaterialの名前を変えたり場所を移したりすると、指し先が無くなります。<a href="68-fix-broken-references.html">STEP 92</a>で扱う壊れた参照と同じ壊れ方です。</p></article><article><h3>Geomだけを抜き出してMaterialを置き去りにする</h3><p>階層を組み替えるとき、Meshだけをコピーすると<code>material:binding</code>だけが残り、指し先が存在しないという状態になります。<a href="58-prim-hierarchy-transformation.html">STEP 82</a>で実際にこれを起こして確かめます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Material Binding</dt><dd>形（Gprim）とMaterialを結び付けること。<code>rel material:binding</code>で記述する。</dd></div><div><dt>MaterialBindingAPI</dt><dd>bindingを扱うためのApplied API Schema。適用するとPrimの<code>apiSchemas</code>に積まれる。</dd></div><div><dt>Binding Inheritance（bindingの継承）</dt><dd>祖先に書いたbindingが、bindingを持たない子孫へ受け継がれる仕組み。</dd></div><div><dt>bindMaterialAs</dt><dd>bindingのRelationshipに付けるMetadata。<code>weakerThanDescendants</code>（既定）と<code>strongerThanDescendants</code>がある。</dd></div><div><dt>strongerThanDescendants</dt><dd>祖先のbindingを、子孫のbindingより強くする指定。上からまとめて差し替えるときに使う。</dd></div><div><dt>ComputeBoundMaterial</dt><dd>継承と強さの規則をすべて解いた結果として、実際に割り当てられているMaterialを返すAPI。</dd></div><div><dt>Material Purpose</dt><dd>用途ごとにMaterialを使い分ける仕組み。<code>preview</code>と<code>full</code>、および用途を限定しない指定がある。</dd></div><div><dt>Collection-based binding</dt><dd>階層ではなく、<code>CollectionAPI</code>で作ったPrimの集まりに対してMaterialを結ぶ方法。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_shade_material_binding_a_p_i.html">OpenUSD — UsdShadeMaterialBindingAPI</a></li><li><a href="https://openusd.org/release/api/usd_shade_page_front.html">OpenUSD — UsdShade module</a></li><li><a href="https://openusd.org/release/api/class_usd_collection_a_p_i.html">OpenUSD — UsdCollectionAPI</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="46-usdshade-basics.html">← STEP 32</a><a class="nav-chapter" href="../chapters/06-shading.html">6. 見た目を記述する</a><a href="11-time-codes-samples.html">STEP 34 →</a></nav></main><footer><p>OpenUSD Academy · STEP 33</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
