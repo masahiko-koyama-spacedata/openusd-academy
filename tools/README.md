@@ -62,11 +62,12 @@ python3 tools/check_order.py
 ## usdview.sh
 
 ソースからビルドした OpenUSD の `usdview` を開くためのランチャ。
+同じものを `~/.local/bin/usdview-open` にも置いてあり、**そちらはどのフォルダからでも使える**。
 
 ```
-tools/usdview.sh examples/lesson-71/park.usda
-tools/usdview.sh examples/lesson-71/park.usda --select /Park/Benches/Bench_1
-tools/usdview.sh examples/lesson-13/asset.usda --unloaded
+usdview-open examples/lesson-71/park.usda
+usdview-open examples/lesson-71/park.usda --select /Park/Benches/Bench_1
+usdview-open examples/lesson-13/asset.usda --unloaded
 ```
 
 `usdview` は `pip install usd-core` には含まれないため、`~/Developer/usd-install`
@@ -76,23 +77,28 @@ tools/usdview.sh examples/lesson-13/asset.usda --unloaded
 USDA の相対参照はファイル自身の場所から解決されるので、スクリプト内で
 対象ファイルのディレクトリへ移動してから起動している。
 
+`~/.local/bin/usdrecord-lit` も同じ場所にある。`--disableCameraLight` を付けて
+ビルドした `usdrecord` を呼ぶので、**自分で書いた Light だけの結果**が見られる。
+
 ## VS Code のタスク
 
-`.vscode/tasks.json` に登録済み。コマンドパレットの **Tasks: Run Task** から実行する。
+**USD 一般のタスクはユーザータスク**（`~/Library/Application Support/Code/User/tasks.json`）に
+置いてある。ワークスペースの `.vscode/tasks.json` だとそのフォルダを開いているときしか
+効かないため、どこでも使えるようにこちらへ移した。
 
 | タスク | 内容 |
 | --- | --- |
-| USD: Validate and Preview Current File | 既定のビルドタスク。usdchecker → usdrecord → プレビューを開く |
-| USD: Open in usdview | いま開いているUSDAを usdview で開く |
-| USD: Open in usdview (選択したPrimを指定) | Primのフルパスを入力し、選択した状態で開く |
-| USD: Open in usdview (Payloadを開かない) | `--unloaded` で骨格だけ見る |
-| USD: Preview (シーンのライトだけで描画) | `--disableCameraLight` 付き。自分で書いたLightだけの結果を見る |
-| USD: Validate Current File | usdchecker だけ |
-| USD: Show Scenegraph (usdtree) | 階層をツリー表示 |
-| USD: Show Composed Result (usdcat --flatten) | 合成後を1枚のUSDAで表示 |
-| Academy: Check Site | サイト全体の検査 |
-| Academy: Rebuild Curriculum | 学習順序・章ページ・ナビの再生成 |
+| USD: usdview で開く | 階層・Property・Layer Stack・Composition を見る |
+| USD: usdview で開く (Prim を選択) | Prim のパスを入力して選択済みで開く |
+| USD: usdview で開く (Payload を開かない) | `--unloaded` で骨格だけ |
+| USD: シーンのライトだけで描画 | `--disableCameraLight` 付きで PNG を出して開く |
+| USD: 検証する (usdchecker) | 書式と規約の検査 |
+| USD: 合成後を見る (usdcat --flatten) | 合成結果を1枚の USDA で表示 |
+| USD: 3Dで見る (usdz→プレビュー) | 既定のビルドタスク。回して見る用 |
+| USD: 階層を見る (usdtree --flatten) | 書かれたままと合成後を並べる |
+
+このリポジトリの `.vscode/tasks.json` には、**このリポジトリでしか意味の無い**
+`Academy: Check Site` と `Academy: Rebuild Curriculum` だけを残してある。
 
 **ライトを確かめるときは「シーンのライトだけで描画」を使う。** 既定のプレビューは
-Apple の `usdrecord` で、ビューアが足すカメラライトが乗るため、自分で書いた Light の
-効果が分からない（[[STEP 34]] 参照）。
+ビューアが足すカメラライトが乗るため、自分で書いた Light の効果が分からない（STEP 34 参照）。
