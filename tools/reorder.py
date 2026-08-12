@@ -84,6 +84,7 @@ PLAN = [
         items=[
             ("08-python-pxr-modules.html", "Lesson 08", "Pythonとpxrモジュール", "Usd・Sdf・Gf・UsdGeomを使い分ける"),
             ("09-metadata-schemas.html", "Lesson 09", "MetadataとSchema", "補助情報とデータの設計図を分ける"),
+        ("09b-schema-kinds.html", "Lesson 09B", "Schemaの種類", "Typed/APIの2系統と、concrete・abstract・applied・non-applied"),
         ]),
     dict(
         title="4. 形を置いて動かす", slug="04-transforms",

@@ -12,6 +12,7 @@
     <p class="lead">以下はAcademyによる初学者向け要約です。各レッスンでは公式資料を参照し、より厳密な意味と出典を示します。アルファベット順に並べ、日本語で始まる語を最後にまとめています。</p>
     <section><h2>用語一覧</h2><dl>
       <dt>absolute path</dt><dd>pseudo-rootから対象までを表すPath。</dd>
+      <dt>abstract Schema</dt><dd>型としては書けず、共通の性質をまとめるためのTyped Schema。ImageableやXformableなど。</dd>
       <dt>abstract（抽象）</dt><dd>Stageの既定の走査と描画から外れる状態。<code>IsAbstract()</code>が<code>True</code>を返す。</dd>
       <dt>active</dt><dd>PrimをStageの構成に含めるかどうかを決めるPrim Metadata。既定値は<code>true</code>。</dd>
       <dt>AddInherit</dt><dd>受け取る側にInheritsの対象Pathを追加するPython API。</dd>
@@ -19,7 +20,10 @@
       <dt>AddTarget</dt><dd>既存のTarget Listへ、Target Pathを一つ追加するPython API。</dd>
       <dt>AddVariantSet / AddVariant</dt><dd>選択肢の組と、その中の選択肢を作るPython API。</dd>
       <dt>Ancestral Arc</dt><dd>祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。</dd>
+      <dt>API Schema</dt><dd>Primの型を変えずに、機能や情報を足すSchema。</dd>
+      <dt>apiSchemas</dt><dd>appliedなAPI Schemaの一覧を保持するPrim Metadata。</dd>
       <dt>append</dt><dd>一覧の末尾へ項目を足すキーワード。</dd>
+      <dt>applied API Schema</dt><dd><code>Apply()</code>して<code>apiSchemas</code>に記録が残るAPI Schema。</dd>
       <dt>Arc Strength（強度）</dt><dd>競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。</dd>
       <dt>array</dt><dd>同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。</dd>
       <dt>assembly</dt><dd>公開できるまとまりを示すKind。列や区画のような集合に使う。</dd>
@@ -32,6 +36,7 @@
       <dt>Attribute（アトリビュート）</dt><dd>Primが持つ値のあるProperty。色、サイズ、位置などを表します。</dd>
       <dt>axis（Cylinder・Cone）</dt><dd>その形自体が伸びる方向を決めるAttribute。既定値は<code>'Z'</code>。</dd>
       <dt>BBoxCache</dt><dd>Primを囲む箱を計算するためのPythonのオブジェクト。</dd>
+      <dt>Broadcasted Refinement</dt><dd>共有を保ったまま、classなどを経由して全Instanceを一度に変えること。</dd>
       <dt>catmullClark</dt><dd>OpenUSDのMeshで既定となっている細分化の方式です。</dd>
       <dt>class</dt><dd>他のPrimが受け取るための意見をまとめて置く、abstractなPrimを作るSpecifierです。</dd>
       <dt>ClearReferences</dt><dd>そのPrimのReferenceの記述をすべて取り除くPython API。</dd>
@@ -41,7 +46,9 @@
       <dt>Composition（コンポジション）</dt><dd>複数のシーン記述を規則に従って一つの結果へ組み立てる仕組みです。</dd>
       <dt>ComputeFlattened</dt><dd>Indexed Primvarのindexを解いた後の値の並びを返すPython APIです。</dd>
       <dt>ComputeLocalToWorldTransform</dt><dd>そのPrimの、世界座標への変換行列を求めるPython API。</dd>
+      <dt>ComputeMaskAtTime</dt><dd>どの配置が有効かを真偽の配列で返すPython API。</dd>
       <dt>ComputeVisibility</dt><dd>親からの継承まで含めて、最終的に描画されるかを求めるPython API。</dd>
+      <dt>concrete Schema</dt><dd>型として実際に書けるTyped Schema。MeshやCubeなど。</dd>
       <dt>constant</dt><dd>Gprim全体へ値を一つだけ対応させるPrimvar Interpolationです。値の個数は形によらず常に1です。</dd>
       <dt>Contents</dt><dd>Payloadの先に置く、Assetの実際の中身。</dd>
       <dt>Converter</dt><dd>他のツールの形式からUSDを作る処理です。読む・対応づける・書くの3段に分けます。</dd>
@@ -71,6 +78,7 @@
       <dt>faceVarying</dt><dd>Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。Faceの境目で値を不連続にできます。</dd>
       <dt>faceVertexCounts</dt><dd>各Faceの頂点数を順に並べた配列です。要素数がFaceの枚数になります。</dd>
       <dt>faceVertexIndices</dt><dd>各Faceがどのpointを使うかを、<code>points</code>の位置番号で並べた配列です。</dd>
+      <dt>fallback（既定値）</dt><dd>Schemaが定める、記述が無いときに返る値。</dd>
       <dt>FindLoadable</dt><dd>Load可能なPrimの一覧を返すPython API。</dd>
       <dt>FindPrimvarWithInheritance</dt><dd>自分に無ければ親をさかのぼってPrimvarを探すPython APIです。</dd>
       <dt>Flatten</dt><dd>合成した結果を1枚のLayerにまとめること。Pythonでは<code>stage.Flatten()</code>。</dd>
@@ -85,13 +93,16 @@
       <dt>GetRelationships</dt><dd>そのPrimが持つRelationshipをすべて返すPython API。</dd>
       <dt>GetVariantSets().GetNames()</dt><dd>そのPrimが持つVariant Setの名前を一覧するPython API。</dd>
       <dt>Gprim</dt><dd>MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。</dd>
+      <dt>HasAPI</dt><dd>そのPrimに指定のAPI Schemaが付いているかを返すPython API。</dd>
       <dt>HasAuthoredReferences</dt><dd>そのPrimにReferenceが記述されているかを返すPython API。</dd>
       <dt>HasAuthoredValue</dt><dd>そのAttributeに値が実際に書かれているかを返すPython API。</dd>
       <dt>Hydra</dt><dd>Stageの内容を受け取り、実際に描く仕組みへ渡す層です。</dd>
       <dt>identifier（Layer）</dt><dd>そのLayerを一意に示す文字列。多くはファイルのPath。</dd>
       <dt>identity</dt><dd>そのAssetが何であるかを示す情報。名前・バージョン・種別など。</dd>
+      <dt>ids</dt><dd>PointInstancerの各配置に振る番号。表示制御の対象を指すのに使う。</dd>
       <dt>Imageable</dt><dd>画像化される可能性のあるPrimに共通する性質をまとめたSchemaの基盤です。</dd>
       <dt>Inactive</dt><dd><code>active = false</code>により、子孫ごと構成から外された状態。</dd>
+      <dt>inactiveIds</dt><dd>指定したidの配置を無かったことにするPrim Metadata。</dd>
       <dt>Indexed Primvar</dt><dd>値配列と、その値を参照するindex配列を分けたPrimvarです。</dd>
       <dt>indices</dt><dd>値の配列の何番目を使うかを並べた <code>int[]</code> の配列です。Primvar名の後ろに <code>:indices</code> を付けて表します。</dd>
       <dt>info:id</dt><dd>そのShaderがどの種類かを示すAttribute。</dd>
@@ -102,6 +113,7 @@
       <dt>instanceable</dt><dd>そのPrimをInstanceにするかを決めるPrim Metadataです。</dd>
       <dt>Internal Arc</dt><dd>同じLayerの中の別のPrimを指すComposition Arc。</dd>
       <dt>Interpolation（補間）</dt><dd>Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。</dd>
+      <dt>invisibleIds</dt><dd>指定したidの配置を描画しないようにする配列。</dd>
       <dt>IsA</dt><dd>そのPrimが指定した型かどうかを判定するPython API。</dd>
       <dt>IsAncestral</dt><dd>そのArcがAncestralかどうかを返すPython API。</dd>
       <dt>IsCustom</dt><dd>そのPropertyがCustomかどうかを返すPython API。</dd>
@@ -130,6 +142,7 @@
       <dt>Module（モジュール）</dt><dd>関連するOpenUSD APIをまとめた単位です。例: Usd、Sdf、Gf。</dd>
       <dt>Namespace（名前空間）</dt><dd>Property名をコロンで区切って階層的にまとめる仕組みです。</dd>
       <dt>Nested Instancing</dt><dd>Instanceを含むPrimを、さらにInstanceにすること。</dd>
+      <dt>non-applied API Schema</dt><dd>記録を残さず、読み書きの窓口としてだけ働くAPI Schema。</dd>
       <dt>OpenUSD</dt><dd>3Dシーンを記述、合成、シミュレーション、共同作業するためのフレームワーク。</dd>
       <dt>Opinion（意見）</dt><dd>あるLayerが、あるPropertyやMetadataに対して持つ値の主張。</dd>
       <dt>orientations / scales</dt><dd>PointInstancerで、向きと大きさを配置ごとに指定する配列。</dd>
@@ -186,6 +199,7 @@
       <dt>Scene Index</dt><dd>新しい世代で、Scene Delegateに代わって内容を供給する仕組み。</dd>
       <dt>Scene Namespace</dt><dd>Primの親子関係でできた名前の階層です。Pathで表されます。</dd>
       <dt>Scenegraph Instancing</dt><dd>合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。</dd>
+      <dt>SchemaRegistry</dt><dd>Schemaの種別や性質を問い合わせるためのPython API。</dd>
       <dt>Schema（スキーマ）</dt><dd>PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。</dd>
       <dt>Scope</dt><dd>変換を持たず、Primを論理的に整理するconcrete IsA Schemaです。</dd>
       <dt>Sdf.AttributeSpec</dt><dd>一つのLayerに書かれた、合成前のAttributeの記述を表すオブジェクト。</dd>
@@ -199,6 +213,7 @@
       <dt>SetDefaultPrim</dt><dd>Layerの入口となるPrimを設定するPython API。</dd>
       <dt>SetTargets</dt><dd>Target Listを、渡した一覧の内容に置き換えるPython API。</dd>
       <dt>Shader</dt><dd>見た目の計算を担うPrimです。<code>inputs:</code>で始まる入力に実際の値を持ちます。</dd>
+      <dt>single-apply / multiple-apply</dt><dd>1回だけ付けられるか、インスタンス名を変えて何度でも付けられるかの区別。</dd>
       <dt>Sparse Authoring（疎な記述）</dt><dd>同じ情報を必要な最小限の場所にだけ書く考え方です。</dd>
       <dt>Specifier</dt><dd>Prim Specの先頭に置き、そのPrimの扱い方を決める語です。<code>def</code>・<code>over</code>・<code>class</code>の3種類。</dd>
       <dt>SplitName</dt><dd>Namespaceで区切られたProperty名を要素に分解するPython API。</dd>
@@ -221,6 +236,7 @@
       <dt>Traversal（走査）</dt><dd>Stage上のPrimを順に訪れること。</dd>
       <dt>Traverse / TraverseAll</dt><dd>Stage上のPrimを順に回るPython API。前者は既定で定義済みのPrimだけ、後者は定義されていないPrimも含む。</dd>
       <dt>TraverseInstanceProxies</dt><dd>Instance Proxyも走査に含める条件を作るPython API。</dd>
+      <dt>Typed Schema</dt><dd>Primの型そのものになるSchema。<code>def Mesh</code>の<code>Mesh</code>にあたる。</dd>
       <dt>uniform</dt><dd>Faceごとに一つの値を対応させるPrimvar Interpolationです。Attributeの宣言に付く<code>uniform</code>（時間変化しない）とは別の意味です。</dd>
       <dt>Unresolved reference</dt><dd>参照先を解決できなかった状態。Primは残るが中身が空になる。</dd>
       <dt>upAxis</dt><dd>そのLayerで上とみなす軸を示すLayer Metadata。<code>'Y'</code>または<code>'Z'</code>。</dd>

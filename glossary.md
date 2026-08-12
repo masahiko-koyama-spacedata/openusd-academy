@@ -8,6 +8,10 @@
 
 pseudo-rootから対象までを表すPath。
 
+### abstract Schema
+
+型としては書けず、共通の性質をまとめるためのTyped Schema。ImageableやXformableなど。
+
 ### abstract（抽象）
 
 Stageの既定の走査と描画から外れる状態。`IsAbstract()`が`True`を返す。
@@ -36,9 +40,21 @@ Internal ReferenceをPythonから追加するAPI。
 
 祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。
 
+### API Schema
+
+Primの型を変えずに、機能や情報を足すSchema。
+
+### apiSchemas
+
+appliedなAPI Schemaの一覧を保持するPrim Metadata。
+
 ### append
 
 一覧の末尾へ項目を足すキーワード。
+
+### applied API Schema
+
+`Apply()`して`apiSchemas`に記録が残るAPI Schema。
 
 ### Arc Strength（強度）
 
@@ -88,6 +104,10 @@ Primが持つ値のあるProperty。色、サイズ、位置などを表しま�
 
 Primを囲む箱を計算するためのPythonのオブジェクト。
 
+### Broadcasted Refinement
+
+共有を保ったまま、classなどを経由して全Instanceを一度に変えること。
+
 ### catmullClark
 
 OpenUSDのMeshで既定となっている細分化の方式です。
@@ -124,9 +144,17 @@ Indexed Primvarのindexを解いた後の値の並びを返すPython APIです�
 
 そのPrimの、世界座標への変換行列を求めるPython API。
 
+### ComputeMaskAtTime
+
+どの配置が有効かを真偽の配列で返すPython API。
+
 ### ComputeVisibility
 
 親からの継承まで含めて、最終的に描画されるかを求めるPython API。
+
+### concrete Schema
+
+型として実際に書けるTyped Schema。MeshやCubeなど。
 
 ### constant
 
@@ -244,6 +272,10 @@ Face Vertexごとに一つの値を対応させるPrimvar Interpolationです。
 
 各Faceがどのpointを使うかを、`points`の位置番号で並べた配列です。
 
+### fallback（既定値）
+
+Schemaが定める、記述が無いときに返る値。
+
 ### FindLoadable
 
 Load可能なPrimの一覧を返すPython API。
@@ -300,6 +332,10 @@ InstanceからPrototypeを、PrototypeからInstanceの一覧を得るPython API
 
 MeshやSphereなど、実際に描画される形を持つPrimの総称です。Geometric Primitiveの略です。
 
+### HasAPI
+
+そのPrimに指定のAPI Schemaが付いているかを返すPython API。
+
 ### HasAuthoredReferences
 
 そのPrimにReferenceが記述されているかを返すPython API。
@@ -320,6 +356,10 @@ Stageの内容を受け取り、実際に描く仕組みへ渡す層です。
 
 そのAssetが何であるかを示す情報。名前・バージョン・種別など。
 
+### ids
+
+PointInstancerの各配置に振る番号。表示制御の対象を指すのに使う。
+
 ### Imageable
 
 画像化される可能性のあるPrimに共通する性質をまとめたSchemaの基盤です。
@@ -327,6 +367,10 @@ Stageの内容を受け取り、実際に描く仕組みへ渡す層です。
 ### Inactive
 
 `active = false`により、子孫ごと構成から外された状態。
+
+### inactiveIds
+
+指定したidの配置を無かったことにするPrim Metadata。
 
 ### Indexed Primvar
 
@@ -367,6 +411,10 @@ Instanceの内側のPrimを読むための、書き込みできないPrimです�
 ### Interpolation（補間）
 
 Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。
+
+### invisibleIds
+
+指定したidの配置を描画しないようにする配列。
 
 ### IsA
 
@@ -479,6 +527,10 @@ Property名をコロンで区切って階層的にまとめる仕組みです。
 ### Nested Instancing
 
 Instanceを含むPrimを、さらにInstanceにすること。
+
+### non-applied API Schema
+
+記録を残さず、読み書きの窓口としてだけ働くAPI Schema。
 
 ### OpenUSD
 
@@ -704,6 +756,10 @@ Primの親子関係でできた名前の階層です。Pathで表されます。
 
 合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。
 
+### SchemaRegistry
+
+Schemaの種別や性質を問い合わせるためのPython API。
+
 ### Schema（スキーマ）
 
 PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。
@@ -755,6 +811,10 @@ Target Listを、渡した一覧の内容に置き換えるPython API。
 ### Shader
 
 見た目の計算を担うPrimです。`inputs:`で始まる入力に実際の値を持ちます。
+
+### single-apply / multiple-apply
+
+1回だけ付けられるか、インスタンス名を変えて何度でも付けられるかの区別。
 
 ### Sparse Authoring（疎な記述）
 
@@ -843,6 +903,10 @@ Stage上のPrimを順に回るPython API。前者は既定で定義済みのPrim
 ### TraverseInstanceProxies
 
 Instance Proxyも走査に含める条件を作るPython API。
+
+### Typed Schema
+
+Primの型そのものになるSchema。`def Mesh`の`Mesh`にあたる。
 
 ### uniform
 

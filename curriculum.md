@@ -30,144 +30,145 @@ Primが持つ情報の中身に入ります。値の型と、対象の指し方�
 
 - **STEP 11:** [Pythonとpxrモジュール](lessons/08-python-pxr-modules.html) — Usd・Sdf・Gf・UsdGeomを使い分ける
 - **STEP 12:** [MetadataとSchema](lessons/09-metadata-schemas.html) — 補助情報とデータの設計図を分ける
+- **STEP 13:** [Schemaの種類](lessons/09b-schema-kinds.html) — Typed/APIの2系統と、concrete・abstract・applied・non-applied
 
 ## [4. 形を置いて動かす](chapters/04-transforms.html)
 
 階層と変換です。ここまでで、自分でシーンを組み立てられるようになります。
 
-- **STEP 13:** [Scope](lessons/15-scope.html) — 変換を持たず、Primを用途ごとに整理する
-- **STEP 14:** [Xformと階層](lessons/10-xform-hierarchy.html) — 親の変換が子へ届く仕組みを知る
-- **STEP 15:** [XformCommonAPI](lessons/16-xform-common-api.html) — 一般的な変換を交換しやすい構成で扱う
-- **STEP 16:** [Translate](lessons/17a-translate.html) — 位置を三つの軸で記述する
-- **STEP 17:** [Rotate](lessons/17b-rotate.html) — 回転角とRotation Orderを読む
-- **STEP 18:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
-- **STEP 19:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
-- **STEP 20:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
+- **STEP 14:** [Scope](lessons/15-scope.html) — 変換を持たず、Primを用途ごとに整理する
+- **STEP 15:** [Xformと階層](lessons/10-xform-hierarchy.html) — 親の変換が子へ届く仕組みを知る
+- **STEP 16:** [XformCommonAPI](lessons/16-xform-common-api.html) — 一般的な変換を交換しやすい構成で扱う
+- **STEP 17:** [Translate](lessons/17a-translate.html) — 位置を三つの軸で記述する
+- **STEP 18:** [Rotate](lessons/17b-rotate.html) — 回転角とRotation Orderを読む
+- **STEP 19:** [Scale](lessons/17c-scale.html) — 各軸の倍率を記述する
+- **STEP 20:** [Pivot](lessons/17d-pivot.html) — 回転と拡縮の中心を決める
+- **STEP 21:** [XformOpOrder](lessons/18-xform-op-order.html) — 変換順序で結果が変わる理由
 
 ## [5. 形の上へ値を配る](chapters/05-primvars.html)
 
 Primvarの回です。値の個数の数え方が中心で、5つのInterpolationを一つずつ確かめます。
 
-- **STEP 21:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
-- **STEP 22:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
-- **STEP 23:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
-- **STEP 24:** [vertex interpolation](lessons/24c-vertex.html) — Pointごとに一つの値
-- **STEP 25:** [varying interpolation](lessons/24d-varying.html) — Pointごとの値を線形補間する
-- **STEP 26:** [faceVarying interpolation](lessons/24e-face-varying.html) — Face Vertexごとに一つの値
-- **STEP 27:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
-- **STEP 28:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
+- **STEP 22:** [Primvars](lessons/23-primvars.html) — Attributeとの違いと三つの機能
+- **STEP 23:** [constant interpolation](lessons/24a-constant.html) — Prim全体へ一つの値
+- **STEP 24:** [uniform interpolation](lessons/24b-uniform.html) — Faceごとに一つの値
+- **STEP 25:** [vertex interpolation](lessons/24c-vertex.html) — Pointごとに一つの値
+- **STEP 26:** [varying interpolation](lessons/24d-varying.html) — Pointごとの値を線形補間する
+- **STEP 27:** [faceVarying interpolation](lessons/24e-face-varying.html) — Face Vertexごとに一つの値
+- **STEP 28:** [Indexed Primvars](lessons/24f-indexed-primvars.html) — 値とindexを分けて再利用する
+- **STEP 29:** [Primvar Inheritance](lessons/24g-primvar-inheritance.html) — constant Primvarを階層へ適用する
 
 ## [6. 時間を記述する](chapters/06-time.html)
 
 値が時間で変わる書き方です。Compositionへ進む前に済ませておきます。
 
-- **STEP 29:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
+- **STEP 30:** [Time CodeとTime Sample](lessons/11-time-codes-samples.html) — 時点と値で時間変化を記述する
 
 ## [7. Prim Specの3つの書き方](chapters/07-specifiers.html)
 
 Compositionの前に、def・over・classの違いをここで確実にします。これがないと合成の説明が読めません。
 
-- **STEP 30:** [def](lessons/27a-def.html) — Primを定義する
-- **STEP 31:** [over](lessons/27b-over.html) — 既存PrimへOpinionだけを重ねる
-- **STEP 32:** [class](lessons/27c-class.html) — Inherits用の抽象Prim Specを作る
+- **STEP 31:** [def](lessons/27a-def.html) — Primを定義する
+- **STEP 32:** [over](lessons/27b-over.html) — 既存PrimへOpinionだけを重ねる
+- **STEP 33:** [class](lessons/27c-class.html) — Inherits用の抽象Prim Specを作る
 
 ## [8. コンポジション](chapters/08-composition.html)
 
 OpenUSDでいちばん難しい部分です。ここまでの土台があって初めて読み進められます。
 
-- **STEP 33:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、Opinionの上書き
-- **STEP 34:** [SublayerとLayer Stack](lessons/12-sublayers.html) — 同じnamespaceを積み、Local内の強弱を追う
-- **STEP 35:** [L · Local Opinion](lessons/12-local.html) — 利用側の直接Opinionで上書きする
-- **STEP 36:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
-- **STEP 37:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
-- **STEP 38:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
-- **STEP 39:** [R · References](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
-- **STEP 40:** [P · Payloads](lessons/12-payloads.html) — Load可能な内容を合成する
-- **STEP 41:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
-- **STEP 42:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
+- **STEP 34:** [コンポジションとLIVERPS](lessons/12-composition.html) — 強度順序、SublayerとLocalの関係、Opinionの上書き
+- **STEP 35:** [SublayerとLayer Stack](lessons/12-sublayers.html) — 同じnamespaceを積み、Local内の強弱を追う
+- **STEP 36:** [L · Local Opinion](lessons/12-local.html) — 利用側の直接Opinionで上書きする
+- **STEP 37:** [I · Inherits](lessons/12-inherits.html) — クラスの変更をbroadcastする
+- **STEP 38:** [V · Variant Sets](lessons/12-variants.html) — 名前付き選択肢を合成する
+- **STEP 39:** [E · rElocates](lessons/12-relocates.html) — namespace上のPathを移し替える
+- **STEP 40:** [R · References](lessons/12-references.html) — 階層の接ぎ木とPath変換を追う
+- **STEP 41:** [P · Payloads](lessons/12-payloads.html) — Load可能な内容を合成する
+- **STEP 42:** [S · Specializes](lessons/12-specializes.html) — 最も弱いfallbackを共有する
+- **STEP 43:** [Value Resolution](lessons/21-value-resolution.html) — Composition後のPropertyから最終値を選ぶ
 
 ## [9. ファイル先頭の宣言と入口](chapters/09-stage-metadata.html)
 
 第1章から毎回出てきた「ファイル先頭の丸括弧」を、ここで回収します。単位を直すにはscale、上方向を直すにはrotate、入口を語るにはReferenceが要るので、この位置に置いています。
 
-- **STEP 43:** [Default Prim](lessons/09a-default-prim.html) — Layerを外から利用するときの入口を決める
-- **STEP 44:** [metersPerUnit](lessons/20a-meters-per-unit.html) — 長さの「1」が何メートルかを宣言する
-- **STEP 45:** [upAxis](lessons/20b-up-axis.html) — どの軸が上かを宣言する
-- **STEP 46:** [kilogramsPerUnit](lessons/20c-kilograms-per-unit.html) — 質量の「1」が何キログラムかを宣言する
+- **STEP 44:** [Default Prim](lessons/09a-default-prim.html) — Layerを外から利用するときの入口を決める
+- **STEP 45:** [metersPerUnit](lessons/20a-meters-per-unit.html) — 長さの「1」が何メートルかを宣言する
+- **STEP 46:** [upAxis](lessons/20b-up-axis.html) — どの軸が上かを宣言する
+- **STEP 47:** [kilogramsPerUnit](lessons/20c-kilograms-per-unit.html) — 質量の「1」が何キログラムかを宣言する
 
 ## [10. Compositionを組み立てる](chapters/10-composition-practice.html)
 
 合成の仕組みが分かったところで、実際の組み立て方と、原因を追う道具へ進みます。
 
-- **STEP 47:** [Prim Composition](lessons/28-prim-composition.html) — 複数のPrim Specが一つになる
-- **STEP 48:** [Internal ArcとExternal Arc](lessons/29-internal-external-arc.html) — 同じLayer内と別ファイル
-- **STEP 49:** [List Editing](lessons/30-list-editing.html) — prepend・append・delete・reorder
-- **STEP 50:** [Encapsulation](lessons/31-encapsulation.html) — Assetの境界を守る
-- **STEP 51:** [Variant Edit Context](lessons/32-variant-edit-context.html) — 選択肢の中へ書く
-- **STEP 52:** [Direct ArcとAncestral Arc](lessons/33-direct-ancestral-arc.html) — 同じArc内の強度を追う
-- **STEP 53:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
-- **STEP 54:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
+- **STEP 48:** [Prim Composition](lessons/28-prim-composition.html) — 複数のPrim Specが一つになる
+- **STEP 49:** [Internal ArcとExternal Arc](lessons/29-internal-external-arc.html) — 同じLayer内と別ファイル
+- **STEP 50:** [List Editing](lessons/30-list-editing.html) — prepend・append・delete・reorder
+- **STEP 51:** [Encapsulation](lessons/31-encapsulation.html) — Assetの境界を守る
+- **STEP 52:** [Variant Edit Context](lessons/32-variant-edit-context.html) — 選択肢の中へ書く
+- **STEP 53:** [Direct ArcとAncestral Arc](lessons/33-direct-ancestral-arc.html) — 同じArc内の強度を追う
+- **STEP 54:** [Prim Stack](lessons/34a-prim-stack.html) — Primへ寄与するPrim Specを調べる
+- **STEP 55:** [Property Stack](lessons/34b-property-stack.html) — Propertyへ寄与するSpecを調べる
 
 ## [11. モデル階層とアセット設計](chapters/11-model-hierarchy.html)
 
 Kindでシーンに役割を与え、再利用できるアセットの形にまとめます。
 
-- **STEP 55:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
-- **STEP 56:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
-- **STEP 57:** [group](lessons/19c-group.html) — Modelを正しい祖先階層へまとめる
-- **STEP 58:** [assembly](lessons/19d-assembly.html) — 公開可能なaggregate Assetを作る
-- **STEP 59:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
-- **STEP 60:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern
+- **STEP 56:** [Kind](lessons/19a-kind.html) — Schema型とModel Hierarchy上の役割を分ける
+- **STEP 57:** [component](lessons/19b-component.html) — 再利用可能なleaf modelを作る
+- **STEP 58:** [group](lessons/19c-group.html) — Modelを正しい祖先階層へまとめる
+- **STEP 59:** [assembly](lessons/19d-assembly.html) — 公開可能なaggregate Assetを作る
+- **STEP 60:** [subcomponent](lessons/19e-subcomponent.html) — component内部の重要なPrimを示す
+- **STEP 61:** [再利用できるアセット設計](lessons/13-asset-structure.html) — Asset Structure、Model Kind、Asset Interface、Reference/Payload Pattern
 
 ## [12. Stageを調べて制御する](chapters/12-stage-control.html)
 
 大きなシーンを扱うための、読み込みと走査の制御です。
 
-- **STEP 61:** [ActiveとInactive](lessons/41-active-inactive.html) — Compositionから除外する
-- **STEP 62:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
-- **STEP 63:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
-- **STEP 64:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
-- **STEP 65:** [Hydra](lessons/45-hydra.html) — Scene Indexとレンダリングの入口
+- **STEP 62:** [ActiveとInactive](lessons/41-active-inactive.html) — Compositionから除外する
+- **STEP 63:** [LoadとUnload](lessons/42-load-unload.html) — Payloadを制御する
+- **STEP 64:** [Stage Traversal](lessons/43-stage-traversal.html) — Primを順番に調べる
+- **STEP 65:** [Traversal Predicate](lessons/44-traversal-predicate.html) — 調べるPrimを絞る
+- **STEP 66:** [Hydra](lessons/45-hydra.html) — Scene Indexとレンダリングの入口
 
 ## [13. パイプラインとData Exchange](chapters/13-pipeline.html)
 
 他のツールとの間でデータを受け渡す実務です。ここからは設計の話が増えます。
 
-- **STEP 66:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
-- **STEP 67:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
-- **STEP 68:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
-- **STEP 69:** [Workstream Layers](lessons/49-workstream-layers.html) — 作業をLayerで分ける
-- **STEP 70:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
-- **STEP 71:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
-- **STEP 72:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
-- **STEP 73:** [Converterの構造](lessons/54-converter-structure.html) — 入力・変換・出力を分ける
-- **STEP 74:** [Geometry Extraction](lessons/55-geometry-extraction.html) — 点・法線・UVを対応させる
-- **STEP 75:** [Material Extraction](lessons/56-material-extraction.html) — MaterialとBindingを対応させる
-- **STEP 76:** [Asset Validation](lessons/57-asset-validation.html) — 規則をコードにする
-- **STEP 77:** [Prim Hierarchy Transformation](lessons/58-prim-hierarchy-transformation.html) — 階層を目的形へ変える
-- **STEP 78:** [Export Options](lessons/59-export-options.html) — 変換条件を利用者へ公開する
+- **STEP 67:** [データを運ぶパイプライン](lessons/14-data-pipelines.html) — データ交換、抽出、変換、検証、Instancing
+- **STEP 68:** [Asset Entry Point](lessons/47-asset-entry-point.html) — 参照される入口を作る
+- **STEP 69:** [Asset Interface](lessons/48-asset-interface.html) — 公開する情報を選ぶ
+- **STEP 70:** [Workstream Layers](lessons/49-workstream-layers.html) — 作業をLayerで分ける
+- **STEP 71:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
+- **STEP 72:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
+- **STEP 73:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
+- **STEP 74:** [Converterの構造](lessons/54-converter-structure.html) — 入力・変換・出力を分ける
+- **STEP 75:** [Geometry Extraction](lessons/55-geometry-extraction.html) — 点・法線・UVを対応させる
+- **STEP 76:** [Material Extraction](lessons/56-material-extraction.html) — MaterialとBindingを対応させる
+- **STEP 77:** [Asset Validation](lessons/57-asset-validation.html) — 規則をコードにする
+- **STEP 78:** [Prim Hierarchy Transformation](lessons/58-prim-hierarchy-transformation.html) — 階層を目的形へ変える
+- **STEP 79:** [Export Options](lessons/59-export-options.html) — 変換条件を利用者へ公開する
 
 ## [14. Instancingと大規模シーン](chapters/14-instancing.html)
 
 同じものを大量に置くための仕組みです。数が増えたときに効いてきます。
 
-- **STEP 79:** [Asset Modularity](lessons/60-asset-modularity.html) — 再利用単位を決める
-- **STEP 80:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
-- **STEP 81:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
-- **STEP 82:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
-- **STEP 83:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
-- **STEP 84:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
+- **STEP 80:** [Asset Modularity](lessons/60-asset-modularity.html) — 再利用単位を決める
+- **STEP 81:** [Scenegraph Instancing](lessons/61-scenegraph-instancing.html) — CompositionからPrototypeを作る
+- **STEP 82:** [Nested Instancing](lessons/62-nested-instancing.html) — Instanceを階層化する
+- **STEP 83:** [Instance Refinement](lessons/63-instance-refinement.html) — Instanceごとの差を付ける
+- **STEP 84:** [Point Instancing](lessons/64-point-instancing.html) — 大量の単純要素を配置する
+- **STEP 85:** [ScenegraphとPointの選択](lessons/65-instancing-choice.html) — 用途と制約を比較する
 
 ## [15. 調査・検証・総復習](chapters/15-debugging.html)
 
 最後に、壊れたシーンを自分で直せるところまで進みます。
 
-- **STEP 85:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
-- **STEP 86:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
-- **STEP 87:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
-- **STEP 88:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
-- **STEP 89:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
-- **STEP 90:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
-- **STEP 91:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
+- **STEP 86:** [usdrecordとusdtreeでStageを読む](lessons/66-inspect-stage.html) — 構造と描画を確かめる
+- **STEP 87:** [Layer Stackを調べる](lessons/67-inspect-layer-stack.html) — どのLayerの意見が効いているか
+- **STEP 88:** [壊れたReferenceとPathを直す](lessons/68-fix-broken-references.html) — よくある破損の直し方
+- **STEP 89:** [Pythonで最小Validationを書く](lessons/69-minimal-validation.html) — 規則を自動で確かめる
+- **STEP 90:** [小さなAssetを最初から組み立てる](lessons/70-build-an-asset.html) — 総合演習1
+- **STEP 91:** [複数Assetから小さなSceneを作る](lessons/71-build-a-scene.html) — 総合演習2
+- **STEP 92:** [OpenUSD教材の総復習](lessons/72-review.html) — 全体を振り返る
 
 > **Academy方針:** 各レッスンは現在と同程度の長さと難易度に保ち、一回に一つの中心概念を扱います。公式の概念を改変せず、図解・USDA/Python対訳・日本語でのつまずき対策を加えます。
