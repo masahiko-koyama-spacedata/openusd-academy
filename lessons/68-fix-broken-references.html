@@ -101,7 +101,7 @@ alive = [t for t in rel.GetTargets()
          if stage.GetPrimAtPath(t.GetPrimPath())]
 rel.SetTargets(alive)
 
-stage.Save()</code></pre></div><p>参照は<code>ClearReferences()</code>で一度消してから張り直すのが確実です。<a href="30-list-editing.html">STEP 55 List Editing</a>のとおり、追加だけすると古い記述が残ったままになるためです。</p><div class="code-card python-card"><div class="code-title"><span>直したあとの確認</span><span>Python / コマンド</span></div><pre><code>for name in ("Good", "MissingFile", "WrongPath"):
+stage.Save()</code></pre></div><p>参照は<code>ClearReferences()</code>で一度消してから張り直すのが確実です。<a href="30-list-editing.html">STEP 55 List Editing</a>のとおり、追加だけすると古い記述が残ったままになるためです。</p><div class="code-card python-card"><div class="code-title"><span>直したあとの確認</span><span>Python</span></div><pre><code>for name in ("Good", "MissingFile", "WrongPath"):
     prim = fixed.GetPrimAtPath("/World/%s" % name)
     print(name, [c.GetName() for c in prim.GetChildren()])
 # Good         ['Body']
@@ -109,9 +109,7 @@ stage.Save()</code></pre></div><p>参照は<code>ClearReferences()</code>で一�
 # WrongPath    ['Body']     … 中身が来た
 
 print(check_targets(fixed))
-# []                        … 切れたtargetも無くなった
-
-$ usdchecker broken.usda
+# []                        … 切れたtargetも無くなった</code></pre></div><div class="code-card"><div class="code-title"><span>usdchecker で最終確認</span><span>コマンド</span></div><pre><code>$ usdchecker broken.usda
 Success!</code></pre></div><p>3つとも子が来て、切れたtargetも無くなり、<code>usdchecker</code>も通りました。<strong>直したあとに、壊れていることを見つけたのと同じ道具でもう一度確かめる</strong>ところまでが一組です。直したつもりで別の場所を壊していないかも、これで分かります。</p></section>
 <section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>直し方の対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">参照を張り直す</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">refs.ClearReferences() のあと AddReference(...)</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">相手のPathを指定する</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">AddReference("part.usda", "/Part")</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">切れたtargetを外す</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">rel.SetTargets(生きているものだけ)</code></li></ol></section>
 <section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>相対パスの基準</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>ファイルが見つからない原因で多いのが、相対パスの基準の取り違えです。<code>@part.usda@</code>のような相対パスは、<strong>それを書いているファイルの場所</strong>を基準に解決されます。Stageのルートでも、実行時の作業ディレクトリでもありません。ファイルを別の場所へ移したときは、そのファイルが書いている相対パスも見直す必要があります。</p></aside></section>

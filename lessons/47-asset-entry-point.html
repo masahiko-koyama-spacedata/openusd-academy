@@ -40,7 +40,7 @@ def Xform "Lamp" (
     }
 }</code></pre></div><p>使う側が知っているのはファイル名だけです。中がどう作られているか、どのファイルに分かれているかは一切書きません。これが<a href="31-encapsulation.html">STEP 56 Encapsulation</a>で扱った境界です。</p><p class="example-link"><a href="../examples/lesson-47/scene.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">結果</p><h2>入口から入れば、中身が組み上がって出てくる</h2><figure class="render-result"><img src="../assets/images/lesson-47/asset-scene.png" alt="銀色の台と支柱、黄色い笠を持つランプが2つ並んで描画された結果" width="800" height="583"><figcaption>使う側は<code>lamp.usda</code>という1行を書いただけですが、形も色も組み上がっています。<br><small>撮影: <code>examples/lesson-47/scene.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
-<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>中身を開かずに、名乗りだけ読む</h2><div class="code-card python-card"><div class="code-title"><span>read_interface.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>中身を開かずに、名乗りだけ読む</h2><div class="code-card python-card"><div class="code-title"><span>read_interface.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 # Payloadを一つも開かずにシーンを読む
 stage = Usd.Stage.Open("scene.usda", Usd.Stage.LoadNone)

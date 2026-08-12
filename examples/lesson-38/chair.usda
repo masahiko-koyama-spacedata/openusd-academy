@@ -1,6 +1,8 @@
 #usda 1.0
 (
     defaultPrim = "Chair"
+    metersPerUnit = 1
+    upAxis = "Y"
 )
 
 # 共有される中身。displayColor は書かない（外側から配れるようにするため）

@@ -1,0 +1,25 @@
+#usda 1.0
+(
+    defaultPrim = "Chair"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+# 下流から書き込むための受け口。中身は空でよい
+class Xform "_Style"
+{
+}
+
+class Xform "_Worn"
+{
+}
+
+def Xform "Chair" (
+    inherits = </_Style>
+)
+{
+    def Sphere "Seat"
+    {
+        double radius = 0.5
+    }
+}

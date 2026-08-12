@@ -260,6 +260,10 @@ Schemaが定義していない、利用者が独自に足したProperty。
 
 `instanceable`を外し、そのPrimの中身を個別に持たせること。
 
+### DeactivateId
+
+指定したidのPoint Instanceを`inactiveIds`へ加えるPython APIです。Promotionの前段で使います。
+
 ### def
 
 Primを定義するSpecifierです。Stage上にdefinedなPrimとして現れます。
@@ -904,13 +908,25 @@ Primが持つ情報。AttributeとRelationshipの2種類があります。
 
 複数のInstanceが共有するシーン構造です。
 
+### prototypes（Relationship）
+
+PointInstancerが使う元の形を指すRelationshipです。複数持てます。Scenegraph InstancingのPrototypeとは別のものです。
+
 ### Prototypeの階層
 
 外側のPrototypeが内側のInstanceを持ち、内側のPrototypeが実際の形を持つ構造。
 
+### prune（刈り取り）
+
+対象を構成から取り除くことです。表示を切るのとは違い、そこに無いものとして扱われます。
+
 ### pruning（枝刈り）
 
 探索対象外の枝をたどらず、処理を減らすことです。Traversal Predicateはフィルタではなくこれを行います。
+
+### pseudo-root（擬似ルート）
+
+Stageの階層の出発点です。Pathの先頭のスラッシュがこれを表し、名前を持ちません。
 
 ### pseudo-root（疑似ルート）
 
@@ -1075,6 +1091,10 @@ Target Listを、渡した一覧の内容に置き換えるPython API。
 ### Sparse Authoring（疎な記述）
 
 同じ情報を必要な最小限の場所にだけ書く考え方です。
+
+### Specializes
+
+Inheritsと似た形のComposition Arcですが、LIVERPSでReferenceより弱い位置にあります。競合しない新しいOpinionや子PrimはBroadcastできますが、Referenceで持ち込んだ値の上書きには向きません。
 
 ### Specifier
 

@@ -37,6 +37,33 @@ print([str(p.GetPath()) for p in stage.Traverse(~Usd.PrimIsActive)])
 inactive = [p for p in stage.TraverseAll() if not p.IsActive()]
 print([str(p.GetPath()) for p in inactive])
 # ['/World/Robot/Spare']</code></pre></div><p>Predicateは<strong>降りるかどうか</strong>を決めるものです。したがって「条件に合う少数を探す」用途には向きません。向いているのは「条件に合わない枝を丸ごと読まずに済ませる」用途で、大きなシーンを速く処理したいときに効きます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>走査対象になる条件がここに書かれている</h2><div class="code-card usda-card"><div class="code-title"><span>traversal.usda（抜粋）</span><span>USDA</span></div><pre><code>class Xform "_Style"
+{
+    double3 xformOp:scale = (2, 2, 2)
+    uniform token[] xformOpOrder = ["xformOp:scale"]
+}
+
+def Xform "World" (
+    kind = "group"
+)
+{
+    def Xform "Robot" (
+        kind = "component"
+    )
+    {
+        def Cube "Body"
+        {
+            double size = 1
+        }
+
+        def Cube "Spare" (
+            active = false
+        )
+        {
+            double size = 0.4
+        }
+    }
+}</code></pre></div><p>Predicateの効き方を追うための材料が、この1枚に揃っています。<code>class Xform "_Style"</code>はabstractなPrim、<code>active = false</code>のついた<code>Spare</code>はInactiveなPrimです。どちらもDefault Predicateでは走査に出てきません。<code>&lt; &gt;</code>で囲まれていないPathの断片、丸括弧の中のMetadata、波括弧の中のPropertyという読み分けは<a href="07-usda-syntax.html">STEP 04</a>のとおりです。</p><p class="example-link"><a href="../examples/lesson-43/traversal.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>フィルタと枝刈りの違い</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">フィルタ（誤解）</span><strong>全部を訪れて、条件に合うものだけを結果に残す</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">枝刈り（実際）</span><strong>条件に合わないPrimに出会った時点で、その配下へ降りない</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">結果の違い</span><strong>上のほうで切られると、条件に合う子孫があっても見つからない</strong></div><figcaption>OpenUSD AcademyによるTraversal Predicateの働き方の図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>使い分けの型</h2><div class="code-card python-card"><div class="code-title"><span>choose.py</span><span>Python</span></div><pre><code>from pxr import Usd
 

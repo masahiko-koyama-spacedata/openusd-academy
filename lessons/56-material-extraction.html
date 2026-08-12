@@ -33,7 +33,7 @@
     }
 }</code></pre></div><p><code>prepend apiSchemas = ["MaterialBindingAPI"]</code>は、このPrimがBindingを持つと宣言する行で、Bindingを書くときに自動で付きます。読む順番は3つです。<code>Panel</code>の<code>material:binding</code>が<code>Paint</code>を指し、<code>Paint</code>の<code>outputs:surface.connect</code>が<code>Surface</code>を指し、<code>Surface</code>が実際の値を持っています。<code>rel</code>で書かれているとおり、Bindingは<a href="25-relationship-target.html">STEP 09 Relationship</a>です。</p><p class="example-link"><a href="../examples/lesson-54/tile.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>たどる順路</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Mesh /Tile/Geom/Panel</b><span>形。material:binding を持つ</span></div></div><div class="map-note" aria-hidden="true">↓ Binding（Relationship）</div><div class="map-row"><div class="map-node"><b>Material /Tile/Looks/Paint</b><span>見た目のひとまとまり</span></div></div><div class="map-note" aria-hidden="true">↓ outputs:surface の接続</div><div class="map-row"><div class="map-node is-goal"><b>Shader /Tile/Looks/Paint/Surface</b><span>diffuseColor や roughness の実際の値</span></div></div><div class="map-band">値はいちばん奥にあります。Materialを見ただけでは色は分かりません</div><figcaption>OpenUSD AcademyによるMaterialのたどり方の図</figcaption></figure></section>
-<section class="lesson-section"><p class="section-kicker">Python</p><h2>結び付きをたどって値まで届く</h2><div class="code-card python-card"><div class="code-title"><span>extract_material.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom, UsdShade
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>結び付きをたどって値まで届く</h2><div class="code-card python-card"><div class="code-title"><span>extract_material.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom, UsdShade
 
 stage = Usd.Stage.Open("tile.usda")
 mesh = UsdGeom.Mesh(stage.GetPrimAtPath("/Tile/Geom/Panel"))
@@ -49,7 +49,7 @@ print(shader.GetIdAttr().Get())  # UsdPreviewSurface
 # 3. Shaderから値を読む
 print(shader.GetInput("diffuseColor").Get())   # Gf.Vec3f(0.85..., 0.35..., 0.2...)
 print(shader.GetInput("roughness").Get())      # 0.4000000059604645</code></pre></div><p><code>ComputeBoundMaterial()</code>は<strong>タプルを返す</strong>ので、先頭を取ります。この関数は継承も考慮して結び付きを解決するため、親に付いたBindingも拾えます。<code>ComputeSurfaceSource()</code>も同じくタプルを返します。</p></section>
-<section class="lesson-section"><p class="section-kicker">Python</p><h2>使う側の形にまとめる</h2><div class="code-card python-card"><div class="code-title"><span>extract.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom, UsdShade
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>使う側の形にまとめる</h2><div class="code-card python-card"><div class="code-title"><span>extract.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom, UsdShade
 
 WANT = ("diffuseColor", "roughness", "metallic", "opacity")
 

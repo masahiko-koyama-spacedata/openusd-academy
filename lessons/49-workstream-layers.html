@@ -68,7 +68,7 @@ over "Lamp"
 def Xform "Lamp"
 {
 }</code></pre></div><p><code>subLayers</code>の並びが強さの順です。<strong>先に書いたほうが強い</strong>ので、<code>lamp_look.usda</code>が<code>lamp_geom.usda</code>より優先されます。色の担当が形の担当の値を上書きできるのは、この順序があるからです。</p><p class="example-link"><a href="../examples/lesson-47/lamp_contents.usda">このUSDAファイルを開く</a></p></section>
-<section class="lesson-section"><p class="section-kicker">結果</p><h2>どの値がどのファイルから来たかを確かめる</h2><div class="code-card python-card"><div class="code-title"><span>check_workstreams.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>どの値がどのファイルから来たかを確かめる</h2><div class="code-card python-card"><div class="code-title"><span>check_workstreams.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 stage = Usd.Stage.Open("lamp_contents.usda")
 

@@ -17,7 +17,7 @@ over "World"
         color3f[] primvars:displayColor = [(0.15, 0.35, 0.85)]
     }
 }</code></pre></div><p>土台の<code>specifier-base.usda</code>には<code>def Cube "Retouched"</code>があり、赤い色が書かれています。上のLayerは<code>over</code>で青を重ねています。つまり<code>/World/Retouched</code>には、2つのファイルからの記述が寄与しています。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-over.usda">このUSDAファイルを開く</a></p></section>
-<section class="lesson-section"><p class="section-kicker">結果</p><h2>2つのPrim Specが強い順に並ぶ</h2><div class="code-card python-card"><div class="code-title"><span>prim_stack.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>2つのPrim Specが強い順に並ぶ</h2><div class="code-card python-card"><div class="code-title"><span>prim_stack.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 stage = Usd.Stage.Open("specifier-over.usda")
 prim = stage.GetPrimAtPath("/World/Retouched")
@@ -28,7 +28,7 @@ for spec in prim.GetPrimStack():
 # specifier-over.usda  /World/Retouched  Sdf.SpecifierOver
 # specifier-base.usda  /World/Retouched  Sdf.SpecifierDef</code></pre></div><p>1行目が強い側です。上のLayerが<code>over</code>で、下のLayerが<code>def</code>であることが読み取れます。<a href="27b-over.html">STEP 37</a>で確かめた「書いたのは<code>over</code>だが、合成後の<code>GetSpecifier()</code>は<code>def</code>」という話が、このリストを見れば一目で分かります。</p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Stackの読み方</h2><figure class="hierarchy-figure"><div class="tree-stage"><span class="tree-kind">先頭 = 最も強い</span><strong>specifier-over.usda の over — ここの記述が優先される</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">後ろ = より弱い</span><strong>specifier-base.usda の def — ここが定義を与えている</strong></div><div class="tree-connector"></div><div class="tree-prim"><span class="tree-kind">合成結果</span><strong>定義は下から、色の値は上から</strong></div><figcaption>OpenUSD AcademyによるPrim Stackの読み方の図</figcaption></figure></section>
-<section class="lesson-section"><p class="section-kicker">Python</p><h2>調べたい情報を取り出す</h2><div class="code-card python-card"><div class="code-title"><span>inspect_stack.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>調べたい情報を取り出す</h2><div class="code-card python-card"><div class="code-title"><span>inspect_stack.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 stage = Usd.Stage.Open("specifier-over.usda")
 prim = stage.GetPrimAtPath("/World/Retouched")

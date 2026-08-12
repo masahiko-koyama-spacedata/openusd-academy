@@ -75,6 +75,7 @@
       <dt>Dangling target</dt><dd>存在しないPathを指したままのRelationshipのtargetです。<code>usdchecker</code>では報告されません。</dd>
       <dt>Data Mapping</dt><dd>入力と出力の間で、概念やFieldをどう対応させるかの決めごとです。</dd>
       <dt>De-instancing</dt><dd><code>instanceable</code>を外し、そのPrimの中身を個別に持たせること。</dd>
+      <dt>DeactivateId</dt><dd>指定したidのPoint Instanceを<code>inactiveIds</code>へ加えるPython APIです。Promotionの前段で使います。</dd>
       <dt>def</dt><dd>Primを定義するSpecifierです。Stage上にdefinedなPrimとして現れます。</dd>
       <dt>Default Predicate</dt><dd><code>Traverse()</code>が既定で使う条件。定義済み・Active・<strong>Load済み</strong>・非abstract・非instance proxy。</dd>
       <dt>Default Prim（デフォルトプリム）</dt><dd>Layer Metadataで指定する、そのLayerの主な入口となるtop-level Primです。</dd>
@@ -236,8 +237,11 @@
       <dt>Property（プロパティ）</dt><dd>Primが持つ情報。AttributeとRelationshipの2種類があります。</dd>
       <dt>protoIndices</dt><dd>各配置がどのPrototypeを使うかを並べた<code>int[]</code>の配列。</dd>
       <dt>Prototype</dt><dd>複数のInstanceが共有するシーン構造です。</dd>
+      <dt>prototypes（Relationship）</dt><dd>PointInstancerが使う元の形を指すRelationshipです。複数持てます。Scenegraph InstancingのPrototypeとは別のものです。</dd>
       <dt>Prototypeの階層</dt><dd>外側のPrototypeが内側のInstanceを持ち、内側のPrototypeが実際の形を持つ構造。</dd>
+      <dt>prune（刈り取り）</dt><dd>対象を構成から取り除くことです。表示を切るのとは違い、そこに無いものとして扱われます。</dd>
       <dt>pruning（枝刈り）</dt><dd>探索対象外の枝をたどらず、処理を減らすことです。Traversal Predicateはフィルタではなくこれを行います。</dd>
+      <dt>pseudo-root（擬似ルート）</dt><dd>Stageの階層の出発点です。Pathの先頭のスラッシュがこれを表し、名前を持ちません。</dd>
       <dt>pseudo-root（疑似ルート）</dt><dd>Stage階層の出発点です。Pathでは <code>/</code> で表します。</dd>
       <dt>publish</dt><dd>下流で利用できる安定したAssetとして提供することです。</dd>
       <dt>purpose</dt><dd>そのPrimを何のために描くかを示すImageableのAttribute。描画対象かどうかに関わる。</dd>
@@ -279,6 +283,7 @@
       <dt>Shader</dt><dd>見た目の計算を担うPrimです。<code>inputs:</code>で始まる入力に実際の値を持ちます。</dd>
       <dt>single-apply / multiple-apply</dt><dd>1回だけ付けられるか、インスタンス名を変えて何度でも付けられるかの区別。</dd>
       <dt>Sparse Authoring（疎な記述）</dt><dd>同じ情報を必要な最小限の場所にだけ書く考え方です。</dd>
+      <dt>Specializes</dt><dd>Inheritsと似た形のComposition Arcですが、LIVERPSでReferenceより弱い位置にあります。競合しない新しいOpinionや子PrimはBroadcastできますが、Referenceで持ち込んだ値の上書きには向きません。</dd>
       <dt>Specifier</dt><dd>Prim Specの先頭に置き、そのPrimの扱い方を決める語です。<code>def</code>・<code>over</code>・<code>class</code>の3種類。</dd>
       <dt>SphereLight</dt><dd>球状の光源です。位置が効き、離れるほど暗くなります。<code>radius</code>で大きさを決めます。</dd>
       <dt>SplitName</dt><dd>Namespaceで区切られたProperty名を要素に分解するPython API。</dd>

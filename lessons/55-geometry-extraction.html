@@ -41,6 +41,22 @@ if pv.GetInterpolation() == UsdGeom.Tokens.faceVarying:
     assert len(uvs) == sum(counts)      # face vertex の総数と一致する
 elif pv.GetInterpolation() == UsdGeom.Tokens.vertex:
     assert len(uvs) == len(mesh.GetPointsAttr().Get())</code></pre></div><p><code>ComputeFlattened()</code>を使うのが要点です。<a href="24f-indexed-primvars.html">STEP 30 Indexed Primvar</a>で扱ったとおり、値がindexで畳まれていることがあるためです。<code>Get()</code>だけだと短い配列が返り、個数が合わずに壊れます。取り出したあとは、<code>interpolation</code>に応じて個数を確かめます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>抽出する元のデータ</h2><div class="code-card usda-card"><div class="code-title"><span>tile.usda（抜粋・抽出元）</span><span>USDA</span></div><pre><code>def Xform "Tile"
+{
+    def Scope "Geom"
+    {
+        def Mesh "Panel" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            uniform token subdivisionScheme = "none"
+            int[] faceVertexCounts = [4]
+            int[] faceVertexIndices = [0, 1, 2, 3]
+            point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+            rel material:binding = &lt;/Tile/Looks/Paint&gt;
+        }
+    }
+}</code></pre></div><p>下のPythonが読んでいるのはこの3つの配列です。<code>faceVertexCounts</code>が<code>[4]</code>、<code>faceVertexIndices</code>が<code>[0, 1, 2, 3]</code>、<code>points</code>が4個。<a href="35-mesh-topology.html">STEP 22</a>の数え方どおり、Face 1枚・Point 4個・Face Vertex 4個です。波括弧の中がProperty、丸括弧の中がMetadata、<code>&lt; &gt;</code>がPathです。</p><p class="example-link"><a href="../examples/lesson-54/tile.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>個数の確かめ方</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>interpolation を読む</b><span>まずこれ。値の意味がここで決まる</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>constant</b><span>1個</span></div><div class="map-node"><b>uniform</b><span>len(faceVertexCounts)</span></div><div class="map-node"><b>vertex / varying</b><span>len(points)</span></div><div class="map-node"><b>faceVarying</b><span>sum(faceVertexCounts)</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>ComputeFlattened() の長さと突き合わせる</b><span>合わなければ、渡す前に落とす</span></div></div><div class="map-band">配列を取り出す前に、必ず interpolation を読む</div><figcaption>OpenUSD Academyによる、抽出時の個数確認の図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>まとめて取り出す関数にする</h2><div class="code-card python-card"><div class="code-title"><span>extract.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
 

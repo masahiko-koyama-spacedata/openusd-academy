@@ -33,6 +33,20 @@ for spec in attr.GetPropertyStack(Usd.TimeCode.Default()):
 print(attr.Get())      # [(0.95, 0.8, 0.35)]
 
 print(shade.GetAttribute("height").Get())   # 0.6（lamp_geom.usda から）</code></pre></div><p>色については<code>lamp_look.usda</code>だけが主張しているので、1行しか出ません。同じPrimでも<code>height</code>は<code>lamp_geom.usda</code>から来ています。<strong>Property単位で出どころが違う</strong>ことが、この見方で分かります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>調べる対象のLayer Stack</h2><div class="code-card usda-card"><div class="code-title"><span>lamp_contents.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Lamp"
+    metersPerUnit = 1
+    subLayers = [
+        @lamp_look.usda@,
+        @lamp_geom.usda@
+    ]
+    upAxis = "Y"
+)
+
+def Xform "Lamp"
+{
+}</code></pre></div><p>Layer Stackの並びは、ファイル先頭の丸括弧の中、<code>subLayers</code>に書かれています。角括弧の中は<strong>上に書いたものほど強い</strong>順です。ここでは<code>lamp_look.usda</code>が<code>lamp_geom.usda</code>より強くなります。<code>@ @</code>で囲むのはAsset Pathで、このファイルから見た相対パスとして解決されます。</p><p class="example-link"><a href="../examples/lesson-52/lamp_contents.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>絞り込みの順番</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>1. Layer Stack</b><span>そもそも積まれているか</span></div></div><div class="map-note" aria-hidden="true">↓ 積まれている</div><div class="map-row"><div class="map-node"><b>2. Prim Stack</b><span>このPrimに何か書いているか</span></div></div><div class="map-note" aria-hidden="true">↓ 書いている</div><div class="map-row"><div class="map-node is-goal"><b>3. Property Stack</b><span>この値を主張しているか。1行目が勝つ</span></div></div><div class="map-band">どの段階で消えたかが、そのまま原因になります</div><figcaption>OpenUSD Academyによる、出どころの絞り込みの図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Python</p><h2>3つをまとめて出す</h2><div class="code-card python-card"><div class="code-title"><span>trace.py</span><span>Python</span></div><pre><code>from pxr import Usd
 

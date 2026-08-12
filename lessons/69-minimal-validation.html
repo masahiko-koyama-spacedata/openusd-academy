@@ -92,6 +92,26 @@ def unique_camera_names(stage):
 # [empty-reference] /World/WrongPath: 参照はあるが子がいない
 
 print(run("park.usda"))    # []   ← 正しいシーンでは空になること</code></pre></div><p><a href="68-fix-broken-references.html">STEP 96</a>で壊したシーンを通すと、3件が報告されます。正しい公園のシーンでは空です。<strong>この2つを両方確かめる</strong>のが、検査を足すときの最低限の手順です。<code>usdchecker</code>と合わせて回せば、<strong>一般の規則と、自分が過去に踏んだ失敗の両方</strong>を毎回確かめられます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>検査にかける、壊れたシーン</h2><div class="code-card usda-card"><div class="code-title"><span>broken.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def "Good" (
+        references = @part.usda@
+    )
+    {
+    }
+
+    def "MissingFile" (
+        references = @missing-part.usda@
+    )
+    {
+    }
+
+    def "Selection"
+    {
+        rel members = &lt;/World/Nowhere&gt;
+    }
+}</code></pre></div><p>ここに2種類の壊れ方が入っています。<code>@missing-part.usda@</code>は<strong>存在しないファイル</strong>を指すAsset Path、<code>&lt;/World/Nowhere&gt;</code>は<strong>存在しないPrim</strong>を指すRelationship Targetです。前者は参照が解決できず子が現れないという形で、後者はTargetが宙に浮くという形で現れます。<code>@ @</code>がファイル、<code>&lt; &gt;</code>がStage内のPathという書き分けに注目してください。</p><p class="example-link"><a href="../examples/lesson-68/broken.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">references = @part.usda@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetReferences().GetAddedOrExplicitItems()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">rel members = &lt;/World/Nowhere&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetRelationship("members").GetTargets()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（そのPathにPrimがあるか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetPrimAtPath(target).IsValid()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（子がいるか＝参照が解決できたか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetChildren()</code></li></ol></section>
 <section class="lesson-section"><p class="section-kicker">Diagram</p><h2>検査を育てる流れ</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>1. 失敗する</b><span>エラーは出ないが、結果がおかしい</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>2. 原因を特定する</b><span>Stack・usdchecker・走査で切り分ける</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>3. 検査を1つ足す</b><span>次からは機械が見つける</span></div></div><div class="map-band">2で終わらせず、必ず3までやると、同じ失敗を二度踏みません</div><figcaption>OpenUSD Academyによる、検査の育て方の図</figcaption></figure></section>
 <section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Stageは必ず変数に持つ</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>検査をまとめて回すコードで、次のように書くと落ちます。</p><pre><code>counts = [len(list(Usd.Stage.Open(p).Traverse())) for p in paths]
 # RuntimeError: Invalid range starting with expired prim</code></pre><p><code>Usd.Stage.Open()</code>の戻り値をどこにも保持していないため、走査の途中でStageが片付けられます。<code>run()</code>で<code>stage = Usd.Stage.Open(path)</code>と変数に受けているのは、このためです。これも実際に踏んだ失敗です。</p></aside></section>

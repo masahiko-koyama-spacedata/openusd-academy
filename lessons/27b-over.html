@@ -39,7 +39,7 @@ over "World"
     }
 }</code></pre></div><p><code>subLayers</code>で土台のファイルを重ねています。<code>over "Retouched"</code>は土台にある<code>def Cube "Retouched"</code>と同じPathを指すので、色の意見が上書きとして効きます。一方<code>over "NotThere"</code>は、土台のどこにも対応する<code>def</code>がありません。</p><p class="example-link"><a href="../examples/lesson-27b/specifier-over.usda">このUSDAファイルを開く</a></p></section>
 <section class="lesson-section"><p class="section-kicker">結果</p><h2>1つだけ色が変わり、4つ目は現れない</h2><figure class="render-result"><img src="../assets/images/lesson-27b/over.png" alt="赤・青・赤の3つの立方体が横に並び、4つ目の立方体は存在しない描画結果" width="800" height="583"><figcaption>中央の<code>Retouched</code>だけが青へ変わりました。<code>over "NotThere"</code>に緑を書きましたが、対応する<code>def</code>が無いため4つ目の箱は現れません。<br><small>撮影: <code>examples/lesson-27b/specifier-over.usda</code> / Apple USD Tools 0.25.2 の<code>usdrecord</code>（Hydra Storm・Metal）/ macOS 26.5.2・Apple M4</small></figcaption></figure></section>
-<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>NotThereは「無い」のではなく「定義されていない」</h2><p>ここが<code>over</code>で最もつまずきやすい部分です。<code>/World/NotThere</code>はStage上に<strong>存在します</strong>。ただし<code>def</code>が無いため定義されておらず、既定の走査からも描画からも外れます。</p><div class="code-card python-card"><div class="code-title"><span>check_over.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">確かめる</p><h2>NotThereは「無い」のではなく「定義されていない」</h2><p>ここが<code>over</code>で最もつまずきやすい部分です。<code>/World/NotThere</code>はStage上に<strong>存在します</strong>。ただし<code>def</code>が無いため定義されておらず、既定の走査からも描画からも外れます。</p><div class="code-card python-card"><div class="code-title"><span>check_over.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 stage = Usd.Stage.Open("specifier-over.usda")
 

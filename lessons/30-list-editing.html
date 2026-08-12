@@ -39,7 +39,7 @@ over "World"
         delete rel members = &lt;/World/A&gt;
     }
 }</code></pre></div><p>キーワードは型名<code>rel</code>の<strong>前</strong>に置きます。同じProperty名に対して、3種類の編集を並べて書けます。</p><p class="example-link"><a href="../examples/lesson-30/list-edited.usda">このUSDAファイルを開く</a></p></section>
-<section class="lesson-section"><p class="section-kicker">結果</p><h2>合成すると [C, B, D] になる</h2><div class="code-card python-card"><div class="code-title"><span>check_list.py</span><span>Python</span></div><pre><code>from pxr import Usd
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>合成すると [C, B, D] になる</h2><div class="code-card python-card"><div class="code-title"><span>check_list.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
 
 base = Usd.Stage.Open("list-base.usda")
 print(base.GetPrimAtPath("/World/Team").GetRelationship("members").GetTargets())
