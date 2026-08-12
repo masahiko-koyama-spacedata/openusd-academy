@@ -1,0 +1,83 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 74: Geometry Extraction — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 74 · PIPELINE</p><h1>Geometry <span>Extraction</span></h1><p class="lesson-lead">USDから形を取り出し、他の形式へ渡します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>取り出すのは点・面・そして値の並び方の規則</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>3つの配列がひと組で意味を持つ</h2><p>USDのMeshから形を取り出すとき、必要なのは3つの配列です。<code>points</code>が頂点の座標、<code>faceVertexCounts</code>が各面の頂点数、<code>faceVertexIndices</code>が各面が使う頂点の番号です。UVや法線などの追加の値は<a href="23-primvars.html">STEP 21 Primvar</a>として付いており、<strong>どの単位に対応するか</strong>が<code>interpolation</code>に書かれています。この対応を無視して配列だけ取り出すと、渡した先で形が崩れます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>抽出でいちばん壊れやすいのがUVです。多くの形式はUVを頂点ごとに持ちますが、USDでは<code>faceVarying</code>、つまり面ごとの頂点の使用回数ぶん持つのが普通です。数が合わないので、そのまま渡すと失敗します。<a href="24e-face-varying.html">STEP 26 faceVarying</a>で数えた考え方が、ここでそのまま必要になります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>形を取り出す</h2><div class="code-card python-card"><div class="code-title"><span>extract_geometry.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.Open("tile.usda")
+mesh = UsdGeom.Mesh(stage.GetPrimAtPath("/Tile/Geom/Panel"))
+
+points = mesh.GetPointsAttr().Get()
+counts = mesh.GetFaceVertexCountsAttr().Get()
+indices = mesh.GetFaceVertexIndicesAttr().Get()
+
+print(list(points))    # [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+print(list(counts))    # [4]
+print(list(indices))   # [0, 1, 2, 3]
+
+# 面を1枚ずつ組み立て直す
+offset = 0
+for n in counts:
+    face = [points[i] for i in indices[offset:offset + n]]
+    print(face)
+    offset += n
+# [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]</code></pre></div><p><code>faceVertexCounts</code>を前から順に足していくと、<code>faceVertexIndices</code>のどこからどこまでが1枚の面かが分かります。この組み立て直しが、抽出の中心にある処理です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>UVを、対応を保ったまま取り出す</h2><div class="code-card python-card"><div class="code-title"><span>extract_uv.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.Open("tile.usda")
+mesh = UsdGeom.Mesh(stage.GetPrimAtPath("/Tile/Geom/Panel"))
+
+pv = UsdGeom.PrimvarsAPI(mesh).GetPrimvar("st")
+
+print(pv.GetInterpolation())        # faceVarying
+print(pv.GetTypeName())             # texCoord2f[]
+print(list(pv.ComputeFlattened()))  # [(0, 0), (1, 0), (1, 1), (0, 1)]
+
+counts = mesh.GetFaceVertexCountsAttr().Get()
+uvs = pv.ComputeFlattened()
+
+if pv.GetInterpolation() == UsdGeom.Tokens.faceVarying:
+    assert len(uvs) == sum(counts)      # face vertex の総数と一致する
+elif pv.GetInterpolation() == UsdGeom.Tokens.vertex:
+    assert len(uvs) == len(mesh.GetPointsAttr().Get())</code></pre></div><p><code>ComputeFlattened()</code>を使うのが要点です。<a href="24f-indexed-primvars.html">STEP 27 Indexed Primvar</a>で扱ったとおり、値がindexで畳まれていることがあるためです。<code>Get()</code>だけだと短い配列が返り、個数が合わずに壊れます。取り出したあとは、<code>interpolation</code>に応じて個数を確かめます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>個数の確かめ方</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>interpolation を読む</b><span>まずこれ。値の意味がここで決まる</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>constant</b><span>1個</span></div><div class="map-node"><b>uniform</b><span>len(faceVertexCounts)</span></div><div class="map-node"><b>vertex / varying</b><span>len(points)</span></div><div class="map-node"><b>faceVarying</b><span>sum(faceVertexCounts)</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>ComputeFlattened() の長さと突き合わせる</b><span>合わなければ、渡す前に落とす</span></div></div><div class="map-band">配列を取り出す前に、必ず interpolation を読む</div><figcaption>OpenUSD Academyによる、抽出時の個数確認の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>まとめて取り出す関数にする</h2><div class="code-card python-card"><div class="code-title"><span>extract.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+EXPECTED = {
+    UsdGeom.Tokens.constant:    lambda pts, cnt: 1,
+    UsdGeom.Tokens.uniform:     lambda pts, cnt: len(cnt),
+    UsdGeom.Tokens.vertex:      lambda pts, cnt: len(pts),
+    UsdGeom.Tokens.varying:     lambda pts, cnt: len(pts),
+    UsdGeom.Tokens.faceVarying: lambda pts, cnt: sum(cnt),
+}
+
+
+def extract_mesh(prim):
+    mesh = UsdGeom.Mesh(prim)
+    points = mesh.GetPointsAttr().Get()
+    counts = mesh.GetFaceVertexCountsAttr().Get()
+    out = {
+        "points": [tuple(p) for p in points],
+        "counts": list(counts),
+        "indices": list(mesh.GetFaceVertexIndicesAttr().Get()),
+        "primvars": {},
+    }
+    for pv in UsdGeom.PrimvarsAPI(prim).GetAuthoredPrimvars():
+        values = pv.ComputeFlattened()
+        want = EXPECTED[pv.GetInterpolation()](points, counts)
+        if values is None or len(values) != want:
+            raise ValueError("%s の個数が合いません（%s 期待 %d）"
+                             % (pv.GetName(), pv.GetInterpolation(), want))
+        out["primvars"][pv.GetName()] = [tuple(v) for v in values]
+    return out
+
+
+stage = Usd.Stage.Open("tile.usda")
+print(extract_mesh(stage.GetPrimAtPath("/Tile/Geom/Panel")))</code></pre></div><p>個数が合わないものは、渡す前に例外にしています。抽出処理で最も避けたいのは「間違ったデータを黙って渡す」ことです。壊れているなら、その場で止めたほうが原因を追いやすくなります。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>取り出すものの対応</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">point3f[] points</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">mesh.GetPointsAttr().Get()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">int[] faceVertexCounts / faceVertexIndices</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">mesh.GetFaceVertexCountsAttr().Get() / GetFaceVertexIndicesAttr()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">texCoord2f[] primvars:st</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">PrimvarsAPI(prim).GetPrimvar("st").ComputeFlattened()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>座標系と単位も一緒に持ち出す</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>取り出した<code>points</code>は、そのPrimの座標系の値です。親に変換が付いていれば、渡す先ではずれます。世界座標が必要なら<code>UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(...)</code>で行列を取り、掛けてから渡します。単位も同じで、<a href="20a-meters-per-unit.html">STEP 44 metersPerUnit</a>を読んで、渡す先の単位へ直す必要があります。<strong>数字だけ持ち出しても意味は伝わりません。</strong></p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>個数と対応を確かめずに渡す</h2><div class="mistake-list"><article><h3>Get()でPrimvarを取り出す</h3><p>indexが付いていると短い配列が返ります。<code>ComputeFlattened()</code>を使います。</p></article><article><h3>UVを頂点ごとだと決めつける</h3><p>USDでは<code>faceVarying</code>が普通です。<code>interpolation</code>を読んでから対応づけます。</p></article><article><h3>親の変換を無視する</h3><p><code>points</code>はそのPrimの座標系です。世界座標が必要なら行列を掛けます。</p></article><article><h3>個数が合わないまま渡す</h3><p>渡した先で崩れ、原因が追いにくくなります。抽出の時点で止めます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Geometry Extraction</dt><dd>USDから形の情報を取り出し、他の形式へ渡せる形にすること。</dd></div><div><dt>st</dt><dd>UVを保持するPrimvarの、慣習的な名前。</dd></div><div><dt>texCoord2f</dt><dd>テクスチャ座標を表すValue Type。roleは<code>TextureCoordinate</code>。</dd></div><div><dt>ComputeLocalToWorldTransform</dt><dd>そのPrimの、世界座標への変換行列を求めるPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_geom_mesh.html">OpenUSD — UsdGeomMesh API</a></li><li><a href="https://openusd.org/release/api/class_usd_geom_primvar.html">OpenUSD — UsdGeomPrimvar API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="54-converter-structure.html">← STEP 73</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="56-material-extraction.html">STEP 75 →</a></nav></main><footer><p>OpenUSD Academy · STEP 74</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

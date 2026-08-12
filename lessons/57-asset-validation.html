@@ -1,0 +1,74 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 76: Asset Validation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 76 · PIPELINE</p><h1>Asset <span>Validation</span></h1><p class="lesson-lead">守ってほしい規則を、文章ではなくコードにします</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>usdcheckerで一般の規則を、自前の関数でプロジェクトの規則を確かめる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>2種類の規則がある</h2><p>アセットが守るべき規則には2種類あります。<strong>OpenUSD一般の規則</strong>と、<strong>そのプロジェクト固有の規則</strong>です。前者は<code>usdchecker</code>が確かめてくれます。後者は自分で書きます。どちらも「人が目で見る」のではなく、実行できる形にしておくことが要点です。文章で決めた規則は、必ず守られなくなります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>検査を書く場所は、書き出し処理の最後です。壊れたものを配ってから気付くのではなく、<strong>配る前に止める</strong>ためにあります。受け取る側でも同じ検査を通すようにすると、どこで壊れたかがすぐ分かります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">道具1</p><h2>usdchecker — 一般の規則</h2><div class="code-card usda-card"><div class="code-title"><span>ターミナル</span><span>コマンド</span></div><pre><code>$ usdchecker tile.usda
+Validation Result with no explicit variants set
+Success!</code></pre></div><p>問題があると、次のように内容と場所が出ます。これは実際に、先頭のMetadataを書かないファイルを検査したときの出力です。</p><div class="code-card usda-card"><div class="code-title"><span>失敗したときの出力</span><span>コマンド</span></div><pre><code>Error: (usdGeomValidators:StageMetadataChecker.MissingMetersPerUnitMetadata)
+Stage with root layer &lt;cp2.usda&gt; does not specify its linear scale in metersPerUnit.
+Error: (usdGeomValidators:StageMetadataChecker.MissingUpAxisMetadata)
+Stage with root layer &lt;cp2.usda&gt; does not specify an upAxis.
+Error: (usdValidation:StageMetadataChecker.MissingDefaultPrim)
+Stage with root layer &lt;cp2.usda&gt; has an invalid or missing defaultPrim.
+Failed!</code></pre></div><p>終了コードが0以外になるので、そのまま自動化に組み込めます。<a href="09a-default-prim.html">STEP 43 Default Prim</a>と<a href="20a-meters-per-unit.html">STEP 44 metersPerUnit</a>で扱った3つが、ここで検査されているのが分かります。</p></section>
+<section class="lesson-section"><p class="section-kicker">道具2</p><h2>自前の検査 — プロジェクトの規則</h2><div class="code-card python-card"><div class="code-title"><span>validate.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom, UsdShade
+
+REQUIRED_INTERFACE = ("academy:assetName", "academy:version")
+
+
+def check_entry_point(stage):
+    """入口が約束どおりか。Payloadを開かずに済む検査。"""
+    problems = []
+    prim = stage.GetDefaultPrim()
+    if not prim:
+        return ["defaultPrim がない"]
+    if not prim.GetMetadata("kind"):
+        problems.append("kind がない")
+    if not prim.HasAuthoredPayloads():
+        problems.append("中身へのPayloadがない")
+    for name in REQUIRED_INTERFACE:
+        if not prim.GetAttribute(name).HasAuthoredValue():
+            problems.append("%s がない" % name)
+    return problems
+
+
+def check_geometry(stage):
+    """形が壊れていないか。中身を開いて確かめる検査。"""
+    problems = []
+    for prim in stage.Traverse():
+        if not prim.IsA(UsdGeom.Mesh):
+            continue
+        mesh = UsdGeom.Mesh(prim)
+        counts = mesh.GetFaceVertexCountsAttr().Get() or []
+        indices = mesh.GetFaceVertexIndicesAttr().Get() or []
+        points = mesh.GetPointsAttr().Get() or []
+
+        if sum(counts) != len(indices):
+            problems.append("%s: faceVertexIndices の長さが合わない" % prim.GetPath())
+        if len(indices) and max(indices) >= len(points):
+            problems.append("%s: 範囲外のpoint番号がある" % prim.GetPath())
+        if not UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial()[0]:
+            problems.append("%s: Materialが結び付いていない" % prim.GetPath())
+    return problems</code></pre></div><p>2つに分けているのは、<strong>かかる時間が違う</strong>からです。入口の検査は<code>LoadNone</code>で一瞬で終わるので、大量のアセットに対して回せます。形の検査は中身を開くので重く、書き出しの直後だけに絞ります。</p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>実際に走らせる</h2><div class="code-card python-card"><div class="code-title"><span>run_validation.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+light = Usd.Stage.Open("lamp.usda", Usd.Stage.LoadNone)
+print(check_entry_point(light))
+# []                        … 入口は約束どおり
+
+heavy = Usd.Stage.Open("tile.usda")
+print(check_geometry(heavy))
+# []                        … 形も壊れていない
+
+broken = Usd.Stage.Open("lamp_geom.usda", Usd.Stage.LoadNone)
+print(check_entry_point(broken))
+# ['kind がない', '中身へのPayloadがない',
+#  'academy:assetName がない', 'academy:version がない']</code></pre></div><p>正しいものは空のリスト、そうでないものは理由のリストが返ります。<code>lamp_geom.usda</code>は形を作る担当のファイルで、そもそも単体で配るものではありません。<strong>検査が「これは配れない」と言ってくれる</strong>のが、この形の価値です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>いつ、どの検査を回すか</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>書き出し直後</b><span>usdchecker + 形の検査 — 重いが1回だけ</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>配る前</b><span>入口の検査 — LoadNoneで軽い</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>受け取った側</b><span>同じ入口の検査 — どこで壊れたかが分かる</span></div></div><div class="map-band">重い検査は少ない回数、軽い検査は何度でも</div><figcaption>OpenUSD Academyによる、検査を回す場所の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Stageを変数に持っておく</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>検査を書いていると、次のような書き方をしたくなります。</p><pre><code>counts = [len(list(Usd.Stage.Open(p).Traverse())) for p in paths]   # 失敗する</code></pre><p>これは<code>RuntimeError: Invalid range starting with expired prim</code>で落ちます。<code>Usd.Stage.Open()</code>の戻り値をどこにも保持していないため、走査している途中でStageが片付けられてしまうからです。<strong>Stageは必ず変数に受けてから使う</strong>、と覚えてください。実際に手元で踏んだ失敗です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>検査したいことごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">検査したいこと</p><code class="usda-code">一般の規則</code><span class="mapping-arrow">↓</span><p class="mapping-label">コマンド</p><code class="python-code">usdchecker file.usda（終了コードで判定）</code></li><li><p class="mapping-label">検査したいこと</p><code class="usda-code">入口が約束どおりか</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.Open(p, Usd.Stage.LoadNone) で軽く確認</code></li><li><p class="mapping-label">検査したいこと</p><code class="usda-code">面の番号が範囲内か</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">max(indices) &lt; len(points)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>検査を後回しにする</h2><div class="mistake-list"><article><h3>規則を文章だけで決める</h3><p>守られているかを誰も確かめられません。実行できる関数にします。</p></article><article><h3>重い検査を毎回全部に回す</h3><p>時間がかかりすぎて、結局回されなくなります。軽い検査と重い検査を分けます。</p></article><article><h3>usdcheckerだけで十分だと考える</h3><p>プロジェクト固有の約束（入口の名乗りなど）は検査されません。自分で書きます。</p></article><article><h3>Stageを変数に持たずに走査する</h3><p>途中で片付けられて例外になります。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Validation（検証）</dt><dd>アセットが規則を守っているかを、実行できる形で確かめること。</dd></div><div><dt>usdchecker</dt><dd>OpenUSD一般の規則を検査するコマンド。終了コードで結果が分かる。</dd></div><div><dt>受け入れ検査</dt><dd>受け取った側で、渡されたものが約束どおりかを確かめること。</dd></div><div><dt>IsA</dt><dd>そのPrimが指定した型かどうかを判定するPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/toolset.html#usdchecker">OpenUSD — usdchecker</a></li><li><a href="https://openusd.org/release/api/class_usd_prim.html">OpenUSD — UsdPrim API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="56-material-extraction.html">← STEP 75</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="58-prim-hierarchy-transformation.html">STEP 77 →</a></nav></main><footer><p>OpenUSD Academy · STEP 76</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

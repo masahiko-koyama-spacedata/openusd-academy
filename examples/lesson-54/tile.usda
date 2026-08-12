@@ -1,0 +1,51 @@
+#usda 1.0
+(
+    defaultPrim = "Tile"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Tile"
+{
+    def Scope "Looks"
+    {
+        def Material "Paint"
+        {
+            token outputs:surface.connect = </Tile/Looks/Paint/Surface.outputs:surface>
+
+            def Shader "Surface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0.85, 0.35, 0.2)
+                float inputs:roughness = 0.4
+                token outputs:surface
+            }
+        }
+    }
+
+    def Scope "Geom"
+    {
+        def Mesh "Panel" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            int[] faceVertexCounts = [4]
+            int[] faceVertexIndices = [0, 1, 2, 3]
+            rel material:binding = </Tile/Looks/Paint>
+            point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+            texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+                interpolation = "faceVarying"
+            )
+            uniform token subdivisionScheme = "none"
+        }
+    }
+
+    def Camera "ShotCam"
+    {
+        float2 clippingRange = (0.1, 100)
+        float focalLength = 50
+        double3 xformOp:translate = (0.5, 0.5, 4.6)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
+

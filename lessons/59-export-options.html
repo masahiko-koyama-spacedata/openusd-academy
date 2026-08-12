@@ -1,0 +1,77 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 78: Export Options — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 78 · PIPELINE</p><h1>Export <span>Options</span></h1><p class="lesson-lead">変換の条件を、使う人が選べる形にします</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>条件は引数にし、既定値を決め、結果に記録する</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>変換には必ず選択がある</h2><p><a href="54-converter-structure.html">STEP 73 Converterの構造</a>で作った処理には、実は選択が隠れています。単位をメートルへ揃えるか、テキストとバイナリのどちらで書き出すか、といったものです。こうした条件をコードの中に埋め込まず、<strong>引数として外へ出したもの</strong>がExport Optionsです。あわせて、どの条件で作られたかを結果のファイルにも記録しておきます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>記録が要るのは、あとで「このファイルはなぜこうなっているのか」を追えるようにするためです。単位が合わないアセットを渡されたとき、それが変換の設定なのか、元データの問題なのかを、ファイルを見るだけで切り分けられます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>条件の扱い方</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>1. 引数にする</b><span>コードに埋め込まず、外から渡せるようにする</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node"><b>2. 既定値を決める</b><span>何も指定しなくても、まともな結果が出る</span></div></div><div class="map-note" aria-hidden="true">↓</div><div class="map-row"><div class="map-node is-goal"><b>3. 結果に記録する</b><span>どの条件で作ったかを、出力ファイル自身に書く</span></div></div><div class="map-band">3つ目を省くと、あとから原因を追えなくなります</div><figcaption>OpenUSD AcademyによるExport Optionsの扱い方の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>条件を引数にする</h2><div class="code-card python-card"><div class="code-title"><span>export.py</span><span>Python</span></div><pre><code>import json
+from pxr import Gf, Sdf, Usd, UsdGeom, Vt
+
+DEFAULTS = {
+    "scale_to_meters": True,    # 入力の単位をメートルへ揃えるか
+    "up_axis": "Y",             # 出力の上方向
+    "binary": False,            # .usdc で書き出すか
+}
+
+
+def export(source, out_path, **options):
+    opts = dict(DEFAULTS, **options)
+
+    stage = Usd.Stage.CreateNew(out_path)
+    UsdGeom.SetStageMetersPerUnit(stage, 1)
+    UsdGeom.SetStageUpAxis(
+        stage, UsdGeom.Tokens.z if opts["up_axis"] == "Z" else UsdGeom.Tokens.y)
+
+    factor = 0.01 if (opts["scale_to_meters"]
+                      and source["units"] == "centimeters") else 1.0
+
+    root = UsdGeom.Xform.Define(stage, "/" + source["name"])
+    stage.SetDefaultPrim(root.GetPrim())
+
+    # 3. どの条件で作ったかを、結果自身に記録する
+    root.GetPrim().CreateAttribute(
+        "academy:exportOptions", Sdf.ValueTypeNames.String,
+        custom=True).Set(json.dumps(opts, sort_keys=True))
+
+    ... 形の書き出し ...
+
+    stage.Save()
+    return opts</code></pre></div><p><code>dict(DEFAULTS, **options)</code>という書き方で、既定値に呼び出し側の指定を重ねています。何も渡さなければ<code>DEFAULTS</code>のまま動き、必要な条件だけを指定できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">結果</p><h2>条件を変えると結果が変わる</h2><div class="code-card python-card"><div class="code-title"><span>run_export.py の出力</span><span>Python</span></div><pre><code># 既定のまま
+export(source, "tile.usda")
+# points: [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+# academy:exportOptions:
+#   {"binary": false, "scale_to_meters": true, "up_axis": "Y"}
+
+# 単位を揃えない指定
+export(source, "tile_raw.usda", scale_to_meters=False)
+# points: [(0, 0, 0), (100, 0, 0), (100, 100, 0), (0, 100, 0)]
+# academy:exportOptions:
+#   {"binary": false, "scale_to_meters": false, "up_axis": "Y"}</code></pre></div><p class="example-link"><a href="../examples/lesson-59/tile.usda">既定で書き出した結果</a> / <a href="../examples/lesson-59/tile_raw.usda">単位を揃えなかった結果</a></p><p>同じ入力から、条件だけを変えた2つの結果が出ています。どちらが正しいかは用途によりますが、<strong>どちらの条件で作ったかがファイルに残っている</strong>ので、あとから判断できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>記録は結果のファイルに残る</h2><div class="code-card usda-card"><div class="code-title"><span>tile.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "Tile"
+{
+    custom string academy:exportOptions = "{\"binary\": false, \"scale_to_meters\": true, \"up_axis\": \"Y\"}"
+
+    def Scope "Geom"
+    {
+        ...
+    }
+}</code></pre></div><p><a href="26-custom-properties.html">STEP 10 Custom Property</a>として、入口のPrimに記録しています。<a href="47-asset-entry-point.html">STEP 67 Entry Point</a>に置いてあるので、中身を開かずに読めます。受け取った側は、この一行を見るだけで変換の条件が分かります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>あとから条件を読み返す</h2><div class="code-card python-card"><div class="code-title"><span>read_options.py</span><span>Python</span></div><pre><code>import json
+from pxr import Usd
+
+stage = Usd.Stage.Open("tile.usda", Usd.Stage.LoadNone)
+prim = stage.GetDefaultPrim()
+
+raw = prim.GetAttribute("academy:exportOptions").Get()
+if raw:
+    print(json.loads(raw))
+    # {'binary': False, 'scale_to_meters': True, 'up_axis': 'Y'}
+else:
+    print("変換の条件が記録されていません")</code></pre></div><p>記録が無い場合も想定して書きます。手作業で作られたファイルや、古い変換で作られたファイルには入っていないためです。<strong>無いことも情報</strong>なので、黙って進めずに区別できるようにします。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>やりたいことごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">既定値に指定を重ねる</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">opts = dict(DEFAULTS, **options)</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">条件を結果へ記録する</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.CreateAttribute("academy:exportOptions", …).Set(json.dumps(opts))</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">記録を読み返す</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">json.loads(prim.GetAttribute("academy:exportOptions").Get())</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>どこまでを条件にするか</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>何でも条件にすると、組み合わせが増えて検証しきれなくなります。目安は<strong>「用途によって答えが変わるもの」だけ</strong>です。単位を揃えるかは用途によって変わるので条件にします。一方、<code>defaultPrim</code>を設定するかは常に「する」なので、条件にしません。条件が増えてきたら、よく使う組み合わせに名前を付けて「プリセット」としてまとめると扱いやすくなります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>条件を隠したまま配る</h2><div class="mistake-list"><article><h3>条件をコードに直接書く</h3><p>別の用途で使いたくなったときに、コードを書き換えることになります。引数にします。</p></article><article><h3>既定値を決めない</h3><p>毎回すべてを指定しないと動かない処理は、使われなくなります。</p></article><article><h3>条件を記録しない</h3><p>受け取った側が、なぜこの値なのかを追えません。出力自身に残します。</p></article><article><h3>記録が無い場合を考えない</h3><p>手作業のファイルには入っていません。無いことを区別して扱います。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Export Options</dt><dd>変換の条件を、外から指定できるようにしたもの。</dd></div><div><dt>既定値（default）</dt><dd>何も指定しなかったときに使われる条件。</dd></div><div><dt>プリセット</dt><dd>よく使う条件の組み合わせに名前を付けたもの。</dd></div><div><dt>来歴（provenance）</dt><dd>そのデータがどう作られたかの記録。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_stage.html">OpenUSD — UsdStage API</a></li><li><a href="https://docs.nvidia.com/learn-openusd/latest/learn-openusd.html">NVIDIA Learn OpenUSD</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="58-prim-hierarchy-transformation.html">← STEP 77</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="60-asset-modularity.html">STEP 79 →</a></nav></main><footer><p>OpenUSD Academy · STEP 78</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

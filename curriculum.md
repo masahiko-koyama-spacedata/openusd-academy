@@ -140,12 +140,12 @@ Kindでシーンに役割を与え、再利用できるアセットの形にま�
 - **STEP 70:** [Asset Parameterization](lessons/51-asset-parameterization.html) — 下流から変更できる値
 - **STEP 71:** [Reference/Payload Pattern](lessons/52-reference-payload-pattern.html) — InterfaceとContentsを分ける
 - **STEP 72:** [Lofting](lessons/53-lofting.html) — Payloadを開かず重要情報を見せる
-- **STEP 73（予定）:** Converterの構造 — 入力・変換・出力を分ける
-- **STEP 74（予定）:** Geometry Extraction — 点・法線・UVを対応させる
-- **STEP 75（予定）:** Material Extraction — MaterialとBindingを対応させる
-- **STEP 76（予定）:** Asset Validation — 規則をコードにする
-- **STEP 77（予定）:** Prim Hierarchy Transformation — 階層を目的形へ変える
-- **STEP 78（予定）:** Export Options — 変換条件を利用者へ公開する
+- **STEP 73:** [Converterの構造](lessons/54-converter-structure.html) — 入力・変換・出力を分ける
+- **STEP 74:** [Geometry Extraction](lessons/55-geometry-extraction.html) — 点・法線・UVを対応させる
+- **STEP 75:** [Material Extraction](lessons/56-material-extraction.html) — MaterialとBindingを対応させる
+- **STEP 76:** [Asset Validation](lessons/57-asset-validation.html) — 規則をコードにする
+- **STEP 77:** [Prim Hierarchy Transformation](lessons/58-prim-hierarchy-transformation.html) — 階層を目的形へ変える
+- **STEP 78:** [Export Options](lessons/59-export-options.html) — 変換条件を利用者へ公開する
 
 ## [14. Instancingと大規模シーン](chapters/14-instancing.html)
 

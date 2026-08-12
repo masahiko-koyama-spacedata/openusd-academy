@@ -1,0 +1,83 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 77: Prim Hierarchy Transformation — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 77 · PIPELINE</p><h1>Prim Hierarchy <span>Transformation</span></h1><p class="lesson-lead">受け取った階層を、こちらの流儀へ組み替えます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>階層を変えるときは、位置と結び付きを保ったまま移す</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>相手の階層とこちらの規則は違う</h2><p>他のツールから来たデータは、その道具の都合で階層が組まれています。<a href="54-converter-structure.html">STEP 73 Converterの構造</a>で決めたとおり、こちらには「形は<code>Geom</code>の下、見た目は<code>Looks</code>の下」といった規則があります。この差を埋める処理がPrim Hierarchy Transformationです。単に名前を変えるだけでなく、<strong>Pathが変わることで壊れるもの</strong>に注意が要ります。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Pathが変わると、そのPathを指していたものがすべて外れます。<a href="04-attributes-relationships.html">STEP 06 Relationship</a>のtarget、<a href="56-material-extraction.html">STEP 75 Material Binding</a>、<a href="12-references.html">STEP 39 Reference</a>の行き先などです。組み替えのバグの大半は、<strong>移すのを忘れた参照</strong>から生まれます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>組み替えで気を付けること</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>入力の階層</b><span>相手の都合で組まれている</span></div></div><div class="map-note" aria-hidden="true">↓ 組み替え</div><div class="map-row"><div class="map-node"><b>Pathが変わる</b><span>/Panel → /Tile/Geom/Panel</span></div></div><div class="map-note" aria-hidden="true">↓ 一緒に直すもの</div><div class="map-row"><div class="map-node is-goal"><b>Relationshipのtarget</b><span>Material Binding もこれ</span></div><div class="map-node is-goal"><b>親から受け継ぐ変換</b><span>位置がずれないか</span></div></div><div class="map-band">形だけ移して参照を放置すると、静かに壊れます</div><figcaption>OpenUSD Academyによる、階層組み替えで直すものの図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>作り直すのがいちばん安全</h2><div class="code-card python-card"><div class="code-title"><span>rebuild_hierarchy.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd, UsdGeom, UsdShade
+
+
+def rebuild(src_path, dst_path, asset_name):
+    """入力のStageを読み、こちらの規則の階層へ組み直して書き出す。"""
+    src = Usd.Stage.Open(src_path)
+    dst = Usd.Stage.CreateNew(dst_path)
+    UsdGeom.SetStageMetersPerUnit(dst, UsdGeom.GetStageMetersPerUnit(src))
+    UsdGeom.SetStageUpAxis(dst, UsdGeom.GetStageUpAxis(src))
+
+    root = UsdGeom.Xform.Define(dst, "/" + asset_name)
+    dst.SetDefaultPrim(root.GetPrim())
+    geom = UsdGeom.Scope.Define(dst, root.GetPath().AppendChild("Geom"))
+    looks = UsdGeom.Scope.Define(dst, root.GetPath().AppendChild("Looks"))
+
+    moved = {}                      # 旧Path -> 新Path
+    for prim in src.Traverse():
+        if prim.IsA(UsdGeom.Mesh):
+            dest = geom.GetPath().AppendChild(prim.GetName())
+        elif prim.IsA(UsdShade.Material):
+            dest = looks.GetPath().AppendChild(prim.GetName())
+        else:
+            continue
+        Sdf.CopySpec(src.GetRootLayer(), prim.GetPath(),
+                     dst.GetRootLayer(), dest)
+        moved[prim.GetPath()] = dest
+
+    dst.Save()
+    return dst, moved</code></pre></div><p><code>Sdf.CopySpec</code>は、記述をそのまま別のPathへ写します。値を一つずつ読み書きするより確実で、書き忘れが起きません。戻り値の<code>moved</code>に旧Pathと新Pathの対応を残しているのが要点で、このあとの付け替えに使います。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この関数は最初、Meshだけを移すように書いていました。動かしてみると<code>/Rebuilt/Geom/Panel.material:binding → /Tile/Looks/Paint</code>という、<strong>存在しないPathを指したBindingが残りました</strong>。Materialを移していなかったからです。例外も警告も出ません。移す対象を数え落とすと、こうして静かに壊れます。だから移動の対応表と、最後の検査の両方が要ります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>指していたものを付け替える</h2><div class="code-card python-card"><div class="code-title"><span>fix_targets.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdShade
+
+
+def fix_relationships(stage, moved):
+    """移動でずれたRelationshipのtargetを、新しいPathへ差し替える。"""
+    fixed = 0
+    for prim in stage.Traverse():
+        for rel in prim.GetRelationships():
+            targets = rel.GetTargets()
+            if not targets:
+                continue
+            new = [moved.get(t, t) for t in targets]
+            if new != list(targets):
+                rel.SetTargets(new)
+                fixed += 1
+    return fixed
+
+
+def check_bindings(stage):
+    """付け替え漏れがないかを確かめる。"""
+    broken = []
+    for prim in stage.Traverse():
+        for rel in prim.GetRelationships():
+            for target in rel.GetTargets():
+                if not stage.GetPrimAtPath(target.GetPrimPath()):
+                    broken.append("%s -> %s" % (rel.GetPath(), target))
+    return broken</code></pre></div><p><code>GetRelationships()</code>ですべてのRelationshipを回れます。<a href="56-material-extraction.html">STEP 75 Material Binding</a>もRelationshipなので、この処理で一緒に直ります。最後に<code>check_bindings</code>を通し、<strong>存在しないPathを指しているものが残っていないか</strong>を確かめます。</p><div class="code-card python-card"><div class="code-title"><span>実際に走らせた結果</span><span>Python</span></div><pre><code>dst, moved = rebuild("tile.usda", "out.usda", "Rebuilt")
+
+print(moved)
+# {'/Tile/Looks/Paint': '/Rebuilt/Looks/Paint',
+#  '/Tile/Geom/Panel': '/Rebuilt/Geom/Panel'}
+
+print(check_bindings(dst))
+# ['/Rebuilt/Geom/Panel.material:binding -&gt; /Tile/Looks/Paint']
+#   写しただけでは、まだ古いPathを指している
+
+print(fix_relationships(dst, moved))   # 1
+print(check_bindings(dst))             # []   … 直った
+
+print(UsdShade.MaterialBindingAPI(
+    dst.GetPrimAtPath("/Rebuilt/Geom/Panel")).ComputeBoundMaterial()[0].GetPath())
+# /Rebuilt/Looks/Paint</code></pre></div><p>写した直後は、まだ古いPathを指したままです。<code>fix_relationships</code>を通して初めて新しいPathへ向き、<code>check_bindings</code>が空になります。<strong>写す・付け替える・確かめる</strong>の3つで一組だと考えてください。</p></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>移すより、作り直すほうが安全</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>既にあるStageの中でPrimを動かす方法もありますが、Converterでは<strong>読み込んで、新しいStageへ組み直す</strong>ほうが安全です。入力側を壊さずに済み、失敗しても出力を捨てるだけで戻せます。<a href="12-relocates.html">STEP 38 rElocates</a>のようにComposition側でPathを移す仕組みもありますが、それは「参照した先の階層を、参照する側で付け替える」ための機能で、Converterの用途とは別です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>やりたいことごとの対応</h2><ol class="mapping-list"><li><p class="mapping-label">やりたいこと</p><code class="usda-code">記述を別のPathへ写す</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Sdf.CopySpec(srcLayer, srcPath, dstLayer, dstPath)</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">Relationshipを全部見る</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetRelationships()</code></li><li><p class="mapping-label">やりたいこと</p><code class="usda-code">targetのPrim Pathを取り出す</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">target.GetPrimPath()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>形だけ移して満足する</h2><div class="mistake-list"><article><h3>Relationshipのtargetを直し忘れる</h3><p>Material Bindingも含めて外れます。移動の対応表を持ち、まとめて付け替えます。</p></article><article><h3>親の変換を引き継がずに移す</h3><p>元の親が持っていた<code>xformOp</code>が付いてこないと、位置がずれます。移す先で同じ変換を持たせるか、値を焼き込みます。</p></article><article><h3>単位と上方向を写し忘れる</h3><p>新しいStageには何も設定されていません。入力から読んで設定します。</p></article><article><h3>付け替え漏れを確かめない</h3><p>存在しないPathを指すRelationshipは、エラーにならず静かに効かなくなります。最後に必ず検査します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Prim Hierarchy Transformation</dt><dd>受け取った階層を、こちらの規則の階層へ組み替えること。</dd></div><div><dt>Sdf.CopySpec</dt><dd>Layer上の記述を、別のPathへそのまま写すPython API。</dd></div><div><dt>GetRelationships</dt><dd>そのPrimが持つRelationshipをすべて返すPython API。</dd></div><div><dt>GetPrimPath</dt><dd>Property PathからPrim Pathの部分を取り出すPython API。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/sdf_2copy_utils_8h.html">OpenUSD — Sdf Copy Utils</a></li><li><a href="https://openusd.org/release/api/class_usd_prim.html">OpenUSD — UsdPrim API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="57-asset-validation.html">← STEP 76</a><a class="nav-chapter" href="../chapters/13-pipeline.html">13. パイプラインとData Exchange</a><a href="59-export-options.html">STEP 78 →</a></nav></main><footer><p>OpenUSD Academy · STEP 77</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
