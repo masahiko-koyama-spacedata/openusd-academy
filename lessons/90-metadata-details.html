@@ -1,0 +1,66 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 16: 実務で使うMetadata — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 16 · METADATA</p><h1>実務で使う<span>Metadata</span></h1><p class="lesson-lead">値ではなく、値についての情報を置きます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>customDataは自由に使ってよい入れ物 assetInfoは素性を書く決まった場所 docは説明</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>データではない情報を、どこへ置くか</h2><p><a href="09-metadata-schemas.html">STEP 13</a>で、MetadataがPrimやPropertyに付ける補助情報だと見ました。ここでは、実務でよく使うMetadataを具体的に扱います。値そのものではなく、<strong>その値についての情報</strong>を置く場所です。</p><div class="table-wrap"><table><thead><tr><th>Metadata</th><th>用途</th><th>USDAでの見え方</th></tr></thead><tbody><tr><td><code>customData</code></td><td>自由に使ってよい辞書。組織やツールが好きに書く</td><td><code>customData = { ... }</code></td></tr><tr><td><code>assetInfo</code></td><td>Assetの素性。名前・版・識別子を決まった鍵で書く</td><td><code>assetInfo = { ... }</code></td></tr><tr><td><code>documentation</code></td><td>説明文。<code>doc</code>と書く</td><td><code>doc = "..."</code></td></tr><tr><td><code>displayName</code></td><td>画面に見せる名前。Prim名と別にできる</td><td><code>displayName = "..."</code></td></tr><tr><td><code>comment</code></td><td>ファイルに残る注記</td><td>丸括弧の中に文字列だけ</td></tr><tr><td><code>hidden</code></td><td>ブラウザ表示のヒント。描画には影響しない</td><td><code>hidden = true</code></td></tr></tbody></table></div><p>大事なのは<strong><code>customData</code>と<code>assetInfo</code>の使い分け</strong>です。どちらも辞書ですが、<code>assetInfo</code>は「このAssetは何者か」を書く場所として役割が決まっています。<code>name</code>・<code>version</code>・<code>identifier</code>といった鍵が使われます。それ以外の、自分の組織だけで使う情報は<code>customData</code>へ入れます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>customData</code>は自由な分、<strong>綴りの揺れも自由</strong>です。<code>owner</code>と<code>Owner</code>が混ざっても誰も止めません。複数の人やツールが書くなら、<a href="87-authoring-schemas.html">STEP 15</a>のSchemaとして定義するほうが確実です。<code>customData</code>は「一時的なメモ」や「1つのツールしか読まない情報」に向いています。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>6種類を1つのPrimに書いてみる</h2><div class="code-card usda-card"><div class="code-title"><span>metadata.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "Asset"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Asset" (
+    "この行はファイルに残る注記"
+    assetInfo = {
+        asset identifier = @./bench.usda@
+        string name = "Bench"
+        string version = "1.0"
+    }
+    customData = {
+        dictionary team = {
+            string owner = "layout"
+            bool reviewed = 1
+        }
+    }
+    displayName = "見せる名前"
+    doc = "Assetの説明。GetDocumentation()で読める"
+    hidden = true
+)
+{
+}</code></pre></div><p>すべて<strong>丸括弧の中</strong>にあることに注目してください。<a href="07-usda-syntax.html">STEP 04</a>のとおり、丸括弧はMetadataの場所です。波括弧の中は空で、Propertyは1つもありません。</p><p>先頭の<code>"この行はファイルに残る注記"</code>だけ、鍵がなく文字列だけが置かれています。これが<code>comment</code>の書き方です。</p><p>辞書は入れ子にできます。<code>customData</code>の中の<code>dictionary team</code>がそれで、Pythonからは<code>"team:owner"</code>のようにコロンでつないだ鍵で読み書きします。</p><p class="example-link"><a href="../examples/lesson-90/metadata.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>読み書きと、専用のAPI</h2><div class="code-card python-card"><div class="code-title"><span>metadata.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("metadata.usda")
+prim = UsdGeom.Xform.Define(stage, "/Asset").GetPrim()
+stage.SetDefaultPrim(prim)
+
+prim.SetMetadata("comment", "この行はファイルに残る注記")
+prim.SetMetadata("documentation", "Assetの説明。GetDocumentation()で読める")
+prim.SetDisplayName("見せる名前")
+prim.SetMetadata("hidden", True)
+
+prim.SetAssetInfoByKey("name", "Bench")
+prim.SetAssetInfoByKey("version", "1.0")
+prim.SetAssetInfoByKey("identifier", Sdf.AssetPath("./bench.usda"))
+
+prim.SetCustomDataByKey("team:owner", "layout")
+prim.SetCustomDataByKey("team:reviewed", True)
+
+print("displayName       :", prim.GetDisplayName())
+print("GetDocumentation():", prim.GetDocumentation())
+print("IsHidden()        :", prim.IsHidden())
+print("assetInfo         :", dict(prim.GetAssetInfo()))
+print("customData        :", dict(prim.GetCustomData()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果（抜粋）</span><span>Output</span></div><pre><code>displayName       : 見せる名前
+GetDocumentation(): Assetの説明。GetDocumentation()で読める
+IsHidden()        : True
+assetInfo         : {'identifier': Sdf.AssetPath(authoredPath='./bench.usda'),
+                     'name': 'Bench', 'version': '1.0'}
+customData        : {'team': {'owner': 'layout', 'reviewed': True}, ...}</code></pre></div><p><code>SetCustomDataByKey("team:owner", ...)</code>のように<strong>コロンで入れ子の鍵を指定</strong>できます。辞書を丸ごと作って渡す必要はありません。</p><p><code>documentation</code>には<code>GetDocumentation()</code>という専用のAPIがあります。<code>hidden</code>には<code>IsHidden()</code>、<code>displayName</code>には<code>GetDisplayName()</code>があります。よく使うMetadataには読みやすい入口が用意されています。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>どこに何を書くか</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>assetInfo</b><span>Assetの素性。<code>name</code>・<code>version</code>・<code>identifier</code>など鍵が決まっている</span></div><div class="map-node"><b>customData</b><span>自由な入れ物。組織やツールが好きに使う。綴りは保証されない</span></div></div><div class="map-note" aria-hidden="true">↓ 人が読むための情報</div><div class="map-row"><div class="map-node"><b>doc</b><span>説明文。<code>GetDocumentation()</code></span></div><div class="map-node"><b>displayName</b><span>画面に見せる名前。Prim名と別にできる</span></div><div class="map-node"><b>comment</b><span>注記。鍵なしの文字列</span></div></div><div class="map-note" aria-hidden="true">↓ 表示のヒント</div><div class="map-row"><div class="map-node is-goal"><b>hidden</b><span>ブラウザで隠す。<strong>描画には影響しない</strong>。visibilityとは別</span></div></div><div class="map-band">共通で使う情報が増えてきたら、customDataではなくSchemaにします</div><figcaption>OpenUSD Academyによる、主なMetadataの使い分けの図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">doc = "説明"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetMetadata("documentation", "説明") / prim.GetDocumentation()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">displayName = "見せる名前"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetDisplayName("見せる名前")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">hidden = true</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetMetadata("hidden", True) / prim.IsHidden()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">assetInfo = { string name = "Bench" }</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetAssetInfoByKey("name", "Bench")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">customData = { dictionary team = { string owner = "layout" } }</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetCustomDataByKey("team:owner", "layout")</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>hiddenは見えなくならない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>名前から誤解されやすいのですが、<code>hidden</code>は<strong>描画に影響しません</strong>。「シーンブラウザの一覧では畳んでおいてよい」という<strong>ツールへのヒント</strong>です。実際に描かないようにするのは<a href="81-purpose.html">STEP 30</a>の<code>visibility</code>と<code>purpose</code>です。</p><p>この3つは名前が似ていますが、効く場所が違います。<strong><code>hidden</code>はUI、<code>visibility</code>は描画、<code>purpose</code>は用途</strong>と整理しておきます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>書いた情報が使われない</h2><div class="mistake-list"><article><h3>hiddenで非表示にしようとする</h3><p>描画には影響しません。消したいなら<code>visibility = "invisible"</code>です。</p></article><article><h3>customDataに共通情報を溜め続ける</h3><p>綴りや型が保証されないので、書く人が増えると壊れます。共通で使うならSchemaにします。</p></article><article><h3>assetInfoに独自の鍵を足す</h3><p>役割が決まっている場所です。独自の情報は<code>customData</code>へ入れます。</p></article><article><h3>displayNameでPrimを指せると思う</h3><p>Pathに使われるのはPrim名です。<code>displayName</code>は表示用で、参照や検索の対象にはなりません。</p></article><article><h3>commentに鍵を書く</h3><p><code>comment</code>は丸括弧の中に文字列だけを置く特別な形です。<code>comment = "..."</code>とは書きません。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>customData</dt><dd>自由に使ってよい辞書のMetadata。組織やツールが独自の情報を入れる。綴りや型は保証されない。</dd></div><div><dt>assetInfo</dt><dd>Assetの素性を書くための辞書のMetadata。<code>name</code>・<code>version</code>・<code>identifier</code>といった鍵が使われる。</dd></div><div><dt>documentation（doc）</dt><dd>説明文のMetadata。<code>GetDocumentation()</code>で読める。</dd></div><div><dt>displayName</dt><dd>画面に見せる名前のMetadata。Prim名とは別で、Pathには使われない。</dd></div><div><dt>comment</dt><dd>ファイルに残る注記。丸括弧の中に鍵なしの文字列として書く。</dd></div><div><dt>hidden</dt><dd>ブラウザ表示のヒント。描画には影響しない。<code>visibility</code>とは別。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_object.html">OpenUSD — UsdObject API</a></li><li><a href="https://openusd.org/release/glossary.html#usdglossary-metadata">OpenUSD Glossary — Metadata</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="87-authoring-schemas.html">← STEP 15</a><a class="nav-chapter" href="../chapters/03-python.html">3. Pythonから触る</a><a href="95-other-schemas.html">STEP 17 →</a></nav></main><footer><p>OpenUSD Academy · STEP 16</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

@@ -56,6 +56,10 @@ Scenegraph上で対象Primより上にある、親や親の親のことです。
 
 祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。
 
+### Anonymous Layer（匿名Layer）
+
+保存先のファイルを持たないLayerです。`identifier`が`anon:`で始まります。Session Layerもこの一種です。
+
 ### Aperture（アパーチャ）
 
 撮像面の大きさです。`horizontalAperture`・`verticalAperture`で、world unitの10分の1で表します。
@@ -119,6 +123,10 @@ Assetが外へ公開する情報の集まりです。使う側との約束にあ
 ### Asset Path
 
 `@ @`で囲んで書く、外部ファイルの場所です。
+
+### assetInfo
+
+Assetの素性を書くための辞書のMetadataです。`name`・`version`・`identifier`といった鍵が使われます。
 
 ### asset（Value Type）
 
@@ -328,6 +336,10 @@ Schemaが定義していない、利用者が独自に足したProperty。
 
 `custom rel`で書く、Schema外のRelationship。
 
+### customData
+
+自由に使ってよい辞書のMetadataです。組織やツールが独自の情報を入れます。綴りや型は保証されません。
+
 ### CylinderLight
 
 円柱状の光源です。`length`と`radius`で大きさを決めます。
@@ -392,6 +404,10 @@ Compositionの結果、そのPrimが存在すると判定された状態。`IsDe
 
 そのPrim自身に書かれたComposition Arc。
 
+### dirty（Layer）
+
+読み込んでから変更が加えられたかどうかを表すLayerの状態です。
+
 ### DiskLight
 
 円盤の面光源です。`radius`で大きさを決めます。
@@ -400,9 +416,17 @@ Compositionの結果、そのPrimが存在すると判定された状態。`IsDe
 
 Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは`constant`です。
 
+### displayName
+
+画面に見せる名前のMetadataです。Prim名とは別で、Pathには使われません。
+
 ### DistantLight
 
 無限遠から来る平行光です。向きだけが効き、位置は効きません。
+
+### documentation（doc）
+
+説明文のMetadataです。`GetDocumentation()`で読めます。
 
 ### DomeLight
 
@@ -439,6 +463,10 @@ Collectionで、指定したPathの子孫まで含めるかを決めるAttribute
 ### exposure
 
 2のべき乗で明るさを足す設定です。1増えると明るさが倍になります。
+
+### Expression Variable
+
+Layerに定義し、Asset Pathの中で`${名前}`として展開できる変数です。合成のときに評価されます。
 
 ### extent
 
@@ -580,6 +608,10 @@ MeshやSphereなど、実際に描画される形を持つPrimの総称です。
 
 Hydraが実際の描画に使うグラフィックスAPIの抽象化層です。MetalやVulkanがここに入ります。
 
+### hidden
+
+ブラウザ表示のヒントとなるMetadataです。描画には影響せず、`visibility`とは別のものです。
+
 ### Hierarchical Refinement
 
 Instance Primの上へ`xformOp`・`visibility`・`primvars`などを書いて個体差を付ける方法です。Prototypeは増えません。
@@ -667,6 +699,10 @@ Instanceに対して個体差や変更を加えるための手法全体を指し
 ### intensity
 
 光の明るさです。必要な値の桁はLight型によって大きく違い、DistantLightの既定は50000、SphereLightなどは1です。
+
+### Interface Input
+
+NodeGraphやMaterialが外向きに持つ入力です。中身を知らずに調整するための口です。
 
 ### Internal Arc
 
@@ -824,6 +860,10 @@ GprimからMaterialへの結び付きです。`material:binding`というRelatio
 
 Bindingを読み書きするAPI Schema。
 
+### MaterialX
+
+ツール間で見た目を持ち運ぶための標準です。USD側では`NodeGraph`と`Shader`の入れ子として表されます。
+
 ### matrix
 
 行と列に並んだ数のまとまりです。`matrix4d`は座標変換に使います。
@@ -872,6 +912,10 @@ Instanceを含むPrimを、さらにInstanceにすること。
 
 Variantの選択肢の中に、さらに別のVariant Setを置いた構造です。外側の選択ごとに内側の選択肢を変えられます。
 
+### NodeGraph
+
+Shaderのまとまりを1つのPrimに閉じ込め、`inputs:`と`outputs:`だけを外へ見せるPrimです。Materialもその一種です。
+
 ### non-applied API Schema
 
 記録を残さず、読み書きの窓口としてだけ働くAPI Schema。
@@ -883,6 +927,10 @@ Variantの選択肢の中に、さらに別のVariant Setを置いた構造で�
 ### normals
 
 面の向きを表す法線のAttributeです。型は`normal3f[]`で、Primvarではありません。
+
+### OpenMasked
+
+Population Maskを与えてStageを開くPython APIです。
 
 ### OpenUSD
 
@@ -944,6 +992,10 @@ Prim Indexを組み立てる部分の名前です。エラーメッセージやA
 
 回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。
 
+### Plug.Registry
+
+いま読み込まれているプラグインの一覧を返すPython APIです。使えるSchemaの確認に使えます。
+
 ### Point
 
 Meshの頂点の位置です。`points`に並ぶ座標を指します。
@@ -967,6 +1019,10 @@ Point Instancingを担うPrim型。
 ### Points
 
 点群を表すGprimです。点ごとの大きさを`widths`で持ちます。
+
+### Population Mask
+
+Stageに載せるPrimを開くときに絞り込む仕組みです。指定したPathとその子孫、および先祖だけが構成されます。
 
 ### positions
 
@@ -1139,6 +1195,18 @@ Stage階層の出発点です。Pathでは `/` で表します。
 ### Render Index
 
 供給された内容をHydra側で保持し、描く側へ渡す部分。
+
+### RenderProduct
+
+出力ファイル1つを表すPrimです。`productName`がファイル名になります。
+
+### RenderSettings
+
+描画全体の条件を持つPrimです。カメラ・解像度・出力先を指します。
+
+### RenderVar
+
+出力する成分1つを表すPrimです。色・深度・法線などで、`sourceName`はRenderer依存です。
 
 ### reorder
 
@@ -1400,6 +1468,10 @@ PointとFaceのつながり方です。Primvarに必要な値の個数はこれ�
 
 Meshにおいて、どの点とどの点をつないで面を作るかというつながり方の情報です。座標そのものとは区別されます。
 
+### TransferContent
+
+他のLayerの中身を丸ごと写す操作です。移す先の元の内容は消えます。
+
 ### transform stack
 
 `xformOpOrder`に従って操作を積み重ねていく、変換の評価の考え方です。
@@ -1508,6 +1580,10 @@ Primvarを読み書きするためのPythonのクラス。
 
 光を記述するためのSchemaの集まりです。
 
+### UsdMedia
+
+音を扱うSchemaの集まりです。`SpatialAudio`で空間内の音源を表します。
+
 ### UsdNamespaceEditor
 
 Primの改名や移動を行い、指していたRelationshipのPathも追従させるPython APIです。
@@ -1528,6 +1604,10 @@ Gprimに載っているPrimvarを読み出す標準Shaderです。型ごとに`U
 
 Stageを画像として描き出すコマンドです。
 
+### UsdRender
+
+描画の条件をシーンの中にPrimとして記述するためのSchemaの集まりです。
+
 ### UsdShade
 
 マテリアルとシェーダを記述するためのSchemaの集まりです。
@@ -1547,6 +1627,10 @@ Stageの階層を、Specifierと型名付きのツリーで表示するコマン
 ### usdview
 
 OpenUSDに同梱されているStageの閲覧ツールです。階層・描画・Property・合成の内訳を1つの画面で見られます。`pip install usd-core`には含まれません。
+
+### UsdVol
+
+煙や雲などのボリュームを扱うSchemaの集まりです。
 
 ### USDZ
 
@@ -1579,6 +1663,10 @@ PropertyやMetadataについて、合成されたStage上での最終的な値�
 ### Value Type
 
 Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。
+
+### Variable Expression
+
+バッククォートで囲んだ式です。中の文字列はダブルクォートで囲みます。パス全体を囲まないと文字列のままになります。
 
 ### Variant
 

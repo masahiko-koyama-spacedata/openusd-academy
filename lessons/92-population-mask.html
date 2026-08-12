@@ -1,0 +1,50 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 91: Population Mask — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 91 · POPULATION MASK</p><h1>Population<span> Mask</span></h1><p class="lesson-lead">必要な枝だけをStageに載せます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Population Maskは 必要な枝だけをStageに載せる 開かないので速く 軽い</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>読まない、という選択肢</h2><p>大きなシーンから1つのAssetだけを調べたいことがあります。<a href="42-load-unload.html">STEP 88</a>のUnloadはPayloadの中身を開かない仕組みでしたが、Payloadになっていない部分には効きません。</p><p><strong>Population Mask</strong>は、<strong>Stageに載せるPrimそのものを、開くときに絞り込む</strong>仕組みです。指定したPathとその子孫、および先祖だけがStageに現れます。それ以外は<strong>そもそも構成されません</strong>。</p><p>Unloadとの違いは<strong>枝が存在するかどうか</strong>です。Unloadした枝はStageに存在し、後から<code>Load()</code>できます。Maskで外した枝はStageに現れず、<code>Traverse()</code>にも出ません。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>使いどころは<strong>検査や自動処理</strong>です。数万Primのシーンから1つのAssetの値を読むだけなら、全部を構成するのは無駄です。Maskで絞れば、合成そのものが省かれるので確実に速くなります。</p><p>一方、対話的なビューアには向きません。ユーザーが別の枝を見たくなったら、Stageを開き直すことになるためです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>3つの街区がある小さなシーン</h2><div class="code-card usda-card"><div class="code-title"><span>city.usda（抜粋）</span><span>USDA</span></div><pre><code>def Xform "City"
+{
+    def Xform "BlockA"
+    {
+        def Cube "Bldg_0"
+        {
+        }
+
+        def Cube "Bldg_1"
+        {
+        }
+    }
+
+    def Xform "BlockB"
+    {
+        def Cube "Bldg_0"
+        {
+        }
+    }
+}</code></pre></div><p>この形なら全部で13のPrimになります。<code>BlockB</code>だけを見たいとき、残りを読む必要はありません。</p><p class="example-link"><a href="../examples/lesson-92/city.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>OpenMaskedで、枝を指定して開く</h2><div class="code-card python-card"><div class="code-title"><span>population_mask.py</span><span>Python</span></div><pre><code>from pxr import Usd
+
+full = Usd.Stage.Open("city.usda")
+print("全部開く   :", len(list(full.Traverse())), "Prim")
+
+mask = Usd.StagePopulationMask(["/City/BlockB"])
+part = Usd.Stage.OpenMasked("city.usda", mask)
+
+print("Maskで開く :", len(list(part.Traverse())), "Prim")
+print("中身       :", [str(p.GetPath()) for p in part.Traverse()])
+print("Maskの内容 :", part.GetPopulationMask().GetPaths())
+print("含まれるか :", mask.Includes("/City/BlockB/Bldg_1"),
+      "/", mask.Includes("/City/BlockA/Bldg_1"))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>全部開く   : 13 Prim
+Maskで開く : 5 Prim
+中身       : ['/City', '/City/BlockB', '/City/BlockB/Bldg_0',
+              '/City/BlockB/Bldg_1', '/City/BlockB/Bldg_2']
+Maskの内容 : [Sdf.Path('/City/BlockB')]
+含まれるか : True / False</code></pre></div><p>13が5になりました。注目したいのは<strong><code>/City</code>が含まれている</strong>ことです。<code>/City/BlockB</code>へたどり着くには親が要るので、<strong>先祖は自動的に含まれます</strong>。ただし<code>/City/BlockA</code>のような<strong>兄弟は含まれません</strong>。</p><p><code>Includes()</code>は、あるPathがMaskに入るかを判定します。<code>/City/BlockB/Bldg_1</code>は<code>True</code>、<code>/City/BlockA/Bldg_1</code>は<code>False</code>です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>3つの「読まない」の違い</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Population Mask</b><span>Stageに<strong>載せない</strong>。開くときに決める。Traverseにも出ない</span></div></div><div class="map-note" aria-hidden="true">↓ ここから下はStageに存在する</div><div class="map-row"><div class="map-node"><b>Unload</b><span>Payloadの中身を<strong>開かない</strong>。枝は存在し、後からLoadできる</span></div><div class="map-node"><b>active = false</b><span>構成から<strong>外す</strong>。ファイルに書く。子孫ごと消える</span></div></div><div class="map-note" aria-hidden="true">↓ 構成はされている</div><div class="map-row"><div class="map-node is-goal"><b>visibility = invisible</b><span><strong>描かない</strong>だけ。Prim も値も存在する</span></div></div><div class="map-band">上ほど早い段階で切り、下ほど後の段階で切ります</div><figcaption>OpenUSD Academyによる、Prim を「読まない・出さない」4つの手段の図</figcaption></figure><p>この4つは、<strong>どの段階で切るか</strong>が違います。Maskは合成そのものを省くので最も軽く、<code>visibility</code>は合成も値もそのままで描画だけを止めます。<a href="41-active-inactive.html">STEP 87</a>と<a href="42-load-unload.html">STEP 88</a>で扱った内容が、ここで1つの並びに整理できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">（この枝だけ載せて開きたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.OpenMasked(path, Usd.StagePopulationMask(["/City/BlockB"]))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（いま何が載っているか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.GetPopulationMask().GetPaths()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（このPathは載るか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">mask.Includes("/City/BlockB/Bldg_1")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">active = false</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.SetActive(False)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（Payloadを開かず開きたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.Stage.Open(path, Usd.Stage.LoadNone)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Maskは開くときにしか決められない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Population Maskは<code>Stage.OpenMasked()</code>で<strong>開くときに</strong>与えます。開いた後で範囲を広げたい場合は<code>SetPopulationMask()</code>で設定し直せますが、そのとき合成がやり直されます。</p><p>また、Maskは<strong>ファイルには書かれません</strong>。読む側の都合であって、シーンの内容ではないからです。<code>active</code>がファイルに書かれるのと対照的です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>絞ったのに期待と違う</h2><div class="mistake-list"><article><h3>先祖が含まれるのを想定していない</h3><p>指定したPathへたどり着くために、先祖は自動で含まれます。数を数えるときはこれを見込みます。</p></article><article><h3>兄弟も含まれると思う</h3><p>含まれません。複数の枝が要るなら、Maskに複数のPathを渡します。</p></article><article><h3>Maskで外した枝をLoadしようとする</h3><p>Stageに存在しないので<code>Load()</code>できません。Loadで戻せるのはUnloadした枝です。</p></article><article><h3>Maskをファイルに書こうとする</h3><p>読む側の設定なので、ファイルには残りません。シーンの内容として残したいなら<code>active</code>です。</p></article><article><h3>対話的なビューアでMaskを使う</h3><p>別の枝を見たくなるたびに開き直しになります。Maskは検査や自動処理向けです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Population Mask</dt><dd>Stageに載せるPrimを開くときに絞り込む仕組み。指定したPathとその子孫、および先祖だけが構成される。</dd></div><div><dt>OpenMasked</dt><dd>Population Maskを与えてStageを開くPython API。</dd></div><div><dt>StagePopulationMask</dt><dd>載せるPathの集合を表すオブジェクト。<code>Includes()</code>で判定できる。</dd></div><div><dt>LoadNone</dt><dd>Payloadを一切開かずにStageを開く指定。Maskとは切る段階が違う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_stage_population_mask.html">OpenUSD — UsdStagePopulationMask API</a></li><li><a href="https://openusd.org/release/api/class_usd_stage.html">OpenUSD — UsdStage API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="44-traversal-predicate.html">← STEP 90</a><a class="nav-chapter" href="../chapters/13-stage-control.html">13. Stageを調べて制御する</a><a href="45-hydra.html">STEP 92 →</a></nav></main><footer><p>OpenUSD Academy · STEP 91</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

@@ -1,0 +1,26 @@
+#usda 1.0
+(
+    defaultPrim = "Asset"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Asset" (
+    "この行はファイルに残る注記"
+    assetInfo = {
+        asset identifier = @./bench.usda@
+        string name = "Bench"
+        string version = "1.0"
+    }
+    customData = {
+        dictionary team = {
+            string owner = "layout"
+            bool reviewed = 1
+        }
+    }
+    displayName = "見せる名前"
+    doc = "Assetの説明。GetDocumentation()で読める"
+    hidden = true
+)
+{
+}

@@ -1,0 +1,82 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 93: UsdRender — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 93 · RENDER SETTINGS</p><h1>UsdRender<span>で条件を書く</span></h1><p class="lesson-lead">何を、どこへ、どう出力するか</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>UsdRenderは「何をどう出力するか」をシーンの中に書く仕組みで Settings・Product・Varの3層</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>描画の条件も、シーンの一部にする</h2><p><a href="45-hydra.html">STEP 92</a>で、Stageの内容がHydraを通って描画されることを見ました。では「解像度は」「どのカメラで」「どのファイルへ」といった<strong>描画の条件</strong>はどこに書くのでしょうか。コマンドラインの引数で毎回渡すこともできますが、それでは<strong>条件が再現できません</strong>。</p><p><strong>UsdRender</strong>は、この条件をシーンの中にPrimとして書く仕組みです。3階層になっています。</p><div class="table-wrap"><table><thead><tr><th>Prim</th><th>役割</th><th>主な内容</th></tr></thead><tbody><tr><td><code>RenderSettings</code></td><td>全体の条件</td><td><code>camera</code>・<code>resolution</code>・<code>products</code></td></tr><tr><td><code>RenderProduct</code></td><td>出力ファイル1つ</td><td><code>productName</code>（ファイル名）・<code>orderedVars</code></td></tr><tr><td><code>RenderVar</code></td><td>出力する成分1つ</td><td><code>sourceName</code>・<code>dataType</code></td></tr></tbody></table></div><p><strong>RenderVar</strong>が耳慣れない言葉かもしれません。最終画像のほかに、深度や法線、マテリアルIDといった<strong>別々の成分</strong>を同時に出したいことがあります。その1つ1つがRenderVarです。合成作業ではこれらを組み合わせて調整します。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>Stage Metadataの<code>renderSettingsPrimPath</code>に「既定で使うRenderSettings」を書いておけます。こうすると、ツール側は<strong>ファイルを開くだけで条件が分かります</strong>。<a href="09a-default-prim.html">STEP 61</a>の<code>defaultPrim</code>が「どのPrimが入口か」を示すのと同じ考え方です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>3層をそのまま書く</h2><div class="code-card usda-card"><div class="code-title"><span>render.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    metersPerUnit = 1
+    renderSettingsPrimPath = "/Render/Settings"
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Camera "ShotCam"
+    {
+    }
+}
+
+def Scope "Render"
+{
+    def RenderSettings "Settings"
+    {
+        rel camera = &lt;/World/ShotCam&gt;
+        rel products = &lt;/Render/Settings/Products/beauty&gt;
+        uniform int2 resolution = (1920, 1080)
+
+        def Scope "Products"
+        {
+            def RenderProduct "beauty"
+            {
+                rel orderedVars = &lt;/Render/Vars/color&gt;
+                token productName = "beauty.exr"
+            }
+        }
+    }
+
+    def Scope "Vars"
+    {
+        def RenderVar "color"
+        {
+            uniform token dataType = "color3f"
+            uniform string sourceName = "Ci"
+        }
+    }
+}</code></pre></div><p>つながり方はすべて<strong>Relationship</strong>です。<code>rel camera</code>がどのCameraで撮るか、<code>rel products</code>がどのファイルを出すか、<code>rel orderedVars</code>がその中にどの成分を入れるかを指しています。<code>&lt; &gt;</code>で囲まれているのがPathです。</p><p><code>sourceName = "Ci"</code>はRenderer側での成分の名前です。<code>Ci</code>は最終的な色を表す慣習的な名前で、深度なら<code>z</code>のようになります。<strong>どの名前が使えるかはRendererによります</strong>。</p><p class="example-link"><a href="../examples/lesson-93/render.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>既定値と、組み立て方</h2><div class="code-card python-card"><div class="code-title"><span>render_settings.py</span><span>Python</span></div><pre><code>from pxr import Gf, Usd, UsdGeom, UsdRender
+
+stage = Usd.Stage.CreateNew("render.usda")
+UsdGeom.Camera.Define(stage, "/World/ShotCam")
+
+settings = UsdRender.Settings.Define(stage, "/Render/Settings")
+settings.CreateCameraRel().SetTargets(["/World/ShotCam"])
+settings.CreateResolutionAttr(Gf.Vec2i(1920, 1080))
+
+product = UsdRender.Product.Define(stage, "/Render/Settings/Products/beauty")
+product.CreateProductNameAttr("beauty.exr")
+
+var = UsdRender.Var.Define(stage, "/Render/Vars/color")
+var.CreateSourceNameAttr("Ci")
+var.CreateDataTypeAttr("color3f")
+
+product.CreateOrderedVarsRel().SetTargets(["/Render/Vars/color"])
+settings.CreateProductsRel().SetTargets([product.GetPath()])
+stage.SetMetadata("renderSettingsPrimPath", "/Render/Settings")
+
+for name in ("resolution", "pixelAspectRatio", "aspectRatioConformPolicy",
+             "dataWindowNDC", "instantaneousShutter", "disableMotionBlur"):
+    attr = settings.GetPrim().GetAttribute(name)
+    print("%-26s %-8s %r" % (name, attr.GetTypeName(), attr.Get()))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>resolution                 int2     Gf.Vec2i(1920, 1080)
+pixelAspectRatio           float    1.0
+aspectRatioConformPolicy   token    'expandAperture'
+dataWindowNDC              float4   Gf.Vec4f(0.0, 0.0, 1.0, 1.0)
+instantaneousShutter       bool     False
+disableMotionBlur          bool     False</code></pre></div><p><code>aspectRatioConformPolicy</code>の既定が<code>expandAperture</code>です。これは<strong>解像度の縦横比とCameraのアパーチャの比が食い違ったときの扱い</strong>を決めます。<a href="79-camera.html">STEP 26</a>で見たとおり画角はアパーチャで決まるので、比が合わないと「どちらに合わせるか」を決める必要があります。既定はアパーチャを広げる方向です。</p><p><code>dataWindowNDC</code>は出力する範囲で、<code>(0, 0, 1, 1)</code>が全体です。一部だけ描き直したいときにここを狭めます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>3層の関係</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>RenderSettings</b><span>全体の条件。<code>rel camera</code>・<code>resolution</code>・<code>rel products</code></span></div></div><div class="map-note" aria-hidden="true">↓ rel products</div><div class="map-row"><div class="map-node"><b>RenderProduct</b><span>出力ファイル1つ。<code>productName</code>でファイル名</span></div><div class="map-node"><b>RenderProduct</b><span>複数持てる。用途別に分ける</span></div></div><div class="map-note" aria-hidden="true">↓ rel orderedVars</div><div class="map-row"><div class="map-node is-goal"><b>RenderVar</b><span>出力する成分1つ。色・深度・法線など。<code>sourceName</code>はRenderer依存</span></div></div><div class="map-band">renderSettingsPrimPath に書いておけば、ファイルを開くだけで条件が分かります</div><figcaption>OpenUSD Academyによる、UsdRenderの3層構造の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">def RenderSettings "Settings"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdRender.Settings.Define(stage, "/Render/Settings")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">rel camera = &lt;/World/ShotCam&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">settings.CreateCameraRel().SetTargets(["/World/ShotCam"])</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">uniform int2 resolution = (1920, 1080)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">settings.CreateResolutionAttr(Gf.Vec2i(1920, 1080))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">token productName = "beauty.exr"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">product.CreateProductNameAttr("beauty.exr")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">uniform string sourceName = "Ci"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">var.CreateSourceNameAttr("Ci")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">renderSettingsPrimPath = "/Render/Settings"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">stage.SetMetadata("renderSettingsPrimPath", "/Render/Settings")</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>書いても、対応するツールが要る</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>UsdRenderは<strong>条件を記述する仕組み</strong>であって、それ自体が描画するわけではありません。書いた条件を読んで使うかどうかは、Renderer側の対応しだいです。</p><p><code>usdrecord</code>には<code>--renderSettingsPrimPath</code>という指定があり、RenderSettingsを使って描画できます。その場合、<strong>RenderSettingsに書いた値が<code>--imageWidth</code>などの引数より優先されます</strong>。引数を渡したのに効かないときは、RenderSettingsが使われていないかを確かめます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>条件が効かない</h2><div class="mistake-list"><article><h3>RenderSettingsを書いただけで反映されると思う</h3><p>読む側が対応している必要があります。<code>usdrecord</code>なら<code>--renderSettingsPrimPath</code>で指定します。</p></article><article><h3>引数とRenderSettingsを併用して混乱する</h3><p>RenderSettingsに書いた値のほうが優先されます。どちらか一方に寄せます。</p></article><article><h3>sourceNameがどのRendererでも同じだと思う</h3><p>成分の名前はRenderer依存です。<code>Ci</code>のような名前が通じない実装もあります。</p></article><article><h3>解像度とアパーチャの比を合わせない</h3><p><code>aspectRatioConformPolicy</code>によって、どちらかが引き伸ばされます。意図した画角にしたいなら、比を揃えるか方針を明示します。</p></article><article><h3>RenderVarを作らずにProductだけ書く</h3><p>何を出力するかが決まりません。<code>orderedVars</code>で少なくとも1つ指しておきます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>UsdRender</dt><dd>描画の条件をシーンの中にPrimとして記述するためのSchemaの集まり。</dd></div><div><dt>RenderSettings</dt><dd>描画全体の条件を持つPrim。カメラ・解像度・出力先を指す。</dd></div><div><dt>RenderProduct</dt><dd>出力ファイル1つを表すPrim。<code>productName</code>がファイル名になる。</dd></div><div><dt>RenderVar</dt><dd>出力する成分1つを表すPrim。色・深度・法線など。<code>sourceName</code>はRenderer依存。</dd></div><div><dt>renderSettingsPrimPath</dt><dd>既定で使うRenderSettingsを示すStage Metadata。</dd></div><div><dt>aspectRatioConformPolicy</dt><dd>解像度の比とアパーチャの比が食い違ったときの扱いを決める設定。既定は<code>expandAperture</code>。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/usd_render_page_front.html">OpenUSD — UsdRender module</a></li><li><a href="https://openusd.org/release/api/class_usd_render_settings.html">OpenUSD — UsdRenderSettings API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="45-hydra.html">← STEP 92</a><a class="nav-chapter" href="../chapters/13-stage-control.html">13. Stageを調べて制御する</a><a href="14-data-pipelines.html">STEP 94 →</a></nav></main><footer><p>OpenUSD Academy · STEP 93</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

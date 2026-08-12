@@ -1,0 +1,43 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 75: Expression Variable — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 75 · EXPRESSION VARIABLES</p><h1>Expression<span> Variable</span></h1><p class="lesson-lead">変数ひとつで、読むファイルを切り替えます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Expression Variableは 合成のときにAsset Pathの一部を変数で差し替える仕組み</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>参照先を、開くときに切り替えたい</h2><p>同じシーンを、Assetの<strong>版を変えて</strong>開きたいことがあります。<code>bench_v1.usda</code>と<code>bench_v2.usda</code>があるとき、シーンの参照を書き換えて回るのは大変です。</p><p><strong>Expression Variable</strong>は、Layerに変数を定義し、<strong>Asset Pathの中でその変数を使う</strong>仕組みです。変数の値を変えるだけで、参照先が切り替わります。</p><p>定義はLayerのMetadataに書きます。使うときは<strong>バッククォートで式を囲み</strong>、その中で<code>${変数名}</code>と書きます。この式は<strong>合成のときに評価されます</strong>。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><a href="12-variants.html">STEP 55</a>のVariant Setと似た用途に見えますが、切り替える対象が違います。<strong>Variantは「Prim記述の中身」</strong>を切り替え、<strong>Expression Variableは「どのファイルを読むか」</strong>を切り替えます。ファイル単位でまるごと差し替えたいならこちら、1つのAssetの中で形を選ばせたいならVariantです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>変数を定義し、Asset Pathで使う</h2><div class="code-card usda-card"><div class="code-title"><span>scene.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+    expressionVariables = {
+        string VERSION = "v1"
+    }
+)
+
+def Xform "World"
+{
+    def Xform "Bench" (
+        prepend references = @`"./bench_${VERSION}.usda"`@
+    )
+    {
+    }
+}</code></pre></div><p>書き方が独特なので、記号を分けて読みます。外側の<code>@ @</code>はいつものAsset Pathです。その内側の<strong>バッククォート<code>` `</code></strong>が「ここは式である」という印です。式の中では文字列を<strong>ダブルクォート</strong>で囲み、<code>${VERSION}</code>で変数を差し込みます。</p><p>つまり<code>@`"./bench_${VERSION}.usda"`@</code>は、<code>VERSION</code>が<code>"v1"</code>のとき<code>@./bench_v1.usda@</code>として解決されます。</p><p class="example-link"><a href="../examples/lesson-94/scene.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>変数を変えて、参照先が変わることを確かめる</h2><div class="code-card python-card"><div class="code-title"><span>expression_variables.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
+
+stage = Usd.Stage.Open("scene.usda")
+print("VERSION=v1 radius:",
+      stage.GetPrimAtPath("/World/Bench").GetAttribute("radius").Get())
+
+# Layer の変数を書き換えて開き直す
+layer = Sdf.Layer.FindOrOpen("scene.usda")
+layer.expressionVariables = {"VERSION": "v2"}
+stage2 = Usd.Stage.Open(layer)
+print("VERSION=v2 radius:",
+      stage2.GetPrimAtPath("/World/Bench").GetAttribute("radius").Get())</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>VERSION=v1 radius: 0.5
+VERSION=v2 radius: 0.9</code></pre></div><p><code>bench_v1.usda</code>の<code>radius</code>は0.5、<code>bench_v2.usda</code>は0.9です。<strong>シーン側の参照の記述は1文字も変えていません</strong>。変数の値だけで、読むファイルが切り替わりました。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>切り替えの手段を並べる</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Expression Variable</b><span><strong>どのファイルを読むか</strong>を切り替える。Asset Pathの中で<code>${VAR}</code></span></div></div><div class="map-note" aria-hidden="true">↓ もっと細かい単位</div><div class="map-row"><div class="map-node"><b>Variant Set</b><span><strong>Prim記述の中身</strong>を切り替える。1つのAssetの中で選ぶ</span></div><div class="map-node"><b>Layer Muting</b><span><strong>Layerを外す</strong>。引き算。<a href="78-layer-muting-session.html">STEP 80</a></span></div></div><div class="map-note" aria-hidden="true">↓ 値だけ</div><div class="map-row"><div class="map-node is-goal"><b>Session Layer / Inherits</b><span><strong>値を上書き</strong>する。足し算</span></div></div><div class="map-band">ファイル単位か、Prim単位か、値単位か。切り替えたい粒度で選びます</div><figcaption>OpenUSD Academyによる、切り替えの手段を粒度で並べた図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">expressionVariables = { string VERSION = "v1" }</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.expressionVariables = {"VERSION": "v1"}</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">references = @`"./bench_${VERSION}.usda"`@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetReferences().AddReference('`"./bench_${VERSION}.usda"`')</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（いまの変数を知りたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">dict(layer.expressionVariables)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（変えて開き直したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.expressionVariables = {...} / Usd.Stage.Open(layer)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>バッククォートを忘れると、ただの文字列</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この教材を書く途中で、<code>@./bench_`${VERSION}`.usda@</code>のようにバッククォートを<strong>変数の部分だけ</strong>に付けてしまい、参照が解決できませんでした。<code>Could not open asset @.../bench_`${VERSION}`.usda@</code>という警告が出て、値は<code>None</code>のままでした。</p><p>正しくは<strong>パス全体を式にする</strong>形です。<code>@`"./bench_${VERSION}.usda"`@</code>のように、バッククォートで全体を囲み、その中の文字列をダブルクォートで囲みます。式であることを示す印がバッククォート、文字列であることを示す印がダブルクォート、と2段になっています。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>変数が効かない</h2><div class="mistake-list"><article><h3>バッククォートで全体を囲まない</h3><p>式として扱われず、ただの文字列になります。解決に失敗しますが、例外ではなく警告と<code>None</code>で現れます。</p></article><article><h3>式の中で文字列をクォートし忘れる</h3><p>バッククォートの中はプログラムの式です。パスは文字列なので、ダブルクォートで囲みます。</p></article><article><h3>変数を定義せずに使う</h3><p>定義されていない変数は展開されません。使うLayerかその上位で<code>expressionVariables</code>を定義します。</p></article><article><h3>Variantと同じ用途だと思う</h3><p>Expression Variableはファイル単位、Variantは1つのAssetの中の選択です。粒度が違います。</p></article><article><h3>値を変えたのに開き直さない</h3><p>合成のときに評価されるので、変えたら開き直す（または再合成させる）必要があります。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Expression Variable</dt><dd>Layerに定義し、Asset Pathの中で<code>${名前}</code>として展開できる変数。合成のときに評価される。</dd></div><div><dt>expressionVariables</dt><dd>変数を定義するLayer Metadata。辞書として書く。</dd></div><div><dt>Variable Expression</dt><dd>バッククォートで囲んだ式。中の文字列はダブルクォートで囲む。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/glossary.html#usdglossary-variableexpression">OpenUSD Glossary — Variable Expression</a></li><li><a href="https://openusd.org/release/api/class_sdf_layer.html">OpenUSD — SdfLayer API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="91-layer-operations.html">← STEP 74</a><a class="nav-chapter" href="../chapters/11-composition-practice.html">11. Compositionを組み立てる</a><a href="74-prim-index.html">STEP 76 →</a></nav></main><footer><p>OpenUSD Academy · STEP 75</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

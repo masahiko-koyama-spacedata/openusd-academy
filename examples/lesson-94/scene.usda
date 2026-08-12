@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+    expressionVariables = {
+        string VERSION = "v1"
+    }
+)
+
+def Xform "World"
+{
+    def Xform "Bench" (
+        prepend references = @`"./bench_${VERSION}.usda"`@
+    )
+    {
+    }
+}

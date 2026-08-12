@@ -24,6 +24,7 @@
       <dt>aggregate</dt><dd>複数の要素を意味のある一単位へまとめたものです。</dd>
       <dt>ancestor</dt><dd>Scenegraph上で対象Primより上にある、親や親の親のことです。</dd>
       <dt>Ancestral Arc</dt><dd>祖先のPrimに書かれ、子孫へ降りてきたComposition Arc。</dd>
+      <dt>Anonymous Layer（匿名Layer）</dt><dd>保存先のファイルを持たないLayerです。<code>identifier</code>が<code>anon:</code>で始まります。Session Layerもこの一種です。</dd>
       <dt>Aperture（アパーチャ）</dt><dd>撮像面の大きさです。<code>horizontalAperture</code>・<code>verticalAperture</code>で、world unitの10分の1で表します。</dd>
       <dt>API Schema</dt><dd>Primの型を変えずに、機能や情報を足すSchema。</dd>
       <dt>apiSchemas</dt><dd>appliedなAPI Schemaの一覧を保持するPrim Metadata。</dd>
@@ -40,6 +41,7 @@
       <dt>Asset Modularity</dt><dd>どこで切ってAssetにするかという設計上の判断。</dd>
       <dt>Asset Parameterization</dt><dd>使う側が変えてよい部分を、作る側があらかじめ用意しておくこと。</dd>
       <dt>Asset Path</dt><dd><code>@ @</code>で囲んで書く、外部ファイルの場所です。</dd>
+      <dt>assetInfo</dt><dd>Assetの素性を書くための辞書のMetadataです。<code>name</code>・<code>version</code>・<code>identifier</code>といった鍵が使われます。</dd>
       <dt>asset（Value Type）</dt><dd>他のファイルを指すパスのValue Typeです。USDAでは <code>@ball.usda@</code> のようにアットマークで囲みます。大文字で始まる「Asset」（まとまりとしてのアセット）とは別物です。</dd>
       <dt>Asset（アセット）</dt><dd>独立して参照できるまとまりです。多くは1ファイルで、入口となるPrimを持ちます。小文字の「asset」（Value Type）とは別物です。</dd>
       <dt>Attribute（アトリビュート）</dt><dd>Primが持つ値のあるProperty。色、サイズ、位置などを表します。</dd>
@@ -92,6 +94,7 @@
       <dt>custom</dt><dd>Schemaであらかじめ定義されていないカスタムPropertyを示す指定。</dd>
       <dt>Custom Property</dt><dd>Schemaが定義していない、利用者が独自に足したProperty。</dd>
       <dt>Custom Relationship</dt><dd><code>custom rel</code>で書く、Schema外のRelationship。</dd>
+      <dt>customData</dt><dd>自由に使ってよい辞書のMetadataです。組織やツールが独自の情報を入れます。綴りや型は保証されません。</dd>
       <dt>CylinderLight</dt><dd>円柱状の光源です。<code>length</code>と<code>radius</code>で大きさを決めます。</dd>
       <dt>Dangling target</dt><dd>存在しないPathを指したままのRelationshipのtargetです。<code>usdchecker</code>では報告されません。</dd>
       <dt>Data Mapping</dt><dd>入力と出力の間で、概念やFieldをどう対応させるかの決めごとです。</dd>
@@ -108,9 +111,12 @@
       <dt>degree（度）</dt><dd>一周を360とする角度の単位です。USDのrotate値はこの単位で書きます。</dd>
       <dt>delete</dt><dd>一覧から項目を取り除くキーワード。</dd>
       <dt>Direct Arc</dt><dd>そのPrim自身に書かれたComposition Arc。</dd>
+      <dt>dirty（Layer）</dt><dd>読み込んでから変更が加えられたかどうかを表すLayerの状態です。</dd>
       <dt>DiskLight</dt><dd>円盤の面光源です。<code>radius</code>で大きさを決めます。</dd>
       <dt>displayColor</dt><dd>Gprimに最初から用意されている表示用の色のPrimvarです。既定のinterpolationは<code>constant</code>です。</dd>
+      <dt>displayName</dt><dd>画面に見せる名前のMetadataです。Prim名とは別で、Pathには使われません。</dd>
       <dt>DistantLight</dt><dd>無限遠から来る平行光です。向きだけが効き、位置は効きません。</dd>
+      <dt>documentation（doc）</dt><dd>説明文のMetadataです。<code>GetDocumentation()</code>で読めます。</dd>
       <dt>DomeLight</dt><dd>全方位からシーンを包む光です。<code>texture:file</code>に環境画像を指定して使います。</dd>
       <dt>doubleSided</dt><dd>裏側から見た面も表として扱うかどうかを決めるAttributeです。既定は<code>false</code>です。</dd>
       <dt>elementSize</dt><dd>Primvarで、1つの要素あたり何個の値を使うかを表すMetadataです。</dd>
@@ -120,6 +126,7 @@
       <dt>explicit</dt><dd>キーワードを付けずに書き、一覧を丸ごと置き換える記述。</dd>
       <dt>Export Options</dt><dd>変換の条件を、外から指定できるようにしたものです。</dd>
       <dt>exposure</dt><dd>2のべき乗で明るさを足す設定です。1増えると明るさが倍になります。</dd>
+      <dt>Expression Variable</dt><dd>Layerに定義し、Asset Pathの中で<code>${名前}</code>として展開できる変数です。合成のときに評価されます。</dd>
       <dt>extent</dt><dd>Gprimを囲む直方体を、最小点と最大点の2つで表したAttributeです。型は<code>float3[]</code>です。</dd>
       <dt>extentsHint</dt><dd>そのAssetのおおよその大きさを、入口に持たせるAttribute。</dd>
       <dt>External Arc</dt><dd>別のファイルを指すComposition Arc。</dd>
@@ -155,6 +162,7 @@
       <dt>HasAuthoredReferences</dt><dd>そのPrimにReferenceが記述されているかを返すPython API。</dd>
       <dt>HasAuthoredValue</dt><dd>そのAttributeに値が実際に書かれているかを返すPython API。</dd>
       <dt>Hgi（Hydra Graphics Interface）</dt><dd>Hydraが実際の描画に使うグラフィックスAPIの抽象化層です。MetalやVulkanがここに入ります。</dd>
+      <dt>hidden</dt><dd>ブラウザ表示のヒントとなるMetadataです。描画には影響せず、<code>visibility</code>とは別のものです。</dd>
       <dt>Hierarchical Refinement</dt><dd>Instance Primの上へ<code>xformOp</code>・<code>visibility</code>・<code>primvars</code>などを書いて個体差を付ける方法です。Prototypeは増えません。</dd>
       <dt>Hierarchy（階層）</dt><dd>親子で構成される入れ子の構造です。</dd>
       <dt>holeIndices</dt><dd>描かないFaceの番号です。topologyからは削除されないので、Face数は変わりません。</dd>
@@ -177,6 +185,7 @@
       <dt>Instance Refinement</dt><dd>Instanceに対して個体差や変更を加えるための手法全体を指します。共有を保ったまま差を付けるやり方（Hierarchical Refinement、Broadcasted Refinement、Variant、ID操作）だけでなく、共有をやめるDe-instancingも含みます。</dd>
       <dt>instanceable</dt><dd>そのPrimをInstanceにするかを決めるPrim Metadataです。</dd>
       <dt>intensity</dt><dd>光の明るさです。必要な値の桁はLight型によって大きく違い、DistantLightの既定は50000、SphereLightなどは1です。</dd>
+      <dt>Interface Input</dt><dd>NodeGraphやMaterialが外向きに持つ入力です。中身を知らずに調整するための口です。</dd>
       <dt>Internal Arc</dt><dd>同じLayerの中の別のPrimを指すComposition Arc。</dd>
       <dt>interpolateBoundary</dt><dd>Meshの端を細分化でどう扱うかを決めるAttributeです。既定は<code>edgeAndCorner</code>です。</dd>
       <dt>Interpolation Type</dt><dd>Time Sampleの間をどう埋めるかのStage全体の設定です。<code>linear</code>（既定）と<code>held</code>があります。</dd>
@@ -216,6 +225,7 @@
       <dt>Material Binding</dt><dd>GprimからMaterialへの結び付きです。<code>material:binding</code>というRelationshipで書かれます。</dd>
       <dt>Material Purpose</dt><dd>用途ごとにMaterialを使い分ける仕組みです。<code>material:binding:preview</code>と<code>material:binding:full</code>、および用途を限定しない指定があります。</dd>
       <dt>MaterialBindingAPI</dt><dd>Bindingを読み書きするAPI Schema。</dd>
+      <dt>MaterialX</dt><dd>ツール間で見た目を持ち運ぶための標準です。USD側では<code>NodeGraph</code>と<code>Shader</code>の入れ子として表されます。</dd>
       <dt>matrix</dt><dd>行と列に並んだ数のまとまりです。<code>matrix4d</code>は座標変換に使います。</dd>
       <dt>Membership Query</dt><dd>あるPathがCollectionに含まれるかを判定するオブジェクトです。<code>ComputeMembershipQuery()</code>で得ます。</dd>
       <dt>Mesh</dt><dd>多角形の面を集めて形を記述するGprimです。<code>UsdGeomMesh</code>に対応します。</dd>
@@ -228,9 +238,11 @@
       <dt>Namespace（名前空間）</dt><dd>Property名をコロンで区切って階層的にまとめる仕組みです。</dd>
       <dt>Nested Instancing</dt><dd>Instanceを含むPrimを、さらにInstanceにすること。</dd>
       <dt>Nested Variant Set（入れ子のVariant Set）</dt><dd>Variantの選択肢の中に、さらに別のVariant Setを置いた構造です。外側の選択ごとに内側の選択肢を変えられます。</dd>
+      <dt>NodeGraph</dt><dd>Shaderのまとまりを1つのPrimに閉じ込め、<code>inputs:</code>と<code>outputs:</code>だけを外へ見せるPrimです。Materialもその一種です。</dd>
       <dt>non-applied API Schema</dt><dd>記録を残さず、読み書きの窓口としてだけ働くAPI Schema。</dd>
       <dt>non-uniform scale</dt><dd>軸ごとに異なる倍率を使うScaleです。</dd>
       <dt>normals</dt><dd>面の向きを表す法線のAttributeです。型は<code>normal3f[]</code>で、Primvarではありません。</dd>
+      <dt>OpenMasked</dt><dd>Population Maskを与えてStageを開くPython APIです。</dd>
       <dt>OpenUSD</dt><dd>3Dシーンを記述、合成、シミュレーション、共同作業するためのフレームワーク。</dd>
       <dt>Opinion（意見）</dt><dd>あるLayerが、あるPropertyやMetadataに対して持つ値の主張。</dd>
       <dt>orientation</dt><dd><code>faceVertexIndices</code>の並べ方から面の表裏を決める規則です。<code>rightHanded</code>が既定で、<code>leftHanded</code>にすると判定が逆になります。</dd>
@@ -246,12 +258,14 @@
       <dt>Pcp.ArcTypePayload</dt><dd>Composition QueryでPayloadのArcを判別するための値。</dd>
       <dt>Pcp（Prim Cache Population）</dt><dd>Prim Indexを組み立てる部分の名前です。エラーメッセージやAPI名に現れたら、合成の内部の話だと読みます。</dd>
       <dt>Pivot</dt><dd>回転と拡縮の中心として使う位置です。対になるinverse operationと組み合わせます。</dd>
+      <dt>Plug.Registry</dt><dd>いま読み込まれているプラグインの一覧を返すPython APIです。使えるSchemaの確認に使えます。</dd>
       <dt>Point</dt><dd>Meshの頂点の位置です。<code>points</code>に並ぶ座標を指します。</dd>
       <dt>Point Instance</dt><dd>PointInstancerが配列から置く1体です。Primではないので、Pathを持ちません。</dd>
       <dt>Point Instancing</dt><dd>配列で位置と種類を並べ、大量の配置を1つのPrimで表す仕組みです。</dd>
       <dt>PointInstancer</dt><dd>Point Instancingを担うPrim型。</dd>
       <dt>points</dt><dd>頂点の座標を並べたAttributeです。型は<code>point3f[]</code>で、並べた順がPoint番号になります。</dd>
       <dt>Points</dt><dd>点群を表すGprimです。点ごとの大きさを<code>widths</code>で持ちます。</dd>
+      <dt>Population Mask</dt><dd>Stageに載せるPrimを開くときに絞り込む仕組みです。指定したPathとその子孫、および先祖だけが構成されます。</dd>
       <dt>positions</dt><dd>各配置の位置を並べた<code>point3f[]</code>の配列。</dd>
       <dt>prepend</dt><dd>一覧の先頭へ項目を足すキーワード。</dd>
       <dt>Prim Composition</dt><dd>同じPathへ寄与する複数のPrim Specを、規則にしたがって一つのPrimへまとめることです。</dd>
@@ -295,6 +309,9 @@
       <dt>Relationship（リレーションシップ）</dt><dd>0個以上のPrim PathまたはProperty Pathを対象として持てる、型のないPropertyです。</dd>
       <dt>Render Delegate</dt><dd>実際に絵を作る実装です。HdStorm（OpenUSD付属のリアルタイム描画）やHdPrman（RenderMan）などがあります。MetalはHdStormが内部で使うグラフィックスAPIの一つであって、Render Delegateではありません。</dd>
       <dt>Render Index</dt><dd>供給された内容をHydra側で保持し、描く側へ渡す部分。</dd>
+      <dt>RenderProduct</dt><dd>出力ファイル1つを表すPrimです。<code>productName</code>がファイル名になります。</dd>
+      <dt>RenderSettings</dt><dd>描画全体の条件を持つPrimです。カメラ・解像度・出力先を指します。</dd>
+      <dt>RenderVar</dt><dd>出力する成分1つを表すPrimです。色・深度・法線などで、<code>sourceName</code>はRenderer依存です。</dd>
       <dt>reorder</dt><dd>既にある項目の順番だけを変えるキーワード。</dd>
       <dt>reset xform stack</dt><dd>親Primからの変換の継承を止める指定です。<code>xformOpOrder</code>に<code>!resetXformStack!</code>を書きます。</dd>
       <dt>role</dt><dd>値が位置・向き・法線・色・テクスチャ座標のどれを表すかという、Value Typeの意味の部分です。</dd>
@@ -360,6 +377,7 @@
       <dt>top-level Prim</dt><dd>擬似ルートの直下にあり、Pathが一要素だけのPrimです。</dd>
       <dt>Topology（トポロジー）</dt><dd>PointとFaceのつながり方です。Primvarに必要な値の個数はこれで決まります。</dd>
       <dt>Topology（トポロジ）</dt><dd>Meshにおいて、どの点とどの点をつないで面を作るかというつながり方の情報です。座標そのものとは区別されます。</dd>
+      <dt>TransferContent</dt><dd>他のLayerの中身を丸ごと写す操作です。移す先の元の内容は消えます。</dd>
       <dt>transform stack</dt><dd><code>xformOpOrder</code>に従って操作を積み重ねていく、変換の評価の考え方です。</dd>
       <dt>transformability</dt><dd>xformOpによって空間変換を記述できる性質です。Scopeはこれを持ちません。</dd>
       <dt>Translate</dt><dd>PrimをX・Y・Z方向へ移動する変換操作です。通常は<code>xformOp:translate</code>として記述します。</dd>
@@ -387,16 +405,19 @@
       <dt>UsdGeomCamera</dt><dd>カメラを表すPrimです。<code>Xformable</code>なので階層と変換に従い、-Z方向を向きます。</dd>
       <dt>UsdGeomPrimvar</dt><dd>Primvarを読み書きするためのPythonのクラス。</dd>
       <dt>UsdLux</dt><dd>光を記述するためのSchemaの集まりです。</dd>
+      <dt>UsdMedia</dt><dd>音を扱うSchemaの集まりです。<code>SpatialAudio</code>で空間内の音源を表します。</dd>
       <dt>UsdNamespaceEditor</dt><dd>Primの改名や移動を行い、指していたRelationshipのPathも追従させるPython APIです。</dd>
       <dt>UsdPhysics</dt><dd>物理シミュレーション向けのSchemaとAPIをまとめたモジュール。</dd>
       <dt>UsdPreviewSurface</dt><dd>ツール間で共通して扱える、標準的なShaderの種類。</dd>
       <dt>UsdPrimvarReader</dt><dd>Gprimに載っているPrimvarを読み出す標準Shaderです。型ごとに<code>UsdPrimvarReader_float2</code>などがあります。</dd>
       <dt>usdrecord</dt><dd>Stageを画像として描き出すコマンドです。</dd>
+      <dt>UsdRender</dt><dd>描画の条件をシーンの中にPrimとして記述するためのSchemaの集まりです。</dd>
       <dt>UsdShade</dt><dd>マテリアルとシェーダを記述するためのSchemaの集まりです。</dd>
       <dt>UsdSkel</dt><dd>骨格による変形（スキニング）を記述するSchemaの集まりです。</dd>
       <dt>usdtree</dt><dd>Stageの階層を、Specifierと型名付きのツリーで表示するコマンドです。</dd>
       <dt>UsdUVTexture</dt><dd>画像ファイルをUV座標でサンプリングする標準Shaderです。出力は<code>rgb</code>・<code>r</code>・<code>g</code>・<code>b</code>・<code>a</code>です。</dd>
       <dt>usdview</dt><dd>OpenUSDに同梱されているStageの閲覧ツールです。階層・描画・Property・合成の内訳を1つの画面で見られます。<code>pip install usd-core</code>には含まれません。</dd>
+      <dt>UsdVol</dt><dd>煙や雲などのボリュームを扱うSchemaの集まりです。</dd>
       <dt>USDZ</dt><dd>複数アセットを一つにまとめる、配布向けの非圧縮ZIPパッケージです。</dd>
       <dt>UTF-8</dt><dd>Unicode文字を表す文字エンコーディングです。USDAは人が読めるUTF-8テキスト形式です。</dd>
       <dt>UV</dt><dd>Surface上の位置をテクスチャ画像の座標へ対応させる値です。<code>faceVarying</code>で持たせることが多い値です。</dd>
@@ -405,6 +426,7 @@
       <dt>Value Clips</dt><dd>時間で変わる値を複数のファイルに分け、時刻に応じて切り替えて読む仕組みです。Composition Arcではありません。</dd>
       <dt>Value Resolution（値の解決）</dt><dd>PropertyやMetadataについて、合成されたStage上での最終的な値を求める処理です。</dd>
       <dt>Value Type</dt><dd>Attributeが保持する値の型です。値の形と、その値が何を意味するか（role）の両方を決めます。</dd>
+      <dt>Variable Expression</dt><dd>バッククォートで囲んだ式です。中の文字列はダブルクォートで囲みます。パス全体を囲まないと文字列のままになります。</dd>
       <dt>Variant</dt><dd>Variant Setの中の一つの選択肢。</dd>
       <dt>Variant Edit Context</dt><dd>書き込み先を、選択中のVariantの内側へ切り替えるPythonのコンテキストです。</dd>
       <dt>Variant Selection</dt><dd>どの選択肢を使うかを示すPrim Metadata。</dd>

@@ -1,0 +1,54 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 17: 領域別のSchema — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 17 · OTHER SCHEMAS</p><h1>領域別の<span>Schema</span></h1><p class="lesson-lead">Physics・Vol・Media・UI・Proc の位置づけ</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>OpenUSDには領域別のSchemaが並んでいて どれも同じ読み方で読める</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>ここまでで、読み方は身についている</h2><p>この教材では<code>UsdGeom</code>・<code>UsdShade</code>・<code>UsdLux</code>・<code>UsdSkel</code>・<code>UsdRender</code>を扱ってきました。OpenUSDには、ほかにも領域別のSchemaが同梱されています。</p><p>ここで全部を詳しく学ぶ必要はありません。大事なのは<strong>存在を知っておくことと、同じ読み方が通用すると分かっていること</strong>です。どのSchemaも、<a href="09b-schema-kinds.html">STEP 14</a>で見たTypedとAPIの2系統でできていて、Propertyの名前には接頭辞が付き、Applied API Schemaは<code>apiSchemas</code>に積まれます。</p><div class="table-wrap"><table><thead><tr><th>モジュール</th><th>扱うもの</th><th>代表的なSchema</th></tr></thead><tbody><tr><td><code>UsdPhysics</code></td><td>物理シミュレーション</td><td><code>PhysicsScene</code>・<code>PhysicsRigidBodyAPI</code>・<code>PhysicsCollisionAPI</code></td></tr><tr><td><code>UsdVol</code></td><td>ボリューム（煙・雲）</td><td><code>Volume</code>・<code>OpenVDBAsset</code></td></tr><tr><td><code>UsdMedia</code></td><td>音</td><td><code>SpatialAudio</code></td></tr><tr><td><code>UsdUI</code></td><td>編集画面の見た目</td><td><code>Backdrop</code>・<code>NodeGraphNodeAPI</code></td></tr><tr><td><code>UsdProc</code></td><td>手続き的な生成</td><td><code>GenerativeProcedural</code></td></tr><tr><td><code>UsdLod</code></td><td>詳細度の切り替え</td><td>（Variantによる表現の規約）</td></tr><tr><td><code>UsdRi</code></td><td>RenderMan向けの拡張</td><td>Renderer固有の設定</td></tr><tr><td><code>UsdSemantics</code></td><td>意味のラベル付け</td><td><code>SemanticsLabelsAPI</code></td></tr></tbody></table></div><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>この一覧は<code>pip install usd-core</code>に入っているプラグインから作りました。つまり<strong>特別な準備なしに使える</strong>ものです。手元で確かめられるので、気になったら<code>Usd.SchemaRegistry.GetSchemaKind("PhysicsRigidBodyAPI")</code>のように種類を聞いてみるところから始められます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>実在と種類を、その場で確かめる</h2><div class="code-card python-card"><div class="code-title"><span>list_schemas.py</span><span>Python</span></div><pre><code>from pxr import Plug, Usd
+
+registry = Usd.SchemaRegistry
+names = ["PhysicsRigidBodyAPI", "PhysicsCollisionAPI", "PhysicsScene",
+         "Volume", "OpenVDBAsset", "SpatialAudio",
+         "Backdrop", "NodeGraphNodeAPI", "GenerativeProcedural"]
+
+for name in names:
+    print("%-24s %s" % (name, registry.GetSchemaKind(name)))
+
+libs = sorted({p.name for p in Plug.Registry().GetAllPlugins()
+               if p.name.startswith("usd")})
+print(libs)</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>PhysicsRigidBodyAPI      SingleApplyAPI
+PhysicsCollisionAPI      SingleApplyAPI
+PhysicsScene             ConcreteTyped
+Volume                   ConcreteTyped
+OpenVDBAsset             ConcreteTyped
+SpatialAudio             ConcreteTyped
+Backdrop                 ConcreteTyped
+NodeGraphNodeAPI         SingleApplyAPI
+GenerativeProcedural     ConcreteTyped
+
+['usd', 'usdGeom', 'usdGeomValidators', 'usdHydra', 'usdLod', 'usdLux',
+ 'usdLuxValidators', 'usdMedia', 'usdPhysics', 'usdPhysicsValidators',
+ 'usdProc', 'usdRender', 'usdRi', 'usdSemantics', 'usdShade',
+ 'usdShadeValidators', 'usdShaders', 'usdSkel', 'usdSkelValidators',
+ 'usdUI', 'usdUtilsValidators', 'usdValidation', 'usdVol']</code></pre></div><p><code>Plug.Registry()</code>は、いま読み込まれているプラグインの一覧を返します。<code>...Validators</code>で終わるものは検査の定義で、<a href="57-asset-validation.html">STEP 104</a>で扱ったAsset Validationの土台です。</p><p><strong>種類が返ってくること自体が「使える」という確認</strong>になります。自作Schemaを登録したときも、同じやり方で確かめられます（<a href="87-authoring-schemas.html">STEP 15</a>）。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>読み方は、ここまでと同じ</h2><div class="code-card usda-card"><div class="code-title"><span>physics.usda（抜粋）</span><span>USDA</span></div><pre><code>def PhysicsScene "Physics"
+{
+    vector3f physics:gravityDirection = (0, -1, 0)
+    float physics:gravityMagnitude = 9.8
+}
+
+def Cube "Box" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsCollisionAPI"]
+)
+{
+    double size = 1
+    bool physics:collisionEnabled = 1
+    bool physics:rigidBodyEnabled = 1
+    vector3f physics:velocity = (0, 0, 0)
+}</code></pre></div><p>特別なことは何もありません。<code>def PhysicsScene</code>はTyped Schema、<code>apiSchemas</code>に並ぶ2つはApplied API Schemaです。Property名には<code>physics:</code>という接頭辞が付いています。</p><p><strong>この構造は<code>UsdGeom</code>や<code>UsdShade</code>とまったく同じです。</strong>接頭辞が<code>primvars:</code>か<code>inputs:</code>か<code>physics:</code>かが違うだけで、読み方は変わりません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>領域は違っても、骨格は同じ</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Typed Schema</b><span>Primの型になる。<code>def PhysicsScene</code>・<code>def Volume</code>・<code>def SpatialAudio</code></span></div><div class="map-node"><b>API Schema</b><span><code>apiSchemas</code>に積む。<code>PhysicsRigidBodyAPI</code>・<code>NodeGraphNodeAPI</code></span></div></div><div class="map-note" aria-hidden="true">↓ Property名の接頭辞で領域が分かる</div><div class="map-row"><div class="map-node"><b>primvars:</b><span>UsdGeom</span></div><div class="map-node"><b>inputs: / outputs:</b><span>UsdShade</span></div><div class="map-node"><b>physics:</b><span>UsdPhysics</span></div><div class="map-node is-goal"><b>skel:</b><span>UsdSkel</span></div></div><div class="map-band">新しいSchemaに出会っても、この骨格に当てはめれば読めます</div><figcaption>OpenUSD Academyによる、領域別Schemaに共通する骨格の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">def PhysicsScene "Physics"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdPhysics.Scene.Define(stage, "/Physics")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">prepend apiSchemas = ["PhysicsRigidBodyAPI"]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdPhysics.RigidBodyAPI.Apply(prim)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">float physics:gravityMagnitude = 9.8</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">scene.CreateGravityMagnitudeAttr(9.8)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（このSchemaは使えるか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.SchemaRegistry.GetSchemaKind("PhysicsScene")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（どのプラグインが入っているか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Plug.Registry().GetAllPlugins()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>書けることと、動くことは別</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>UsdPhysics</code>のSchemaを書いても、<strong>OpenUSD自身が物理シミュレーションをするわけではありません</strong>。あくまで「この物体は剛体である」「重力はこの向き」という<strong>記述</strong>です。実際に動かすのは、その記述を読む物理エンジンです。</p><p>これは<a href="93-render-settings.html">STEP 93</a>のUsdRenderと同じ関係です。OpenUSDは<strong>共通の書き方を決める</strong>役で、実行する側は別にいます。この分担がOpenUSDの設計そのものなので、新しいSchemaに出会ったら「これは記述であって実行ではない」と考えると位置づけを間違えません。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>Schemaの位置づけを取り違える</h2><div class="mistake-list"><article><h3>書けば動くと思う</h3><p>Schemaは記述です。読んで実行する側（物理エンジン、Renderer）が必要です。</p></article><article><h3>環境に無いSchemaを使う</h3><p>プラグインが読み込まれていなければ、型は認識されず<code>def</code>しただけの型なしPrimになります。<code>GetSchemaKind()</code>で確かめます。</p></article><article><h3>接頭辞を省く</h3><p><code>physics:gravityMagnitude</code>の<code>physics:</code>は名前の一部です。省くと別のPropertyになります。</p></article><article><h3>すべてを覚えようとする</h3><p>領域別Schemaは今後も増えます。骨格（TypedとAPI、接頭辞、apiSchemas）を押さえておけば、必要になったときに読めます。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>UsdPhysics</dt><dd>物理シミュレーションのための記述を扱うSchemaの集まり。実行は外部のエンジンが行う。</dd></div><div><dt>UsdVol</dt><dd>煙や雲などのボリュームを扱うSchemaの集まり。<code>Volume</code>と<code>OpenVDBAsset</code>を持つ。</dd></div><div><dt>UsdMedia</dt><dd>音を扱うSchemaの集まり。<code>SpatialAudio</code>で空間内の音源を表す。</dd></div><div><dt>UsdUI</dt><dd>編集画面での見た目を扱うSchemaの集まり。<code>Backdrop</code>など。</dd></div><div><dt>UsdProc</dt><dd>手続き的な生成を扱うSchemaの集まり。<code>GenerativeProcedural</code>を持つ。</dd></div><div><dt>Plug.Registry</dt><dd>いま読み込まれているプラグインの一覧を返すPython API。使えるSchemaの確認に使える。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/index.html">OpenUSD — API Documentation</a></li><li><a href="https://openusd.org/release/api/usd_physics_page_front.html">OpenUSD — UsdPhysics module</a></li><li><a href="https://openusd.org/release/api/class_usd_schema_registry.html">OpenUSD — UsdSchemaRegistry API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="90-metadata-details.html">← STEP 16</a><a class="nav-chapter" href="../chapters/03-python.html">3. Pythonから触る</a><a href="15-scope.html">STEP 18 →</a></nav></main><footer><p>OpenUSD Academy · STEP 17</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

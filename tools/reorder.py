@@ -87,6 +87,8 @@ PLAN = [
             ("09-metadata-schemas.html", "Lesson 09", "MetadataとSchema", "補助情報とデータの設計図を分ける"),
         ("09b-schema-kinds.html", "Lesson 09B", "Schemaの種類", "Typed/APIの2系統と、concrete・abstract・applied・non-applied"),
             ("87-authoring-schemas.html", "Lesson 87", "Schemaを定義する", "schema.usdaとusdGenSchema、Codeless Schema"),
+            ("90-metadata-details.html", "Lesson 90", "実務で使うMetadata", "customData・assetInfo・doc・displayName"),
+            ("95-other-schemas.html", "Lesson 95", "領域別のSchema", "Physics・Vol・Media・UI・Procの位置づけ"),
         ]),
     dict(
         title="4. 形を置いて動かす", slug="04-transforms",
@@ -172,6 +174,7 @@ PLAN = [
         items=[
             ("46-usdshade-basics.html", "Lesson 46", "UsdShadeの基礎", "MaterialとShaderを接続で組み立てる"),
             ("50-material-binding.html", "Lesson 50", "Material Binding", "形とMaterialを結び、子孫へ受け継がせる"),
+            ("89-nodegraph.html", "Lesson 89", "NodeGraphとMaterialX", "Shaderをまとめて口だけ見せる"),
             ("37-lights.html", "Lesson 37", "Lights", "UsdLuxのLight型とLightAPIで光を記述する"),
         ]),
     dict(
@@ -281,6 +284,8 @@ PLAN = [
             ("34a-prim-stack.html", "Lesson 34A", "Prim Stack", "Primへ寄与するPrim Specを調べる"),
             ("34b-property-stack.html", "Lesson 34B", "Property Stack", "Propertyへ寄与するSpecを調べる"),
             ("86-namespace-editing.html", "Lesson 86", "Namespace編集とSdf", "改名・移動と、大量編集の速さ"),
+            ("91-layer-operations.html", "Lesson 91", "Layerの操作", "匿名Layer、SaveとExport、Reload"),
+            ("94-expression-variables.html", "Lesson 94", "Expression Variable", "変数ひとつで読むファイルを切り替える"),
             ("74-prim-index.html", "Lesson 74", "Prim Index", "合成の結果ではなく、結果を作る木を見る"),
             ("75-nested-variants.html", "Lesson 75", "入れ子のVariant Set", "選択肢の中に、さらに選択肢を置く"),
             ("76-layer-offset.html", "Lesson 76", "Layer Offset", "同じAssetを違う時間で再生する"),
@@ -325,7 +330,9 @@ PLAN = [
             ("42-load-unload.html", "Lesson 42", "LoadとUnload", "Payloadを制御する"),
             ("43-stage-traversal.html", "Lesson 43", "Stage Traversal", "Primを順番に調べる"),
             ("44-traversal-predicate.html", "Lesson 44", "Traversal Predicate", "調べるPrimを絞る"),
+            ("92-population-mask.html", "Lesson 92", "Population Mask", "必要な枝だけをStageに載せる"),
             ("45-hydra.html", "Lesson 45", "Hydra", "Scene Indexとレンダリングの入口"),
+            ("93-render-settings.html", "Lesson 93", "UsdRender", "何をどこへどう出力するかを書く"),
         ]),
     dict(
         title="14. パイプラインとData Exchange", slug="14-pipeline",

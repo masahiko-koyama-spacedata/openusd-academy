@@ -1,0 +1,67 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 43: NodeGraphとMaterialX — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 43 · NODEGRAPH</p><h1>NodeGraphと<span>MaterialX</span></h1><p class="lesson-lead">Shaderが増えたら、まとめて口だけ見せます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>NodeGraphはShaderをまとめて外向きの口だけ見せる箱で Material自身もその一種</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Shaderが増えたら、まとめて名前を付ける</h2><p><a href="46-usdshade-basics.html">STEP 41</a>で、テクスチャを貼るのに3つのShaderが並ぶことを見ました。実際の見た目はもっと複雑で、10個も20個もつながることがあります。そのまま平らに並べると、どこからどこまでが「色を作る部分」なのかが読めません。</p><p><strong><code>NodeGraph</code></strong>は、Shaderのまとまりを1つのPrimに閉じ込め、<strong>外から見える口だけを公開する</strong>仕組みです。<code>inputs:</code>で受け取り、<code>outputs:</code>で出す。中身がいくつのShaderでできているかは、使う側は知らなくて済みます。</p><p>ここまでの<code>Material</code>とまったく同じ考え方です。実際、<strong><code>Material</code>は<code>NodeGraph</code>の一種</strong>です。<code>Material</code>は「表面としての口（<code>outputs:surface</code>）を持つNodeGraph」だと考えると、2つの関係がすっきりします。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><a href="48-asset-interface.html">STEP 96</a>のAsset Interface、<a href="52-reference-payload-pattern.html">STEP 99</a>のReference/Payload Pattern と、同じ形がまた出てきました。<strong>「中身は隠し、外向きの口だけを決める」</strong>という設計が、OpenUSDでは繰り返し現れます。1つ理解すると他が読めるようになるのは、このためです。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>色を作る部分を、1つの箱にまとめる</h2><div class="code-card usda-card"><div class="code-title"><span>nodegraph.usda（抜粋）</span><span>USDA</span></div><pre><code>def Material "Paint"
+{
+    token outputs:surface.connect = &lt;/Looks/Paint/PBR.outputs:surface&gt;
+
+    def NodeGraph "ColorBlock"
+    {
+        color3f inputs:tint = (1, 0.9, 0.8)
+        color3f outputs:rgb.connect = &lt;/Looks/Paint/ColorBlock/Tex.outputs:rgb&gt;
+
+        def Shader "Tex"
+        {
+            uniform token info:id = "UsdUVTexture"
+            asset inputs:file = @./checker.png@
+            color3f outputs:rgb
+        }
+    }
+
+    def Shader "PBR"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        color3f inputs:diffuseColor.connect = &lt;/Looks/Paint/ColorBlock.outputs:rgb&gt;
+        token outputs:surface
+    }
+}</code></pre></div><p>読む順は外から内です。<code>PBR</code>の<code>diffuseColor</code>は<strong><code>ColorBlock</code>という箱の<code>outputs:rgb</code></strong>につながっています。中の<code>Tex</code>を直接指してはいません。<code>ColorBlock</code>の中で<code>outputs:rgb</code>がどこから来るかは、箱の中の話です。</p><p><code>inputs:tint</code>は<strong>箱の外から中へ値を渡す口</strong>です。使う側はこれを書き換えるだけで、中身の構成を知らずに調整できます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>外から見た接続を確かめる</h2><div class="code-card python-card"><div class="code-title"><span>nodegraph.py</span><span>Python</span></div><pre><code>from pxr import Gf, Sdf, Usd, UsdShade
+
+stage = Usd.Stage.CreateNew("ng.usda")
+material = UsdShade.Material.Define(stage, "/Looks/Paint")
+
+graph = UsdShade.NodeGraph.Define(stage, "/Looks/Paint/ColorBlock")
+tex = UsdShade.Shader.Define(stage, "/Looks/Paint/ColorBlock/Tex")
+tex.CreateIdAttr("UsdUVTexture")
+tex.CreateInput("file", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("./checker.png"))
+
+# 箱の外向きの口
+graph.CreateInput("tint", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(1, 0.9, 0.8))
+out = graph.CreateOutput("rgb", Sdf.ValueTypeNames.Color3f)
+out.ConnectToSource(tex.ConnectableAPI(), "rgb")
+
+pbr = UsdShade.Shader.Define(stage, "/Looks/Paint/PBR")
+pbr.CreateIdAttr("UsdPreviewSurface")
+pbr.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).ConnectToSource(out)
+
+print("型            :", graph.GetPrim().GetTypeName())
+print("NodeGraphの出力:", [o.GetFullName() for o in graph.GetOutputs()])
+print("NodeGraphの入力:", [(i.GetBaseName(), i.Get()) for i in graph.GetInputs()])
+
+source, name, kind = pbr.GetInput("diffuseColor").GetConnectedSource()
+print("PBRの接続先    :", source.GetPath(), "/", name, "/", kind)
+print("MaterialはNodeGraphか:", bool(UsdShade.NodeGraph(material.GetPrim())))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>型            : NodeGraph
+NodeGraphの出力: ['outputs:rgb']
+NodeGraphの入力: [('tint', Gf.Vec3f(1.0, 0.9, 0.8))]
+PBRの接続先    : /Looks/Paint/ColorBlock / rgb / Output
+MaterialはNodeGraphか: True</code></pre></div><p>最後の行が要点です。<code>UsdShade.NodeGraph(material.GetPrim())</code>が<code>True</code>を返しました。<strong><code>Material</code>は<code>NodeGraph</code>としても扱えます</strong>。だからMaterialにも<code>inputs:</code>を作れて、<a href="50-material-binding.html">STEP 42</a>で見たInterface Inputとして値を持てるのです。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>3階建ての入れ子</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Material</b><span>いちばん外の箱。<code>outputs:surface</code>を持つ。NodeGraphの一種</span></div></div><div class="map-note" aria-hidden="true">↓ 中に置ける</div><div class="map-row"><div class="map-node"><b>NodeGraph</b><span>Shaderのまとまり。<code>inputs:</code>で受け、<code>outputs:</code>で出す</span></div></div><div class="map-note" aria-hidden="true">↓ 中に置ける</div><div class="map-row"><div class="map-node is-goal"><b>Shader</b><span>実際の計算1つ。<code>info:id</code>で種類を決める</span></div></div><div class="map-band">外側は内側の構成を知らない。口の名前と型だけで話が通る</div><figcaption>OpenUSD Academyによる、Material・NodeGraph・Shaderの入れ子の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">MaterialX</p><h2>より本格的なノードグラフの標準</h2><p><code>UsdPreviewSurface</code>は、どこでも同じに解釈されることを優先した最小限のShaderでした。より作り込んだ見た目を、ツールをまたいで持ち運びたい場合の標準が<strong>MaterialX</strong>です。</p><p>MaterialXはOpenUSDとは別に定められた仕様ですが、USDから利用できます。MaterialXのノードグラフは、USD側では<strong><code>NodeGraph</code>と<code>Shader</code>の入れ子としてそのまま表現されます</strong>。<code>info:id</code>に<code>ND_standard_surface_surfaceshader</code>のようなMaterialXのノード名が入る形です。</p><p>つまり、<strong>このレッスンで見た構造がそのまま使われます</strong>。NodeGraphの読み方を押さえておけば、MaterialXのマテリアルを開いても構造は追えます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>使い分けの目安は<strong>再現性の要求</strong>です。ビューアやARで確実に同じに見えればよいなら<code>UsdPreviewSurface</code>、DCCツール間で作り込んだ質感を保ちたいならMaterialXです。両方を書いておき、用途で使い分けることもできます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">def NodeGraph "ColorBlock"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdShade.NodeGraph.Define(stage, "/Looks/Paint/ColorBlock")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">color3f inputs:tint = (1, 0.9, 0.8)</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">graph.CreateInput("tint", Sdf.ValueTypeNames.Color3f).Set(...)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">color3f outputs:rgb.connect = &lt;.../Tex.outputs:rgb&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">graph.CreateOutput("rgb", ...).ConnectToSource(tex.ConnectableAPI(), "rgb")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">inputs:diffuseColor.connect = &lt;.../ColorBlock.outputs:rgb&gt;</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">pbr.GetInput("diffuseColor").ConnectToSource(out)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（この口はどこにつながっているか）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">input.GetConnectedSource()</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>箱の中を直接指さない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>NodeGraphの外から、中のShaderの<code>outputs:</code>を直接つなぐことは<strong>技術的にはできます</strong>。しかしそれをすると、箱にした意味がなくなります。中身を作り替えたときに、外側のつなぎ先も壊れるからです。</p><p>外からは<strong>必ず箱の<code>outputs:</code>を指す</strong>。これは<a href="48-asset-interface.html">STEP 96</a>で「Assetの中身を直接参照しない」と言ったのと同じ約束です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>まとめたつもりで、まとまっていない</h2><div class="mistake-list"><article><h3>NodeGraphのoutputsを作り忘れる</h3><p>中にShaderを置いただけでは、外から値を取り出せません。<code>outputs:</code>を作り、中のShaderへ<code>connect</code>して初めて口になります。</p></article><article><h3>外から中のShaderを直接つなぐ</h3><p>動きますが、中身を作り替えると壊れます。箱の口を指します。</p></article><article><h3>MaterialとNodeGraphを別物だと思う</h3><p>MaterialはNodeGraphの一種です。だからMaterialにも<code>inputs:</code>を作れます。</p></article><article><h3>UsdPreviewSurfaceとMaterialXを同時に必須だと思う</h3><p>どちらか一方で構いません。交換のしやすさを取るなら<code>UsdPreviewSurface</code>、作り込みを取るならMaterialXです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>NodeGraph</dt><dd>Shaderのまとまりを1つのPrimに閉じ込め、<code>inputs:</code>と<code>outputs:</code>だけを外へ見せるPrim。</dd></div><div><dt>Interface Input</dt><dd>NodeGraphやMaterialが外向きに持つ入力。中身を知らずに調整するための口。</dd></div><div><dt>MaterialX</dt><dd>ツール間で見た目を持ち運ぶための標準。USD側では<code>NodeGraph</code>と<code>Shader</code>の入れ子として表される。</dd></div><div><dt>ConnectableAPI</dt><dd>接続を扱うためのAPI。Shader・NodeGraph・Materialのいずれからも得られる。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_shade_node_graph.html">OpenUSD — UsdShadeNodeGraph API</a></li><li><a href="https://openusd.org/release/api/usd_shade_page_front.html">OpenUSD — UsdShade module</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="50-material-binding.html">← STEP 42</a><a class="nav-chapter" href="../chapters/06-shading.html">6. 見た目を記述する</a><a href="37-lights.html">STEP 44 →</a></nav></main><footer><p>OpenUSD Academy · STEP 43</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

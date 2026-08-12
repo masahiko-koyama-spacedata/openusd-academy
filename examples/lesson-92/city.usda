@@ -1,0 +1,54 @@
+#usda 1.0
+(
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "City"
+{
+    def Xform "BlockA"
+    {
+        def Cube "Bldg_0"
+        {
+        }
+
+        def Cube "Bldg_1"
+        {
+        }
+
+        def Cube "Bldg_2"
+        {
+        }
+    }
+
+    def Xform "BlockB"
+    {
+        def Cube "Bldg_0"
+        {
+        }
+
+        def Cube "Bldg_1"
+        {
+        }
+
+        def Cube "Bldg_2"
+        {
+        }
+    }
+
+    def Xform "BlockC"
+    {
+        def Cube "Bldg_0"
+        {
+        }
+
+        def Cube "Bldg_1"
+        {
+        }
+
+        def Cube "Bldg_2"
+        {
+        }
+    }
+}
+

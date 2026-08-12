@@ -1,0 +1,50 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 74: Layerの操作 — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 74 · LAYER OPERATIONS</p><h1>Layerの<span>操作</span></h1><p class="lesson-lead">匿名Layer、Save と Export、Reload</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Layerはファイルと1対1ではない 匿名Layerは保存先を持たず ExportとSaveは別物</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Layerを、ファイルから切り離して考える</h2><p>ここまで「Layer＝1つのUSDAファイル」として扱ってきました。ほとんどの場面ではそれで正しいのですが、<strong>保存先を持たないLayer</strong>も作れます。これを<strong>匿名Layer（Anonymous Layer）</strong>と呼びます。</p><p><a href="78-layer-muting-session.html">STEP 80</a>で見たSession Layerも匿名Layerの一種です。作業中の一時的な内容を置く場所として、あるいは中身を組み立ててから保存先を決めたいときに使います。</p><p>保存まわりの操作にも区別があります。<strong><code>Save()</code></strong>はそのLayer自身のファイルへ書き戻します。<strong><code>Export()</code></strong>は別のファイルへ書き出します。匿名Layerには書き戻す先が無いので、<code>Save()</code>はできず<code>Export()</code>を使います。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>dirty</code>という状態があります。<strong>読み込んでから変更が加えられたかどうか</strong>を表す真偽値で、<code>Save()</code>が必要かの判断に使えます。ツールで「保存されていません」と出すのは、この値を見ています。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>Layer Stackを組む側のファイル</h2><div class="code-card usda-card"><div class="code-title"><span>root.usda</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    defaultPrim = "City"
+    metersPerUnit = 1
+    subLayers = [
+        @./look.usda@,
+        @./base.usda@
+    ]
+    upAxis = "Y"
+)</code></pre></div><p>丸括弧の中の<code>subLayers</code>が、このLayerが束ねる相手です。<code>@ @</code>で囲んだAsset Pathを角括弧に並べ、<strong>上ほど強い</strong>順になります。Pythonからはこの並びを<code>subLayerPaths</code>として直接読み書きできます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>匿名Layerを作り、中身を移し、書き出す</h2><div class="code-card python-card"><div class="code-title"><span>layer_ops.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd, UsdGeom
+
+stage = Usd.Stage.Open("city.usda")
+layer = stage.GetRootLayer()
+
+print("identifier :", layer.identifier.split("/")[-1])
+print("dirty?     :", layer.dirty)
+
+# 保存先を持たないLayerを作る
+scratch = Sdf.Layer.CreateAnonymous("scratch")
+print("匿名Layer  :", scratch.identifier)
+print("anonymous? :", scratch.anonymous)
+
+# 中身を丸ごと移す
+scratch.TransferContent(layer)
+print("移した後のrootPrims:", [str(p.path) for p in scratch.rootPrims])
+
+# 匿名Layerは Save できないので Export する
+print("Export ->", scratch.Export("copy.usda"))
+
+# 外部で書き換えられたファイルを読み直す
+print("Reload ->", layer.Reload())</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>identifier : city.usda
+dirty?     : False
+匿名Layer  : anon:0x101664820:scratch
+anonymous? : True
+移した後のrootPrims: ['/City']
+Export -> True
+Reload -> False</code></pre></div><p>匿名Layerの<code>identifier</code>が<code>anon:...</code>で始まっています。ファイルパスではないので、他のLayerからこれを参照することは基本的にできません。</p><p><code>TransferContent()</code>は<strong>中身を丸ごと置き換えます</strong>。差分の追加ではなく、移す先の元の内容は消えます。テンプレートから作り始めるときなどに使います。</p><p><code>Reload()</code>が<code>False</code>を返しているのは、<strong>読み直す必要がなかった</strong>という意味です。変更されていないファイルに対しては何もしません。他のプロセスがファイルを書き換えた可能性があるときに呼びます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>Layerとファイルの関係</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>ファイルを持つLayer</b><span><code>identifier</code>がパス。<code>Save()</code>で書き戻せる</span></div><div class="map-node"><b>匿名Layer</b><span><code>identifier</code>が<code>anon:...</code>。書き戻す先が無い</span></div></div><div class="map-note" aria-hidden="true">↓ 書き出し</div><div class="map-row"><div class="map-node"><b>Save()</b><span>自分のファイルへ書き戻す。匿名Layerでは使えない</span></div><div class="map-node is-goal"><b>Export()</b><span>別のファイルへ書き出す。どちらでも使える</span></div></div><div class="map-note" aria-hidden="true">↓ 読み直し</div><div class="map-row"><div class="map-node"><b>Reload()</b><span>外部で書き換えられたファイルを読み直す。不要なら False</span></div><div class="map-node"><b>TransferContent()</b><span>中身を丸ごと置き換える。元の内容は消える</span></div></div><div class="map-band">Session Layer も匿名Layer。だから保存されません</div><figcaption>OpenUSD Academyによる、Layerとファイルの関係の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">subLayers = [@./look.usda@, @./base.usda@]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.subLayerPaths = ["./look.usda", "./base.usda"]</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（保存先を持たないLayerが欲しい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Sdf.Layer.CreateAnonymous("scratch")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（別名で書き出したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.Export("copy.usda")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（自分のファイルへ書き戻したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.Save()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（中身を丸ごと入れ替えたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">layer.TransferContent(other)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Stage.Save()とLayer.Save()</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><code>stage.Save()</code>は、そのStageが持つ<strong>ファイルを持つLayerすべて</strong>を保存します。Session Layerのような匿名Layerは対象外です。「保存したのに反映されない」ときは、書き込み先がSession Layerになっていないかを疑います（<a href="78-layer-muting-session.html">STEP 80</a>）。</p><p>個別に保存したいなら<code>layer.Save()</code>を使います。どのLayerへ書いているかは<code>stage.GetEditTarget().GetLayer()</code>で確かめられます。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>保存できない・消える</h2><div class="mistake-list"><article><h3>匿名LayerでSave()を呼ぶ</h3><p>書き戻す先がありません。<code>Export()</code>でファイル名を指定します。</p></article><article><h3>TransferContentを追加だと思う</h3><p>中身を丸ごと置き換えます。移す先の元の内容は消えます。</p></article><article><h3>Reloadが False を「失敗」だと読む</h3><p>読み直す必要が無かった、という意味です。失敗ではありません。</p></article><article><h3>匿名Layerを他から参照しようとする</h3><p><code>anon:...</code>はファイルパスではないので、解決できません。参照させたいならまず<code>Export()</code>します。</p></article><article><h3>dirtyを見ずに毎回Saveする</h3><p>変更が無くても書き込むと、更新時刻だけが変わって差分管理が煩雑になります。<code>layer.dirty</code>を見てから保存します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>Anonymous Layer（匿名Layer）</dt><dd>保存先のファイルを持たないLayer。<code>identifier</code>が<code>anon:</code>で始まる。Session Layerもこの一種。</dd></div><div><dt>Save</dt><dd>そのLayer自身のファイルへ書き戻す操作。匿名Layerでは使えない。</dd></div><div><dt>Export</dt><dd>別のファイルへ書き出す操作。匿名Layerでも使える。</dd></div><div><dt>Reload</dt><dd>外部で書き換えられたファイルを読み直す操作。必要が無ければ<code>False</code>を返す。</dd></div><div><dt>TransferContent</dt><dd>他のLayerの中身を丸ごと写す操作。移す先の元の内容は消える。</dd></div><div><dt>dirty</dt><dd>読み込んでから変更が加えられたかどうかを表す状態。</dd></div><div><dt>Edit Target</dt><dd>いまどのLayerへ書き込んでいるかを表す設定。<code>stage.GetEditTarget()</code>で確かめられる。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_sdf_layer.html">OpenUSD — SdfLayer API</a></li><li><a href="https://openusd.org/release/glossary.html#usdglossary-layer">OpenUSD Glossary — Layer</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="86-namespace-editing.html">← STEP 73</a><a class="nav-chapter" href="../chapters/11-composition-practice.html">11. Compositionを組み立てる</a><a href="94-expression-variables.html">STEP 75 →</a></nav></main><footer><p>OpenUSD Academy · STEP 74</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>
