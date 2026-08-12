@@ -1,0 +1,78 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 15: Schemaを定義する — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 15 · AUTHORING SCHEMAS</p><h1>Schemaを<span>定義する</span></h1><p class="lesson-lead">組織で共通の情報は、名前と型を固定します</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>Schemaはschema.usdaに書いてusdGenSchemaで生成する codelessならC++のビルドは要らない</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>自分の組織のためのSchemaを足す</h2><p><a href="09b-schema-kinds.html">STEP 14</a>で、SchemaにはTypedとAPIの2系統があると見ました。ここでは<strong>それを自分で追加する</strong>側に回ります。</p><p>なぜ足すのかというと、<a href="26-custom-properties.html">STEP 11</a>の<code>custom</code>なPropertyでは足りない場面があるからです。<code>custom</code>は誰でも好きな名前で書けるので、綴りの揺れを止められず、既定値も型の保証もありません。組織で共通に使う情報なら、<strong>Schemaとして定義して名前と型を固定する</strong>ほうが確実です。</p><p>定義は<code>schema.usda</code>という1つのファイルに書きます。そこからコード生成ツール<strong><code>usdGenSchema</code></strong>を走らせると、C++とPythonのクラスが出てきます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><strong>Codeless Schema</strong>という選択肢があります。<code>schema.usda</code>に<code>skipCodeGeneration = true</code>を書くと、コードを生成せず<strong>定義だけを登録します</strong>。専用のクラスは作られませんが、<code>prim.GetAttribute("myField")</code>のような汎用APIで扱え、既定値も型の検査も効きます。C++のビルド環境が要らないので、まずはこちらから始めるのが現実的です。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>schema.usdaの書き方</h2><div class="code-card usda-card"><div class="code-title"><span>schema.usda（抜粋）</span><span>USDA</span></div><pre><code>#usda 1.0
+(
+    subLayers = [
+        @usd/schema.usda@
+    ]
+)
+
+over "GLOBAL" (
+    customData = {
+        string libraryName = "academyExample"
+        string libraryPath = "./"
+        bool skipCodeGeneration = true
+    }
+)
+{
+}
+
+class "AcademyAssetInfoAPI" (
+    inherits = &lt;/APISchemaBase&gt;
+    customData = {
+        token apiSchemaType = "singleApply"
+    }
+)
+{
+    string academy:assetName = "" (
+        doc = "このAssetの名前"
+    )
+    int academy:version = 1 (
+        doc = "このAssetの版"
+    )
+}</code></pre></div><p>読み方の要点は3つです。<code>over "GLOBAL"</code>の<code>customData</code>にライブラリ全体の設定を書きます。<code>skipCodeGeneration = true</code>がCodeless Schemaの指定です。</p><p>次に、Schema本体を<code>class</code>で定義します。<code>inherits</code>の先で系統が決まります。<code>/APISchemaBase</code>ならAPI Schema、<code>/Typed</code>やその子孫（<code>/Xformable</code>など）ならTyped Schemaです。<code>apiSchemaType</code>で<code>singleApply</code>か<code>multipleApply</code>を選びます。</p><p>波括弧の中がPropertyの定義です。<strong>ここに書いた値が既定値（Fallback Value）になります</strong>。<code>doc</code>は説明文で、後から<code>GetDocumentation()</code>で読めます。</p></section>
+<section class="lesson-section"><p class="section-kicker">生成</p><h2>usdGenSchemaを走らせる</h2><div class="code-card"><div class="code-title"><span>ターミナル</span><span>コマンド</span></div><pre><code># schema.usda からコードと plugInfo.json を生成する
+$ usdGenSchema schema.usda .
+
+# 生成されるもの（codeless でない場合）
+#   tokens.h / tokens.cpp
+#   academyAssetInfoAPI.h / .cpp
+#   wrapAcademyAssetInfoAPI.cpp     … Pythonバインディング
+#   plugInfo.json                   … USDへ登録するための情報
+#   generatedSchema.usda            … 定義そのもの
+
+# codeless の場合は、生成されるのは次の2つだけ
+#   plugInfo.json
+#   generatedSchema.usda</code></pre></div><p>USDが起動時に読むのは<code>plugInfo.json</code>です。ここに「このディレクトリにこういうSchemaがある」と書かれていて、<code>PXR_PLUGINPATH_NAME</code>という環境変数でその場所を教えます。登録されると、<a href="09b-schema-kinds.html">STEP 14</a>で使った<code>Usd.SchemaRegistry</code>から自分のSchemaが見えるようになります。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>適用できるかを事前に確かめる</h2><p>API Schemaには「どのPrimに付けられるか」の制限を持たせられます。適用する前に確かめるのが<code>CanApply</code>です。</p><div class="code-card python-card"><div class="code-title"><span>can_apply.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom, UsdShade
+
+stage = Usd.Stage.CreateNew("t.usda")
+mesh = UsdGeom.Mesh.Define(stage, "/M")
+scope = UsdGeom.Scope.Define(stage, "/S")
+
+for prim, label in ((mesh.GetPrim(), "Mesh"), (scope.GetPrim(), "Scope")):
+    ok, why = UsdShade.MaterialBindingAPI.CanApply(prim)
+    print("%-6s MaterialBindingAPI: %s %s"
+          % (label, ok, ("/ 理由: " + why) if why else ""))
+
+registry = Usd.SchemaRegistry
+for name in ("Mesh", "MaterialBindingAPI", "CollectionAPI", "Imageable"):
+    print("%-20s kind=%-24s applied=%s multiple=%s"
+          % (name, registry.GetSchemaKind(name),
+             registry.IsAppliedAPISchema(name),
+             registry.IsMultipleApplyAPISchema(name)))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>Mesh   MaterialBindingAPI: True 
+Scope  MaterialBindingAPI: True 
+Mesh                 kind=ConcreteTyped            applied=False multiple=False
+MaterialBindingAPI   kind=SingleApplyAPI           applied=True multiple=False
+CollectionAPI        kind=MultipleApplyAPI         applied=True multiple=True
+Imageable            kind=AbstractTyped            applied=False multiple=False</code></pre></div><p><code>MaterialBindingAPI</code>は適用先を制限していないので、どちらも<code>True</code>です。制限を持つSchemaでは<code>False</code>と理由が返ります。<strong>適用の前に<code>CanApply</code>で確かめる</strong>のが、変換ツールを書くときの作法です。</p><p>下半分は<a href="09b-schema-kinds.html">STEP 14</a>と同じ内容ですが、<strong>自分で定義したSchemaもここに同じ形で出てきます</strong>。登録できたかどうかは、この<code>GetSchemaKind()</code>が期待どおりの値を返すかで確かめられます。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>定義から利用までの流れ</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>schema.usda</b><span><code>class</code>でSchemaを定義。<code>inherits</code>で系統、<code>customData</code>で種類</span></div></div><div class="map-note" aria-hidden="true">↓ usdGenSchema</div><div class="map-row"><div class="map-node"><b>codeless の場合</b><span><code>plugInfo.json</code>と<code>generatedSchema.usda</code>だけ。ビルド不要</span></div><div class="map-node"><b>通常の場合</b><span>C++とPythonのクラスも生成。ビルドが必要</span></div></div><div class="map-note" aria-hidden="true">↓ PXR_PLUGINPATH_NAME で場所を教える</div><div class="map-row"><div class="map-node is-goal"><b>Usd.SchemaRegistry から見える</b><span>既定値・型の検査・<code>CanApply</code>が効くようになる</span></div></div><div class="map-band">まずは codeless で始め、専用APIが要るようになってからコード生成へ進みます</div><figcaption>OpenUSD Academyによる、Schemaを定義して使えるようにするまでの流れ</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">class "AcademyAssetInfoAPI" ( inherits = &lt;/APISchemaBase&gt; )</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.SchemaRegistry.IsAppliedAPISchema("AcademyAssetInfoAPI")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">token apiSchemaType = "singleApply"</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.SchemaRegistry.GetSchemaKind(name)</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">string academy:assetName = ""</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.GetAttribute("academy:assetName").Get()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">prepend apiSchemas = ["AcademyAssetInfoAPI"]</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.ApplyAPI("AcademyAssetInfoAPI")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（付けられるか確かめたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">SomeAPI.CanApply(prim)</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>customで足りるか、Schemaにすべきか</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>判断の目安は<strong>「他人が書くか」</strong>です。自分のツールが書いて自分だけが読むなら<code>custom</code>で十分です。複数の人やツールが同じ情報を書くなら、綴りと型を固定する意味があるのでSchemaにします。</p><p>この教材の例で使っている<code>custom string academy:assetName</code>は、本来ならSchemaにすべき情報です。<code>custom</code>のままにしているのは、Schemaの登録には環境変数の設定が要り、教材として再現しにくいためです。<strong>実務では、組織で共通に使う情報はSchemaにします。</strong></p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>定義したのに認識されない</h2><div class="mistake-list"><article><h3>PXR_PLUGINPATH_NAMEを設定していない</h3><p>生成した<code>plugInfo.json</code>の場所を教えないと、USDは自作Schemaを見つけられません。<code>GetSchemaKind()</code>が空を返したらここを疑います。</p></article><article><h3>inheritsの先を間違える</h3><p>API Schemaなら<code>/APISchemaBase</code>、Typed Schemaなら<code>/Typed</code>系です。ここを取り違えると、意図と違う種類として登録されます。</p></article><article><h3>Property名に接頭辞を付けない</h3><p><code>assetName</code>のような一般的な名前は、他のSchemaと衝突します。<code>academy:assetName</code>のように名前空間を付けます。</p></article><article><h3>codelessなのにクラスをimportしようとする</h3><p>Codeless Schemaは専用クラスを生成しません。<code>prim.GetAttribute()</code>のような汎用APIで扱います。</p></article><article><h3>既定値を書かずに「値が無い」と扱う</h3><p>Schemaに既定値を書けば、書かれていなくてもその値が返ります。<a href="36-mesh-attributes.html">STEP 26</a>のFallback Valueと同じ仕組みです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>schema.usda</dt><dd>Schemaの定義を書くファイル。<code>class</code>でSchemaを、<code>over "GLOBAL"</code>でライブラリ全体の設定を書く。</dd></div><div><dt>usdGenSchema</dt><dd><code>schema.usda</code>からC++・Pythonのコードと<code>plugInfo.json</code>を生成するツール。</dd></div><div><dt>Codeless Schema</dt><dd><code>skipCodeGeneration = true</code>を指定し、コードを生成せず定義だけを登録するSchema。ビルド環境が要らない。</dd></div><div><dt>plugInfo.json</dt><dd>USDが起動時に読む登録情報。<code>PXR_PLUGINPATH_NAME</code>で場所を教える。</dd></div><div><dt>CanApply</dt><dd>そのAPI SchemaをこのPrimに適用できるかを、理由つきで返すPython API。</dd></div><div><dt>apiSchemaType</dt><dd>API Schemaの種類を指定する<code>customData</code>。<code>singleApply</code>か<code>multipleApply</code>。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/_usd__page__generating_schemas.html">OpenUSD — Generating New Schema Classes</a></li><li><a href="https://openusd.org/release/api/class_usd_schema_registry.html">OpenUSD — UsdSchemaRegistry API</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="09b-schema-kinds.html">← STEP 14</a><a class="nav-chapter" href="../chapters/03-python.html">3. Pythonから触る</a><a href="15-scope.html">STEP 16 →</a></nav></main><footer><p>OpenUSD Academy · STEP 15</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

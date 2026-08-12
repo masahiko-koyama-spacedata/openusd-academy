@@ -16,6 +16,10 @@ pseudo-rootから対象までを表すPath。
 
 Stageの既定の走査と描画から外れる状態。`IsAbstract()`が`True`を返す。
 
+### accelerations
+
+点の加速度を表すAttributeです。`velocities`と併せて使います。
+
 ### active
 
 PrimをStageの構成に含めるかどうかを決めるPrim Metadata。既定値は`true`。
@@ -88,6 +92,10 @@ appliedなAPI Schemaの一覧を保持するPrim Metadata。
 
 同じ型の値が並ぶ値の形です。型名の末尾に `[]` が付きます。
 
+### Ar（Asset Resolver）
+
+書かれたAsset Pathから実際のファイルを決める仕組みです。実装を差し替えられます。解決に失敗すると空文字が返り、例外にはなりません。
+
 ### assembly
 
 公開できるまとまりを示すKind。列や区画のような集合に使う。
@@ -156,6 +164,10 @@ bindingのRelationshipに付けるMetadataです。`weakerThanDescendants`が既
 
 共有を保ったまま、classなどを経由して全Instanceを一度に変えること。
 
+### CanApply
+
+そのAPI SchemaをこのPrimに適用できるかを、理由つきで返すPython APIです。
+
 ### Capsule
 
 両端が半球の円柱です。`height`は円柱部分だけの長さで、全長は`height + radius × 2`です。
@@ -179,6 +191,10 @@ OpenUSDのMeshで既定となっている細分化の方式です。
 ### clippingRange
 
 描画する距離の範囲です。world unitで手前と奥の2つを持ちます。既定は`(1, 1000000)`です。
+
+### Codeless Schema
+
+`skipCodeGeneration = true`を指定し、コードを生成せず定義だけを登録するSchemaです。ビルド環境が要りません。
 
 ### Collection
 
@@ -248,6 +264,10 @@ Point Instance 1体ごとの変換を行列の配列で返すPython APIです。
 
 どの配置が有効かを真偽の配列で返すPython API。
 
+### ComputePointsAtTime
+
+`velocities`まで含めた点の位置を返すPython APIです。`Get()`は速度を考慮しません。
+
 ### ComputePurpose
 
 継承をたどった結果のpurposeを返すPython APIです。
@@ -276,9 +296,21 @@ Payloadの先に置く、Assetの実際の中身。
 
 他のツールの形式からUSDを作る処理です。読む・対応づける・書くの3段に分けます。
 
+### Corner（コーナー）
+
+細分化しても尖らせたままにする点の指定です。`cornerIndices`と`cornerSharpnesses`で表します。
+
+### Crease（クリース）
+
+細分化しても尖らせたままにする辺の指定です。`creaseIndices`・`creaseLengths`・`creaseSharpnesses`の3つで表し、`sum(creaseLengths) == len(creaseIndices)`である必要があります。
+
 ### CreateClassPrim
 
 `class`のPrimを作るPython API。
+
+### CreateNewUsdzPackage
+
+本体が参照しているファイルを自動で集めてusdzを作るPython APIです。
 
 ### Cube
 
@@ -380,6 +412,10 @@ Gprimに最初から用意されている表示用の色のPrimvarです。既�
 
 裏側から見た面も表として扱うかどうかを決めるAttributeです。既定は`false`です。
 
+### elementSize
+
+Primvarで、1つの要素あたり何個の値を使うかを表すMetadataです。
+
 ### Encapsulation（カプセル化）
 
 持ち込まれた側のComposition Arcが、そのファイルの中で完結していることです。
@@ -459,6 +495,10 @@ Load可能なPrimの一覧を返すPython API。
 ### focalLength（焦点距離）
 
 レンズの焦点距離です。world unitの10分の1で表し、大きいほど狭く写ります。
+
+### framesPerSecond
+
+再生の目安として下流へ伝えるStage Metadataです。値の解決には関与しません。
 
 ### Free Camera
 
@@ -548,6 +588,10 @@ Instance Primの上へ`xformOp`・`visibility`・`primvars`などを書いて個
 
 親子で構成される入れ子の構造です。
 
+### holeIndices
+
+描かないFaceの番号です。topologyからは削除されないので、Face数は変わりません。
+
 ### Hydra
 
 Stageの内容を受け取り、実際に描く仕組みへ渡す層です。
@@ -628,6 +672,14 @@ Instanceに対して個体差や変更を加えるための手法全体を指し
 
 同じLayerの中の別のPrimを指すComposition Arc。
 
+### interpolateBoundary
+
+Meshの端を細分化でどう扱うかを決めるAttributeです。既定は`edgeAndCorner`です。
+
+### Interpolation Type
+
+Time Sampleの間をどう埋めるかのStage全体の設定です。`linear`（既定）と`held`があります。
+
 ### Interpolation（補間）
 
 Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。
@@ -655,6 +707,10 @@ Primが何であるかを定めるSchemaです。Typed Schemaと同じ意味で�
 ### IsCustom
 
 そのPropertyがCustomかどうかを返すPython API。
+
+### joints
+
+骨の一覧です。文字列の中のスラッシュで親子を表し、Prim Pathではありません。
 
 ### kilogramsPerUnit
 
@@ -1136,6 +1192,10 @@ Primの親子関係でできた名前の階層です。Pathで表されます。
 
 シーン内のPrimを親子の階層として表した構造です。
 
+### schema.usda
+
+Schemaの定義を書くファイルです。`class`でSchemaを、`over GLOBAL`でライブラリ全体の設定を書きます。
+
 ### SchemaRegistry
 
 Schemaの種別や性質を問い合わせるためのPython API。
@@ -1152,13 +1212,25 @@ PrimやPropertyの構造、意味、取得・作成APIを定める設計図で�
 
 LayerやPath、Value Typeなどの基盤を提供するモジュールです。合成前の記述を直接扱います。
 
+### Sdf.AssetPath
+
+`asset`型の値です。書かれたままの`path`と、解決後の`resolvedPath`の2つを持ちます。
+
 ### Sdf.AttributeSpec
 
 一つのLayerに書かれた、合成前のAttributeの記述を表すオブジェクト。
 
+### Sdf.ChangeBlock
+
+その間の変更通知を1つにまとめる仕組みです。大量編集で大きく速くなります。中でStageを読んではいけません。
+
 ### Sdf.CopySpec
 
 Layer上の記述を、別のPathへそのまま写すPython API。
+
+### Sdf.CreatePrimInLayer
+
+Layerに直接PrimSpecを作るPython APIです。途中のPrimは`over`で作られるため、そのままでは`Traverse()`に出ません。
 
 ### Sdf.Layer
 
@@ -1207,6 +1279,14 @@ Target Listを、渡した一覧の内容に置き換えるPython API。
 ### single-apply / multiple-apply
 
 1回だけ付けられるか、インスタンス名を変えて何度でも付けられるかの区別。
+
+### SkelBindingAPI
+
+MeshをSkeletonへ結び付けるApplied API Schemaです。点ごとの骨と重みを持ちます。
+
+### Skeleton
+
+骨格を表すPrimです。`joints`・`bindTransforms`・`restTransforms`を配列で持ちます。
 
 ### Sparse Authoring（疎な記述）
 
@@ -1408,6 +1488,10 @@ USDファイルの内容を表示するコマンド。`--flatten`で合成後の
 
 OpenUSD一般の規則を検査するコマンドです。終了コードで結果が分かります。
 
+### usdGenSchema
+
+`schema.usda`からコードと`plugInfo.json`を生成するツールです。
+
 ### UsdGeom.ModelAPI
 
 `extentsHint`などのモデル情報を読み書きするAPI Schema。
@@ -1423,6 +1507,10 @@ Primvarを読み書きするためのPythonのクラス。
 ### UsdLux
 
 光を記述するためのSchemaの集まりです。
+
+### UsdNamespaceEditor
+
+Primの改名や移動を行い、指していたRelationshipのPathも追従させるPython APIです。
 
 ### UsdPhysics
 
@@ -1443,6 +1531,10 @@ Stageを画像として描き出すコマンドです。
 ### UsdShade
 
 マテリアルとシェーダを記述するためのSchemaの集まりです。
+
+### UsdSkel
+
+骨格による変形（スキニング）を記述するSchemaの集まりです。
 
 ### usdtree
 
@@ -1515,6 +1607,10 @@ Pointごとに一つの値を対応させ、Surface上を線形に補間するPr
 ### vector
 
 複数の数をひとまとまりにした値の形です。USDAでは丸括弧で囲みます。
+
+### velocities
+
+点の速度を表すAttributeです。型は`vector3f[]`で、位置とは別に持ちます。点の数が変わる表現で必要になります。
 
 ### vertex
 

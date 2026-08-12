@@ -1,0 +1,63 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 06: USDZとAsset Resolution — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 06 · USDZ AND RESOLUTION</p><h1>USDZと<span>Asset Resolution</span></h1><p class="lesson-lead">1ファイルにまとめ、パスを実ファイルへ結び付けます</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>usdzは無圧縮で整列した入れ物で 展開せずにそのまま開けるAsset Pathは@ @で書き 解決はArが担う</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>1ファイルで渡したいが、展開はしたくない</h2><p><a href="06-usd-file-formats.html">STEP 05</a>でUSDZに触れました。ここでは、実際に作って中身を見ます。</p><p>USDのAssetは、本体のUSDAとテクスチャの画像が別ファイルになります。誰かに渡すときは全部まとめたいところですが、普通のzipにすると<strong>開くたびに展開が必要</strong>になります。</p><p>usdzはこれを解きます。中身は<strong>無圧縮</strong>で、しかも<strong>決まった境界に整列</strong>して並べられます。そのため、展開せずに「このファイルの何バイト目から何バイト」を直接読めます。数百MBのテクスチャが入っていても、必要な部分だけを読めるということです。</p><p>もう一つの軸が<strong>Asset Path の解決</strong>です。<code>@./checker.png@</code>と書いたパスが、実際にどのファイルを指すのかを決める仕組みを<strong>Ar（Asset Resolver）</strong>と呼びます。ローカルのファイルだけでなく、社内のAsset管理システムのIDを解決させることもできます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>usdzの中では、Asset Pathの解決結果が<code>model.usdz[checker.png]</code>のような<strong>角括弧付きの形</strong>になります。「このパッケージの中のこのファイル」という意味です。実ファイルとして存在しないので、普通のファイル操作では開けません。読むときはUSDのAPIを通します。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>外部ファイルを参照するAsset</h2><div class="code-card usda-card"><div class="code-title"><span>model.usda（抜粋）</span><span>USDA</span></div><pre><code>def Mesh "Model"
+{
+    uniform token subdivisionScheme = "none"
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(-1, -1, 0), (1, -1, 0), (1, 1, 0), (-1, 1, 0)]
+    custom asset customTexture = @./checker.png@
+}</code></pre></div><p><code>@ @</code>で囲まれているのがAsset Pathです。<code>./checker.png</code>は<strong>このファイルから見た相対パス</strong>で、書いた時点ではまだどのファイルか確定していません。確定させるのが解決（resolve）です。</p><p class="example-link"><a href="../examples/lesson-85/model.usda">このUSDAファイルを開く</a></p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>usdzを作り、中身を見る</h2><div class="code-card python-card"><div class="code-title"><span>make_usdz.py</span><span>Python</span></div><pre><code>import os
+import zipfile
+from pxr import Sdf, Usd, UsdUtils
+
+# 本体と、それが参照するファイルをまとめて1つにする
+ok = UsdUtils.CreateNewUsdzPackage(Sdf.AssetPath("model.usda"), "model.usdz")
+print("作成:", ok, "/ サイズ:", os.path.getsize("model.usdz"), "bytes")
+
+# 中身は普通のzipとしても読める
+with zipfile.ZipFile("model.usdz") as z:
+    for info in z.infolist():
+        print("  %-16s size=%-6d compress_type=%d offset=%d"
+              % (info.filename, info.file_size,
+                 info.compress_type, info.header_offset))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>作成: True / サイズ: 893 bytes
+  model.usda       size=344    compress_type=0 offset=0
+  checker.png      size=159    compress_type=0 offset=408</code></pre></div><p><code>compress_type=0</code>が<strong>無圧縮</strong>という意味です。offsetが0と408に並んでいるのも、整列して置かれている証拠です。<code>CreateNewUsdzPackage</code>は、本体が参照しているファイルを自動でたどって集めます。テクスチャを1つずつ指定する必要はありません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>展開せずに開き、必要なら展開する</h2><div class="code-card python-card"><div class="code-title"><span>read_usdz.py</span><span>Python</span></div><pre><code>from pxr import Ar, Usd, UsdUtils
+
+# usdz をそのまま Stage として開ける
+stage = Usd.Stage.Open("model.usdz")
+print("defaultPrim :", stage.GetDefaultPrim().GetPath())
+
+attr = stage.GetPrimAtPath("/Model").GetAttribute("customTexture").Get()
+print("Asset Path  :", attr.path)
+print("解決後       :", str(attr.resolvedPath))
+
+# 中身をファイルとして取り出したいとき
+print("extract ->", UsdUtils.ExtractUsdzPackage("model.usdz", "extracted"))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>defaultPrim : /Model
+Asset Path  : ./checker.png
+解決後       : /private/tmp/uz/model.usdz[checker.png]
+extract -> True</code></pre></div><p><code>Usd.Stage.Open("model.usdz")</code>がそのまま通ります。展開の手順は要りません。解決後のパスが<code>model.usdz[checker.png]</code>になっている点が、usdzの中を直接指していることを表しています。</p><p><code>attr.path</code>が<strong>書かれたまま</strong>のパス、<code>attr.resolvedPath</code>が<strong>解決後</strong>のパスです。この2つを分けて持っているのが<code>Sdf.AssetPath</code>の特徴で、<a href="22-value-types.html">STEP 08</a>で見た<code>asset</code>というValue Typeの実体です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Asset Resolution</p><h2>書かれたパスから、実際のファイルを決める</h2><div class="code-card python-card"><div class="code-title"><span>resolve.py</span><span>Python</span></div><pre><code>from pxr import Ar, Usd
+
+stage = Usd.Stage.Open("model.usdz")
+resolver = Ar.GetResolver()
+print("実装:", type(resolver).__name__)
+
+# Stage が持つ解決の文脈を使う
+with Ar.ResolverContextBinder(stage.GetPathResolverContext()):
+    print("Resolve('model.usda') :", str(resolver.Resolve("model.usda")))
+    print("Resolve('nope.usda')  :", repr(str(resolver.Resolve("nope.usda"))))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>実装: Resolver
+Resolve('model.usda') : /private/tmp/uz/model.usda
+Resolve('nope.usda')  : ''</code></pre></div><p><strong>存在しないパスを解決すると空文字が返ります</strong>。例外は出ません。これが<a href="68-fix-broken-references.html">STEP 112</a>で見た「参照はあるのに子がいない」という壊れ方の正体です。解決に失敗しても処理は続き、ただ中身が来ないだけになります。</p><p>既定のResolverは、ファイルシステム上の相対パス・絶対パスを解決します。組織によっては、独自のResolverを差し込んで<code>@asset://bench/v3@</code>のようなIDを解決させます。<strong>USDA側の書き方は変わらず、解決の実装だけが差し替わる</strong>のがこの仕組みの要点です。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>書かれたパスと、実ファイルの間</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>@./checker.png@</b><span>USDAに書かれたAsset Path。この時点ではまだファイルは決まっていない</span></div></div><div class="map-note" aria-hidden="true">↓ Ar（Asset Resolver）が解決する</div><div class="map-row"><div class="map-node"><b>普通のファイル</b><span><code>/path/to/checker.png</code></span></div><div class="map-node"><b>usdzの中</b><span><code>model.usdz[checker.png]</code></span></div><div class="map-node is-goal"><b>見つからない</b><span>空文字が返る。例外にはならない</span></div></div><div class="map-band">USDAの書き方は変えずに、解決の実装だけを差し替えられます</div><figcaption>OpenUSD Academyによる、Asset Pathの解決の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">custom asset customTexture = @./checker.png@</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">prim.CreateAttribute("customTexture", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("./checker.png"))</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（書かれたパスが知りたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">attr.Get().path</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（実ファイルが知りたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">attr.Get().resolvedPath</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（1ファイルにまとめたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdUtils.CreateNewUsdzPackage(Sdf.AssetPath("model.usda"), "model.usdz")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（usdzを展開したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">UsdUtils.ExtractUsdzPackage("model.usdz", "extracted")</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>usdzは編集する形式ではない</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>usdzは<strong>配布のための形</strong>です。無圧縮で整列している都合上、中のファイルを差し替えるとサイズが変わって配置が崩れます。編集は元のUSDAで行い、配るときに作り直すのが基本です。</p><p><code>usdchecker</code>にはusdz向けの検査もあり、<code>--arkit</code>を付けるとApple ARKitが受け付ける制約（ファイル形式や構造の条件）まで確認できます。iOSやvisionOSへ渡すなら、そちらで作る<code>CreateNewARKitUsdzPackage</code>を使います。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>まとめたのに開けない・見つからない</h2><div class="mistake-list"><article><h3>絶対パスで書いたままusdzにする</h3><p><code>@/Users/me/tex/checker.png@</code>のような絶対パスは、他の環境では解決できません。Asset Pathは<strong>相対で書く</strong>のが原則です。</p></article><article><h3>解決に失敗しても例外が出ると思う</h3><p>見つからないときは空文字が返るだけです。処理は続き、中身が来ないという形で現れます。</p></article><article><h3>usdzの中のファイルを普通に開こうとする</h3><p><code>model.usdz[checker.png]</code>は実ファイルではありません。読むならUSDのAPIを通すか、いったん展開します。</p></article><article><h3>usdzを圧縮して小さくしようとする</h3><p>無圧縮であることが「展開せずに読める」ことの前提です。圧縮するとその利点が消えます。</p></article><article><h3>usdzを直接編集して配り直す</h3><p>配置が崩れます。元のUSDAを直して作り直します。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>USDZ</dt><dd>USDと参照先のファイルを1つにまとめた配布用の形式。中身は無圧縮で整列しており、展開せずに読める。</dd></div><div><dt>CreateNewUsdzPackage</dt><dd>本体が参照しているファイルを自動で集めてusdzを作るPython API。</dd></div><div><dt>ExtractUsdzPackage</dt><dd>usdzの中身をファイルとして取り出すPython API。</dd></div><div><dt>Ar（Asset Resolver）</dt><dd>書かれたAsset Pathから実際のファイルを決める仕組み。実装を差し替えられる。</dd></div><div><dt>Sdf.AssetPath</dt><dd><code>asset</code>型の値。書かれたままの<code>path</code>と、解決後の<code>resolvedPath</code>の2つを持つ。</dd></div><div><dt>Resolver Context</dt><dd>解決を行うときの文脈。Stageごとに持ち、<code>Ar.ResolverContextBinder</code>で束縛して使う。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/spec_usdz.html">OpenUSD — USDZ File Format Specification</a></li><li><a href="https://openusd.org/release/api/ar_page_front.html">OpenUSD — Ar (Asset Resolution) module</a></li><li><a href="https://openusd.org/release/api/usd_utils_page_front.html">OpenUSD — UsdUtils module</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="06-usd-file-formats.html">← STEP 05</a><a class="nav-chapter" href="../chapters/01-read-usda.html">1. まずUSDAを読む</a><a href="04-attributes-relationships.html">STEP 07 →</a></nav></main><footer><p>OpenUSD Academy · STEP 06</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

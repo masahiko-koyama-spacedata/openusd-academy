@@ -48,6 +48,7 @@ PLAN = [
             ("03-stage-prim-property.html", "Lesson 03", "Stage・Prim・Property", "全体、構成要素、情報を分ける"),
             ("07-usda-syntax.html", "Lesson 07", "USDAの基本構文", "型・名前・波括弧・Propertyを読む"),
             ("06-usd-file-formats.html", "Lesson 06", "USDA・USDC・USD・USDZ", "中身と用途でファイル形式を選ぶ"),
+            ("85-usdz-and-resolution.html", "Lesson 85", "USDZとAsset Resolution", "1ファイルにまとめ、パスを実ファイルへ結び付ける"),
         ]),
     dict(
         title="2. Propertyを読み書きする", slug="02-properties",
@@ -85,6 +86,7 @@ PLAN = [
             ("08-python-pxr-modules.html", "Lesson 08", "Pythonとpxrモジュール", "Usd・Sdf・Gf・UsdGeomを使い分ける"),
             ("09-metadata-schemas.html", "Lesson 09", "MetadataとSchema", "補助情報とデータの設計図を分ける"),
         ("09b-schema-kinds.html", "Lesson 09B", "Schemaの種類", "Typed/APIの2系統と、concrete・abstract・applied・non-applied"),
+            ("87-authoring-schemas.html", "Lesson 87", "Schemaを定義する", "schema.usdaとusdGenSchema、Codeless Schema"),
         ]),
     dict(
         title="4. 形を置いて動かす", slug="04-transforms",
@@ -136,6 +138,7 @@ PLAN = [
             ("36-mesh-attributes.html", "Lesson 36", "Meshの見え方を決めるAttribute", "subdivisionScheme・orientation・doubleSided・extent"),
             ("80-gprim-types.html", "Lesson 80", "Gprimの種類", "Cube・Sphere・Cylinder・BasisCurvesなど"),
             ("81-purpose.html", "Lesson 81", "purposeとproxyPrim", "同じAssetを用途で描き分ける"),
+            ("83-subdivision-controls.html", "Lesson 83", "細分化の制御", "creaseとcornerで、ここだけ尖らせる"),
             ("82-collections.html", "Lesson 82", "Collection", "階層をまたいだ集まりに名前を付ける"),
             ("23-primvars.html", "Lesson 23", "Primvars", "Attributeとの違いと三つの機能"),
             ("24a-constant.html", "Lesson 24A", "constant interpolation", "Prim全体へ一つの値"),
@@ -183,6 +186,8 @@ PLAN = [
                   "Time Codeが単位を持たない数だと説明できる"],
         items=[
             ("11-time-codes-samples.html", "Lesson 11", "Time CodeとTime Sample", "時点と値で時間変化を記述する"),
+            ("84-interpolation-velocities.html", "Lesson 84", "補間とvelocities", "書いていない時刻の値は誰が決めるか"),
+            ("88-usdskel.html", "Lesson 88", "UsdSkelの概要", "骨格で変形させるデータの置かれ方"),
         ]),
     dict(
         title="8. Prim Specの3つの書き方", slug="08-specifiers",
@@ -275,6 +280,7 @@ PLAN = [
             ("33-direct-ancestral-arc.html", "Lesson 33", "Direct ArcとAncestral Arc", "同じArc内の強度を追う"),
             ("34a-prim-stack.html", "Lesson 34A", "Prim Stack", "Primへ寄与するPrim Specを調べる"),
             ("34b-property-stack.html", "Lesson 34B", "Property Stack", "Propertyへ寄与するSpecを調べる"),
+            ("86-namespace-editing.html", "Lesson 86", "Namespace編集とSdf", "改名・移動と、大量編集の速さ"),
             ("74-prim-index.html", "Lesson 74", "Prim Index", "合成の結果ではなく、結果を作る木を見る"),
             ("75-nested-variants.html", "Lesson 75", "入れ子のVariant Set", "選択肢の中に、さらに選択肢を置く"),
             ("76-layer-offset.html", "Lesson 76", "Layer Offset", "同じAssetを違う時間で再生する"),

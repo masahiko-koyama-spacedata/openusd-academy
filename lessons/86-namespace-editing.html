@@ -1,0 +1,111 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>STEP 70: Namespace編集とSdf — OpenUSD Academy</title><link rel="stylesheet" href="../assets/css/style.css"><script src="../assets/js/app.js" defer></script></head><body>
+<header class="site-header"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">O</span><span>OpenUSD Academy</span></a><nav aria-label="レッスンナビゲーション"><a href="../index.html">ホーム</a><a href="../curriculum.html">カリキュラム</a><a href="../glossary.html">用語集</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="表示テーマを切り替える" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">テーマ</span></button></header>
+<main class="lesson"><header class="lesson-hero"><p class="eyebrow">STEP 70 · NAMESPACE EDITING</p><h1>Namespace編集と<span>Sdf</span></h1><p class="lesson-lead">改名・移動と、大量編集の速さ</p></header>
+<section class="lesson-section takeaway"><p class="section-kicker">今日これだけ</p><h2>UsdNamespaceEditorは改名・移動に合わせて参照側のPathも直し ChangeBlockは大量編集の通知をまとめる</h2></section>
+<section class="lesson-section"><p class="section-kicker">公式情報に基づく説明</p><h2>Primの名前を変えると、指していた側が壊れる</h2><p><a href="68-fix-broken-references.html">STEP 112</a>で、存在しないPathを指すRelationshipが壊れた状態になることを見ました。Primの改名や移動は、まさにこれを引き起こします。<code>/World/Old</code>を<code>/World/New</code>にすれば、<code>/World/Old/Ball</code>を指していたRelationshipは宙に浮きます。</p><p>これを自分で直すのは大変です。Stage中のRelationshipとComposition Arcを全部走査し、該当するPathを書き換える必要があります。<strong><code>UsdNamespaceEditor</code></strong>は、この一連をまとめて行うAPIです。改名や移動を宣言しておき、<code>ApplyEdits()</code>で一度に適用します。<strong>指していた側のPathも自動で追従します</strong>。</p><p>もう一つ、合成前のLayerを直接扱うAPIがあります。<a href="08-python-pxr-modules.html">STEP 12</a>で見た<code>Sdf</code>モジュールです。<code>Sdf.CreatePrimInLayer</code>で途中のPrimごとSpecを作り、<code>Sdf.ChangeBlock</code>で大量の編集をまとめます。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>使い分けは単純です。<strong>合成後のStageを相手にするなら<code>Usd</code>、あるLayerの記述そのものを相手にするなら<code>Sdf</code></strong>です。<code>UsdNamespaceEditor</code>は前者、<code>Sdf.CreatePrimInLayer</code>は後者にあたります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Python</p><h2>改名すると、指していた側も直る</h2><div class="code-card python-card"><div class="code-title"><span>namespace_edit.py</span><span>Python</span></div><pre><code>from pxr import Usd, UsdGeom
+
+stage = Usd.Stage.CreateNew("t.usda")
+UsdGeom.Xform.Define(stage, "/World")
+UsdGeom.Xform.Define(stage, "/World/Old")
+UsdGeom.Sphere.Define(stage, "/World/Old/Ball")
+UsdGeom.Scope.Define(stage, "/World/Target")
+
+editor = Usd.NamespaceEditor(stage)
+print("前 :", [str(p.GetPath()) for p in stage.Traverse()])
+
+editor.RenamePrim(stage.GetPrimAtPath("/World/Old"), "New")
+print("改名:", editor.ApplyEdits())
+print("後 :", [str(p.GetPath()) for p in stage.Traverse()])
+
+editor.MovePrimAtPath("/World/New", "/World/Target/New")
+print("移動:", editor.ApplyEdits())
+print("後 :", [str(p.GetPath()) for p in stage.Traverse()])</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>前 : ['/World', '/World/Old', '/World/Old/Ball', '/World/Target']
+改名: True
+後 : ['/World', '/World/New', '/World/New/Ball', '/World/Target']
+移動: True
+後 : ['/World', '/World/Target', '/World/Target/New', '/World/Target/New/Ball']</code></pre></div><p>子の<code>Ball</code>も一緒に付いてきています。ここまでは手作業でもできますが、次が本題です。</p><div class="code-card python-card"><div class="code-title"><span>namespace_edit.py（続き）</span><span>Python</span></div><pre><code># この Prim を指している Relationship を用意しておく
+selection = stage.DefinePrim("/World/Sel")
+rel = selection.CreateRelationship("members")
+rel.SetTargets(["/World/Target/New/Ball"])
+
+editor.RenamePrim(stage.GetPrimAtPath("/World/Target/New"), "Renamed")
+editor.ApplyEdits()
+
+print("改名後のtargets:",
+      [str(t) for t in selection.GetRelationship("members").GetTargets()])</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>改名後のtargets: ['/World/Target/Renamed/Ball']</code></pre></div><p><code>members</code>は<code>/World/Target/New/Ball</code>を指していましたが、改名に合わせて<code>/World/Target/Renamed/Ball</code>へ<strong>自動で書き換わりました</strong>。自分でPathを直す処理を書く必要はありません。</p></section>
+<section class="lesson-section"><p class="section-kicker">USDA</p><h2>改名すると、何が書き換わるのか</h2><div class="code-card usda-card"><div class="code-title"><span>before.usda</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Xform "Old"
+    {
+        def Sphere "Ball"
+        {
+            double radius = 0.5
+        }
+    }
+
+    def "Sel"
+    {
+        rel members = &lt;/World/Old/Ball&gt;
+    }
+}</code></pre></div><div class="code-card usda-card"><div class="code-title"><span>after.usda（Old → New に改名した後）</span><span>USDA</span></div><pre><code>def Xform "World"
+{
+    def Xform "New"
+    {
+        def Sphere "Ball"
+        {
+            double radius = 0.5
+        }
+    }
+
+    def "Sel"
+    {
+        rel members = &lt;/World/New/Ball&gt;
+    }
+}</code></pre></div><p>変わったのは2か所です。Prim名の<code>"Old"</code>が<code>"New"</code>になり、それを指していた<code>rel members</code>の<code>&lt; &gt;</code>の中も追従しています。波括弧の中の階層はそのまま、丸括弧のMetadataも変わりません。<strong>手作業だと2か所目を忘れます</strong>。</p></section>
+<section class="lesson-section"><p class="section-kicker">Sdf.ChangeBlock</p><h2>大量の編集は、通知をまとめる</h2><p>USDは、値が変わるたびに「変わった」という通知を出します。1つずつなら軽い処理ですが、数千回続けると通知そのものが重くなります。<code>Sdf.ChangeBlock</code>は、<strong>その間の通知を1つにまとめる</strong>ための仕組みです。</p><div class="code-card python-card"><div class="code-title"><span>change_block.py</span><span>Python</span></div><pre><code>import time
+from pxr import Sdf, Usd
+
+
+def build(use_block, n=3000):
+    stage = Usd.Stage.CreateInMemory()
+    layer = stage.GetRootLayer()
+    start = time.time()
+    if use_block:
+        with Sdf.ChangeBlock():
+            for i in range(n):
+                Sdf.CreatePrimInLayer(layer, "/P%d" % i).specifier = Sdf.SpecifierDef
+    else:
+        for i in range(n):
+            Sdf.CreatePrimInLayer(layer, "/P%d" % i).specifier = Sdf.SpecifierDef
+    return time.time() - start
+
+
+print("ChangeBlock なし: %.3f 秒" % build(False))
+print("ChangeBlock あり: %.3f 秒" % build(True))</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>ChangeBlock なし: 0.604 秒
+ChangeBlock あり: 0.029 秒</code></pre></div><p>3000個のPrimを作るだけで、20倍以上の差が出ました。変換ツールのように<strong>大量のPrimやAttributeを一度に書く処理では必ず使います</strong>。</p><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p>ChangeBlockの中では、<strong>Stage側からの読み取りをしてはいけません</strong>。通知が止まっているためStageの状態が更新されておらず、古い値が返ることがあります。「Sdfで書くだけ」に徹して、読むのはブロックを抜けてからにします。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">Sdf.CreatePrimInLayer</p><h2>途中のPrimは over で作られる</h2><div class="code-card python-card"><div class="code-title"><span>create_prim_in_layer.py</span><span>Python</span></div><pre><code>from pxr import Sdf, Usd
+
+stage = Usd.Stage.CreateInMemory()
+layer = stage.GetRootLayer()
+
+spec = Sdf.CreatePrimInLayer(layer, "/A/B/C")
+spec.specifier = Sdf.SpecifierDef
+
+print("中間のSpecifier:", [(str(p.path), str(p.specifier)) for p in layer.rootPrims])
+print("Traverse    :", [str(p.GetPath()) for p in stage.Traverse()])
+print("TraverseAll :", [str(p.GetPath()) for p in stage.TraverseAll()])
+
+for path in ("/A", "/A/B"):
+    layer.GetPrimAtPath(path).specifier = Sdf.SpecifierDef
+print("中間もdefにすると Traverse:", [str(p.GetPath()) for p in stage.Traverse()])</code></pre></div><div class="code-card"><div class="code-title"><span>実行結果</span><span>Output</span></div><pre><code>中間のSpecifier: [('/A', 'Sdf.SpecifierOver')]
+Traverse    : []
+TraverseAll : ['/A', '/A/B', '/A/B/C']
+中間もdefにすると Traverse: ['/A', '/A/B', '/A/B/C']</code></pre></div><p>ここは間違えやすい挙動です。<code>Sdf.CreatePrimInLayer</code>は途中の<code>/A</code>と<code>/A/B</code>も作りますが、<strong>Specifierは<code>over</code>のまま</strong>です。<a href="44-traversal-predicate.html">STEP 85</a>で見たDefault Predicateは<code>PrimIsDefined</code>を含むので、<code>over</code>の枝ごと走査から外れます。だから<code>Traverse()</code>が空になりました。</p><p><code>TraverseAll()</code>には出てくるので、「作ったはずなのに<code>Traverse()</code>に出ない」ときは、この中間のSpecifierを疑います。<code>UsdGeom.Xform.Define()</code>のような<code>Define</code>系のAPIは、途中のPrimも<code>def</code>で作るのでこの問題は起きません。</p></section>
+<section class="lesson-section"><p class="section-kicker">Diagram</p><h2>UsdとSdfの守備範囲</h2><figure class="chapter-map"><div class="map-row"><div class="map-node is-base"><b>Usd（合成後）</b><span>Stage・Prim・Attribute。合成された結果を相手にする</span></div><div class="map-node"><b>Usd.NamespaceEditor</b><span>改名・移動。<strong>指していた側のPathも直す</strong></span></div></div><div class="map-note" aria-hidden="true">↓ もっと下の層</div><div class="map-row"><div class="map-node"><b>Sdf（合成前）</b><span>Layer・PrimSpec・Path。あるファイルの記述そのものを相手にする</span></div><div class="map-node is-goal"><b>Sdf.ChangeBlock</b><span>通知をまとめる。大量編集で20倍以上の差</span></div></div><div class="map-band">合成後を扱うなら Usd、Layerの記述を直に扱うなら Sdf</div><figcaption>OpenUSD Academyによる、UsdとSdfの守備範囲の図</figcaption></figure></section>
+<section class="lesson-section"><p class="section-kicker">USDA → Python mapping</p><h2>行ごとに対応させる</h2><ol class="mapping-list"><li><p class="mapping-label">USDA</p><code class="usda-code">（Primの名前を変えたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Usd.NamespaceEditor(stage).RenamePrim(prim, "New")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（Primを別の親の下へ移したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">editor.MovePrimAtPath("/A", "/B/A")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（まとめて適用したい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">editor.ApplyEdits()</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">over "A" { over "B" { def "C" { } } }</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">Sdf.CreatePrimInLayer(layer, "/A/B/C")</code></li><li><p class="mapping-label">USDA</p><code class="usda-code">（大量に書くので通知をまとめたい）</code><span class="mapping-arrow">↓</span><p class="mapping-label">Python</p><code class="python-code">with Sdf.ChangeBlock():</code></li></ol></section>
+<section class="lesson-section"><p class="section-kicker">Beginner notes</p><h2>Relocatesとの違い</h2><aside class="academy-note"><p class="source-label">OpenUSD Academy Note</p><p><a href="12-relocates.html">STEP 53</a>のRelocatesも「Pathを移す」仕組みでした。違いは<strong>どこを変えるか</strong>です。</p><p>Relocatesは<strong>合成のときに移す指示</strong>で、参照先のファイルは変わりません。他人のAssetの中の名前を、自分のシーンでだけ読み替えたいときに使います。<code>UsdNamespaceEditor</code>は<strong>記述そのものを書き換えます</strong>。自分が管理しているファイルの構造を整理するときに使います。</p><p>「相手のファイルを触れないならRelocates、自分のファイルなら NamespaceEditor」と覚えると選びやすくなります。</p></aside></section>
+<section class="lesson-section"><p class="section-kicker">よくある間違い</p><h2>編集したのに反映されない・壊れる</h2><div class="mistake-list"><article><h3>ApplyEditsを呼び忘れる</h3><p><code>RenamePrim()</code>は編集を積むだけです。<code>ApplyEdits()</code>で初めて適用されます。</p></article><article><h3>自分でPathを書き換えてRelationshipを直し忘れる</h3><p><code>Sdf.CopySpec</code>と削除で移動すると、指していた側は自分で直す必要があります。<code>UsdNamespaceEditor</code>なら追従します。</p></article><article><h3>ChangeBlockの中でStageを読む</h3><p>通知が止まっているので、古い値が返ることがあります。書くことに徹し、読むのは抜けてからにします。</p></article><article><h3>Sdf.CreatePrimInLayerで作ったのにTraverseに出ない</h3><p>途中のPrimが<code>over</code>のままです。<code>Traverse()</code>は<code>over</code>の枝を通りません。中間も<code>def</code>にするか、<code>Define()</code>系のAPIを使います。</p></article><article><h3>他人のAssetをNamespaceEditorで整理する</h3><p>相手のファイルを書き換えることになります。自分のシーンでだけ読み替えたいならRelocatesです。</p></article></div></section>
+<section class="lesson-section"><p class="section-kicker">Glossary</p><h2>このレッスンの用語</h2><dl class="lesson-glossary"><div><dt>UsdNamespaceEditor</dt><dd>Primの改名や移動を行い、指していたRelationshipのPathも追従させるPython API。</dd></div><div><dt>ApplyEdits</dt><dd>積んだ編集をまとめて適用するメソッド。呼ぶまで反映されない。</dd></div><div><dt>Sdf.ChangeBlock</dt><dd>その間の変更通知を1つにまとめる仕組み。大量編集で大きく速くなる。中でStageを読んではいけない。</dd></div><div><dt>Sdf.CreatePrimInLayer</dt><dd>Layerに直接PrimSpecを作るPython API。途中のPrimは<code>over</code>で作られる。</dd></div><div><dt>PrimSpec</dt><dd>あるLayerに書かれた、合成前のPrimの記述。Specifierや型名を持つ。</dd></div></dl></section>
+<section class="lesson-section references"><p class="section-kicker">Official references</p><h2>確認した公式資料</h2><p>確認日: <time datetime="2026-08-12">2026年8月12日</time></p><ul><li><a href="https://openusd.org/release/api/class_usd_namespace_editor.html">OpenUSD — UsdNamespaceEditor API</a></li><li><a href="https://openusd.org/release/api/class_sdf_change_block.html">OpenUSD — SdfChangeBlock API</a></li><li><a href="https://openusd.org/release/api/sdf_page_front.html">OpenUSD — Sdf module</a></li></ul></section>
+<nav class="lesson-footer-nav"><a href="34b-property-stack.html">← STEP 69</a><a class="nav-chapter" href="../chapters/11-composition-practice.html">11. Compositionを組み立てる</a><a href="74-prim-index.html">STEP 71 →</a></nav></main><footer><p>OpenUSD Academy · STEP 70</p><a href="../curriculum.html">カリキュラム</a></footer></body></html>

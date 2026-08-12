@@ -14,6 +14,7 @@
       <dt>absolute path</dt><dd>pseudo-rootから対象までを表すPath。</dd>
       <dt>abstract Schema</dt><dd>型としては書けず、共通の性質をまとめるためのTyped Schema。ImageableやXformableなど。</dd>
       <dt>abstract（抽象）</dt><dd>Stageの既定の走査と描画から外れる状態。<code>IsAbstract()</code>が<code>True</code>を返す。</dd>
+      <dt>accelerations</dt><dd>点の加速度を表すAttributeです。<code>velocities</code>と併せて使います。</dd>
       <dt>active</dt><dd>PrimをStageの構成に含めるかどうかを決めるPrim Metadata。既定値は<code>true</code>。</dd>
       <dt>Ad Hoc Composition Arc Refinement</dt><dd>Instance PrimへComposition Arcをその場で足して差を付ける方法です。合成結果の種類の数だけPrototypeが増えます。</dd>
       <dt>AddInherit</dt><dd>受け取る側にInheritsの対象Pathを追加するPython API。</dd>
@@ -32,6 +33,7 @@
       <dt>Arc Strength（強度）</dt><dd>競合したときにどのArcの意見が勝つかの順序。まず種類、次にDirectかAncestralかで決まる。</dd>
       <dt>Arc Type</dt><dd>その内容がどのComposition Arcで入ってきたかの種類です。<code>reference</code>・<code>payload</code>・<code>sublayer</code>などがあります。</dd>
       <dt>array</dt><dd>同じ型の値が並ぶ値の形です。型名の末尾に <code>[]</code> が付きます。</dd>
+      <dt>Ar（Asset Resolver）</dt><dd>書かれたAsset Pathから実際のファイルを決める仕組みです。実装を差し替えられます。解決に失敗すると空文字が返り、例外にはなりません。</dd>
       <dt>assembly</dt><dd>公開できるまとまりを示すKind。列や区画のような集合に使う。</dd>
       <dt>Asset Boundary（アセットの境界）</dt><dd>ここから中は内部実装、という取り決めの線。</dd>
       <dt>Asset Interface</dt><dd>Assetが外へ公開する情報の集まりです。使う側との約束にあたります。</dd>
@@ -49,12 +51,14 @@
       <dt>bindMaterialAs</dt><dd>bindingのRelationshipに付けるMetadataです。<code>weakerThanDescendants</code>が既定で、<code>strongerThanDescendants</code>を指定できます。</dd>
       <dt>Bounding Box（バウンディングボックス）</dt><dd>対象を囲む最小の直方体です。中身を読まずに大きさや位置を判断するために使います。</dd>
       <dt>Broadcasted Refinement</dt><dd>共有を保ったまま、classなどを経由して全Instanceを一度に変えること。</dd>
+      <dt>CanApply</dt><dd>そのAPI SchemaをこのPrimに適用できるかを、理由つきで返すPython APIです。</dd>
       <dt>Capsule</dt><dd>両端が半球の円柱です。<code>height</code>は円柱部分だけの長さで、全長は<code>height + radius × 2</code>です。</dd>
       <dt>catmullClark</dt><dd>OpenUSDのMeshで既定となっている細分化の方式です。</dd>
       <dt>class</dt><dd>他のPrimが受け取るための意見をまとめて置く、abstractなPrimを作るSpecifierです。</dd>
       <dt>ClearReferences</dt><dd>そのPrimのReferenceの記述をすべて取り除くPython API。</dd>
       <dt>Clip Manifest</dt><dd>どの属性がClipから供給されるかを、名前と型だけで宣言したLayerです。全ファイルを開かずに済ませるために使います。</dd>
       <dt>clippingRange</dt><dd>描画する距離の範囲です。world unitで手前と奥の2つを持ちます。既定は<code>(1, 1000000)</code>です。</dd>
+      <dt>Codeless Schema</dt><dd><code>skipCodeGeneration = true</code>を指定し、コードを生成せず定義だけを登録するSchemaです。ビルド環境が要りません。</dd>
       <dt>Collection</dt><dd>階層と関係なくPrimの集まりに名前を付ける仕組みです。<code>CollectionAPI</code>で作ります。</dd>
       <dt>Collection-based binding</dt><dd>階層ではなく、<code>CollectionAPI</code>で作ったPrimの集まりに対してMaterialを結ぶ方法です。</dd>
       <dt>Color Temperature（色温度）</dt><dd>ケルビンで光の色味を指定する仕組みです。<code>enableColorTemperature</code>をtrueにしないと効きません。</dd>
@@ -72,6 +76,7 @@
       <dt>ComputeInstanceTransformsAtTime</dt><dd>Point Instance 1体ごとの変換を行列の配列で返すPython APIです。<code>positions</code>・<code>orientations</code>・<code>scales</code>と、既定ではPrototype root自身の変換も含みます。返る行列はPointInstancerのローカル空間なので、world空間が要るときは<code>ComputeLocalToWorldTransform()</code>を掛けます。既定の<code>ApplyMask</code>ではpruneした体が除かれるため、Promotionでは<code>IgnoreMask</code>を渡します。</dd>
       <dt>ComputeLocalToWorldTransform</dt><dd>そのPrimの、世界座標への変換行列を求めるPython API。</dd>
       <dt>ComputeMaskAtTime</dt><dd>どの配置が有効かを真偽の配列で返すPython API。</dd>
+      <dt>ComputePointsAtTime</dt><dd><code>velocities</code>まで含めた点の位置を返すPython APIです。<code>Get()</code>は速度を考慮しません。</dd>
       <dt>ComputePurpose</dt><dd>継承をたどった結果のpurposeを返すPython APIです。</dd>
       <dt>ComputeVisibility</dt><dd>親からの継承まで含めて、最終的に描画されるかを求めるPython API。</dd>
       <dt>concrete Schema</dt><dd>型として実際に書けるTyped Schema。MeshやCubeなど。</dd>
@@ -79,7 +84,10 @@
       <dt>constant</dt><dd>Gprim全体へ値を一つだけ対応させるPrimvar Interpolationです。値の個数は形によらず常に1です。</dd>
       <dt>Contents</dt><dd>Payloadの先に置く、Assetの実際の中身。</dd>
       <dt>Converter</dt><dd>他のツールの形式からUSDを作る処理です。読む・対応づける・書くの3段に分けます。</dd>
+      <dt>Corner（コーナー）</dt><dd>細分化しても尖らせたままにする点の指定です。<code>cornerIndices</code>と<code>cornerSharpnesses</code>で表します。</dd>
+      <dt>Crease（クリース）</dt><dd>細分化しても尖らせたままにする辺の指定です。<code>creaseIndices</code>・<code>creaseLengths</code>・<code>creaseSharpnesses</code>の3つで表し、<code>sum(creaseLengths) == len(creaseIndices)</code>である必要があります。</dd>
       <dt>CreateClassPrim</dt><dd><code>class</code>のPrimを作るPython API。</dd>
+      <dt>CreateNewUsdzPackage</dt><dd>本体が参照しているファイルを自動で集めてusdzを作るPython APIです。</dd>
       <dt>Cube</dt><dd>立方体のGprimです。<code>size</code>は一辺の長さで、半径ではありません。</dd>
       <dt>custom</dt><dd>Schemaであらかじめ定義されていないカスタムPropertyを示す指定。</dd>
       <dt>Custom Property</dt><dd>Schemaが定義していない、利用者が独自に足したProperty。</dd>
@@ -105,6 +113,7 @@
       <dt>DistantLight</dt><dd>無限遠から来る平行光です。向きだけが効き、位置は効きません。</dd>
       <dt>DomeLight</dt><dd>全方位からシーンを包む光です。<code>texture:file</code>に環境画像を指定して使います。</dd>
       <dt>doubleSided</dt><dd>裏側から見た面も表として扱うかどうかを決めるAttributeです。既定は<code>false</code>です。</dd>
+      <dt>elementSize</dt><dd>Primvarで、1つの要素あたり何個の値を使うかを表すMetadataです。</dd>
       <dt>Encapsulation（カプセル化）</dt><dd>持ち込まれた側のComposition Arcが、そのファイルの中で完結していることです。</dd>
       <dt>Entry Point（入口）</dt><dd>Assetを外から使うときに最初に開かれるファイル、およびそのPrimです。</dd>
       <dt>expansionRule</dt><dd>Collectionで、指定したPathの子孫まで含めるかを決めるAttributeです。<code>explicitOnly</code>・<code>expandPrims</code>・<code>expandPrimsAndProperties</code>があります。</dd>
@@ -125,6 +134,7 @@
       <dt>FindPrimvarWithInheritance</dt><dd>自分に無ければ親をさかのぼってPrimvarを探すPython APIです。</dd>
       <dt>Flatten</dt><dd>合成した結果を1枚のLayerにまとめること。Pythonでは<code>stage.Flatten()</code>。</dd>
       <dt>focalLength（焦点距離）</dt><dd>レンズの焦点距離です。world unitの10分の1で表し、大きいほど狭く写ります。</dd>
+      <dt>framesPerSecond</dt><dd>再生の目安として下流へ伝えるStage Metadataです。値の解決には関与しません。</dd>
       <dt>Free Camera</dt><dd>シーンに書かれたCameraではなく、ビューアが持つ自由視点です。</dd>
       <dt>Geometry Extraction</dt><dd>USDから形の情報を取り出し、他の形式へ渡せる形にすること。</dd>
       <dt>GetAuthoredPrimvars</dt><dd>そのPrimに実際に記述されたPrimvarだけを返すPython APIです。</dd>
@@ -147,6 +157,7 @@
       <dt>Hgi（Hydra Graphics Interface）</dt><dd>Hydraが実際の描画に使うグラフィックスAPIの抽象化層です。MetalやVulkanがここに入ります。</dd>
       <dt>Hierarchical Refinement</dt><dd>Instance Primの上へ<code>xformOp</code>・<code>visibility</code>・<code>primvars</code>などを書いて個体差を付ける方法です。Prototypeは増えません。</dd>
       <dt>Hierarchy（階層）</dt><dd>親子で構成される入れ子の構造です。</dd>
+      <dt>holeIndices</dt><dd>描かないFaceの番号です。topologyからは削除されないので、Face数は変わりません。</dd>
       <dt>Hydra</dt><dd>Stageの内容を受け取り、実際に描く仕組みへ渡す層です。</dd>
       <dt>identifier（Layer）</dt><dd>そのLayerを一意に示す文字列。多くはファイルのPath。</dd>
       <dt>identity</dt><dd>そのAssetが何であるかを示す情報。名前・バージョン・種別など。</dd>
@@ -167,6 +178,8 @@
       <dt>instanceable</dt><dd>そのPrimをInstanceにするかを決めるPrim Metadataです。</dd>
       <dt>intensity</dt><dd>光の明るさです。必要な値の桁はLight型によって大きく違い、DistantLightの既定は50000、SphereLightなどは1です。</dd>
       <dt>Internal Arc</dt><dd>同じLayerの中の別のPrimを指すComposition Arc。</dd>
+      <dt>interpolateBoundary</dt><dd>Meshの端を細分化でどう扱うかを決めるAttributeです。既定は<code>edgeAndCorner</code>です。</dd>
+      <dt>Interpolation Type</dt><dd>Time Sampleの間をどう埋めるかのStage全体の設定です。<code>linear</code>（既定）と<code>held</code>があります。</dd>
       <dt>Interpolation（補間）</dt><dd>Primvarの値をGprimのどの単位へ対応させるかを決めるMetadataです。</dd>
       <dt>inverse operation（逆変換）</dt><dd>元の変換を打ち消す変換です。pivotはこれを使って回転や拡縮の中心を移します。</dd>
       <dt>invisibleIds</dt><dd>指定したidの配置を描画しないようにする配列。</dd>
@@ -174,6 +187,7 @@
       <dt>IsA Schema</dt><dd>Primが何であるかを定めるSchemaです。Typed Schemaと同じ意味で使われます。</dd>
       <dt>IsAncestral</dt><dd>そのArcがAncestralかどうかを返すPython API。</dd>
       <dt>IsCustom</dt><dd>そのPropertyがCustomかどうかを返すPython API。</dd>
+      <dt>joints</dt><dd>骨の一覧です。文字列の中のスラッシュで親子を表し、Prim Pathではありません。</dd>
       <dt>kilogramsPerUnit</dt><dd>そのLayerの質量の「1」が実世界の何キログラムかを示すLayer Metadata。</dd>
       <dt>Kind</dt><dd>PrimのModel Hierarchy上の役割を示すMetadataです。</dd>
       <dt>Kind Registry</dt><dd>利用可能なKind tokenと、その継承関係を管理する仕組みです。</dd>
@@ -294,12 +308,16 @@
       <dt>Scene Namespace</dt><dd>Primの親子関係でできた名前の階層です。Pathで表されます。</dd>
       <dt>Scenegraph Instancing</dt><dd>合成結果が同じPrimの中身を、一つのPrototypeとして共有する仕組みです。</dd>
       <dt>Scenegraph（シーングラフ）</dt><dd>シーン内のPrimを親子の階層として表した構造です。</dd>
+      <dt>schema.usda</dt><dd>Schemaの定義を書くファイルです。<code>class</code>でSchemaを、<code>over GLOBAL</code>でライブラリ全体の設定を書きます。</dd>
       <dt>SchemaRegistry</dt><dd>Schemaの種別や性質を問い合わせるためのPython API。</dd>
       <dt>Schema（スキーマ）</dt><dd>PrimやPropertyの構造、意味、取得・作成APIを定める設計図です。</dd>
       <dt>Scope</dt><dd>変換を持たず、Primを論理的に整理するconcrete IsA Schemaです。</dd>
       <dt>Sdf</dt><dd>LayerやPath、Value Typeなどの基盤を提供するモジュールです。合成前の記述を直接扱います。</dd>
+      <dt>Sdf.AssetPath</dt><dd><code>asset</code>型の値です。書かれたままの<code>path</code>と、解決後の<code>resolvedPath</code>の2つを持ちます。</dd>
       <dt>Sdf.AttributeSpec</dt><dd>一つのLayerに書かれた、合成前のAttributeの記述を表すオブジェクト。</dd>
+      <dt>Sdf.ChangeBlock</dt><dd>その間の変更通知を1つにまとめる仕組みです。大量編集で大きく速くなります。中でStageを読んではいけません。</dd>
       <dt>Sdf.CopySpec</dt><dd>Layer上の記述を、別のPathへそのまま写すPython API。</dd>
+      <dt>Sdf.CreatePrimInLayer</dt><dd>Layerに直接PrimSpecを作るPython APIです。途中のPrimは<code>over</code>で作られるため、そのままでは<code>Traverse()</code>に出ません。</dd>
       <dt>Sdf.Layer</dt><dd>合成前のファイル一枚を表すオブジェクト。<code>defaultPrim</code>などを読める。</dd>
       <dt>Sdf.PrimSpec</dt><dd>一つのLayerに書かれた、合成前のPrimの記述を表すオブジェクト。</dd>
       <dt>Sdf.ValueTypeNames</dt><dd>PythonからAttributeのValue Typeを指定するための名前の一覧です。</dd>
@@ -312,6 +330,8 @@
       <dt>SetTargets</dt><dd>Target Listを、渡した一覧の内容に置き換えるPython API。</dd>
       <dt>Shader</dt><dd>見た目の計算を担うPrimです。<code>inputs:</code>で始まる入力に実際の値を持ちます。</dd>
       <dt>single-apply / multiple-apply</dt><dd>1回だけ付けられるか、インスタンス名を変えて何度でも付けられるかの区別。</dd>
+      <dt>SkelBindingAPI</dt><dd>MeshをSkeletonへ結び付けるApplied API Schemaです。点ごとの骨と重みを持ちます。</dd>
+      <dt>Skeleton</dt><dd>骨格を表すPrimです。<code>joints</code>・<code>bindTransforms</code>・<code>restTransforms</code>を配列で持ちます。</dd>
       <dt>Sparse Authoring（疎な記述）</dt><dd>同じ情報を必要な最小限の場所にだけ書く考え方です。</dd>
       <dt>Specializes</dt><dd>Inheritsと似た形のComposition Arcですが、LIVERPSでReferenceより弱い位置にあります。競合しない新しいOpinionや子PrimはBroadcastできますが、Referenceで持ち込んだ値の上書きには向きません。</dd>
       <dt>Specifier</dt><dd>Prim Specの先頭に置き、そのPrimの扱い方を決める語です。<code>def</code>・<code>over</code>・<code>class</code>の3種類。</dd>
@@ -362,15 +382,18 @@
       <dt>USDC</dt><dd>ランダムアクセスに対応するバイナリのCrate形式です。</dd>
       <dt>usdcat</dt><dd>USDファイルの内容を表示するコマンド。<code>--flatten</code>で合成後の姿を出せる。</dd>
       <dt>usdchecker</dt><dd>OpenUSD一般の規則を検査するコマンドです。終了コードで結果が分かります。</dd>
+      <dt>usdGenSchema</dt><dd><code>schema.usda</code>からコードと<code>plugInfo.json</code>を生成するツールです。</dd>
       <dt>UsdGeom.ModelAPI</dt><dd><code>extentsHint</code>などのモデル情報を読み書きするAPI Schema。</dd>
       <dt>UsdGeomCamera</dt><dd>カメラを表すPrimです。<code>Xformable</code>なので階層と変換に従い、-Z方向を向きます。</dd>
       <dt>UsdGeomPrimvar</dt><dd>Primvarを読み書きするためのPythonのクラス。</dd>
       <dt>UsdLux</dt><dd>光を記述するためのSchemaの集まりです。</dd>
+      <dt>UsdNamespaceEditor</dt><dd>Primの改名や移動を行い、指していたRelationshipのPathも追従させるPython APIです。</dd>
       <dt>UsdPhysics</dt><dd>物理シミュレーション向けのSchemaとAPIをまとめたモジュール。</dd>
       <dt>UsdPreviewSurface</dt><dd>ツール間で共通して扱える、標準的なShaderの種類。</dd>
       <dt>UsdPrimvarReader</dt><dd>Gprimに載っているPrimvarを読み出す標準Shaderです。型ごとに<code>UsdPrimvarReader_float2</code>などがあります。</dd>
       <dt>usdrecord</dt><dd>Stageを画像として描き出すコマンドです。</dd>
       <dt>UsdShade</dt><dd>マテリアルとシェーダを記述するためのSchemaの集まりです。</dd>
+      <dt>UsdSkel</dt><dd>骨格による変形（スキニング）を記述するSchemaの集まりです。</dd>
       <dt>usdtree</dt><dd>Stageの階層を、Specifierと型名付きのツリーで表示するコマンドです。</dd>
       <dt>UsdUVTexture</dt><dd>画像ファイルをUV座標でサンプリングする標準Shaderです。出力は<code>rgb</code>・<code>r</code>・<code>g</code>・<code>b</code>・<code>a</code>です。</dd>
       <dt>usdview</dt><dd>OpenUSDに同梱されているStageの閲覧ツールです。階層・描画・Property・合成の内訳を1つの画面で見られます。<code>pip install usd-core</code>には含まれません。</dd>
@@ -389,6 +412,7 @@
       <dt>variants（Metadata）</dt><dd>いまどの選択肢を選んでいるかを表すPrim Metadataです。Opinionなので、より強いLayerが上書きできます。</dd>
       <dt>varying</dt><dd>Pointごとに一つの値を対応させ、Surface上を線形に補間するPrimvar Interpolationです。</dd>
       <dt>vector</dt><dd>複数の数をひとまとまりにした値の形です。USDAでは丸括弧で囲みます。</dd>
+      <dt>velocities</dt><dd>点の速度を表すAttributeです。型は<code>vector3f[]</code>で、位置とは別に持ちます。点の数が変わる表現で必要になります。</dd>
       <dt>vertex</dt><dd>Pointごとに一つの値を対応させ、Surfaceの基底関数で補間するPrimvar Interpolationです。</dd>
       <dt>visibility</dt><dd>描画するかどうかを決めるImageableのAttribute。Inactiveとは別の仕組み。</dd>
       <dt>Vt.Vec3fArray / Vt.IntArray</dt><dd>Pythonのリストを、USDが扱える配列へ包む型。</dd>
